@@ -1,0 +1,360 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+
+namespace ProxyClient.Controls
+{
+    /// <summary>
+    /// 清洗信息显示窗体
+    /// </summary>
+    internal sealed partial class CleanTempMsg
+    {
+        /// <summary>
+        /// Sets the MSG.
+        /// </summary>
+        /// <param name="endoscopeTemp">The endoscope clean temporary.</param>
+        public void SetMsg(ClassLibrary.EndoscopeTemp endoscopeTemp)
+        {
+            try
+            {
+                var washTime = new TimeSpan();
+                this.txtEndoscopeNo.Text = endoscopeTemp.EndoscopeSn;
+                this.txtEndoscopeSIM.Text = endoscopeTemp.EndoscopeSim;
+                this.txtWasherNo.Text = endoscopeTemp.WasherNo;
+                this.txtWasherName.Text = endoscopeTemp.WasherName;
+
+                // 一次清洗
+                if (string.Equals(endoscopeTemp.CleanType.Trim(), "1"))
+                {
+                    if (!GSetting.PortMapDict.Keys.Contains(endoscopeTemp.AutoCleanNo))
+                    {
+                        return;
+                    }
+
+                    if (string.Equals(GSetting.PortMapDict[endoscopeTemp.AutoCleanNo].MarkText, "自动清洗机"))
+                    {
+                        this.cleanGroBox.Values.Description = endoscopeTemp.AutoCleanNo + "号自动清洗机";
+                    }
+                    else
+                    {
+                        this.cleanGroBox.Values.Description = "手动清洗";
+                    }
+
+                    this.cleanGroBox.Values.Description += string.Format("（{0})", endoscopeTemp.WashDate.Value.ToLongDateString());
+                    this.cleanGroBox.Enabled = true;
+                    this.secGroBox.Enabled = false;
+                    this.secGroBox.Values.Heading = string.Empty;
+                    this.secGroBox.Values.Description = string.Empty;
+                    #region 一次清洗
+
+                    // 刷洗
+                    try
+                    {
+                        washTime = endoscopeTemp.BrushWashEnd.Value - endoscopeTemp.BrushWashBegin.Value;
+                    }
+                    catch (Exception)
+                    {
+                        endoscopeTemp.BrushWashEnd = null;
+                        endoscopeTemp.BrushWashBegin = null;
+                    }
+
+                    if (washTime.TotalSeconds >= Convert.ToInt32(GSetting.StepTime["ManualWash"]))
+                    {
+                        this.labIsPass.Values.Image = global::ProxyClient.Properties.Resources.right;
+                        this.manualWashTime.ForeColor = Color.Green;
+                    }
+                    else
+                    {
+                        this.labIsPass.Values.Image = global::ProxyClient.Properties.Resources.wrong;
+                        this.manualWashTime.ForeColor = Color.Red;
+                    }
+
+                    this.manualWashEnd.Text = endoscopeTemp.BrushWashEnd.Value.ToString();
+                    this.manualWashBegin.Text = endoscopeTemp.BrushWashBegin.Value.ToString();
+                    this.manualWashTime.Text = washTime > TimeSpan.Zero ? washTime.ToSafeString() : TimeSpan.Zero.ToSafeString();
+
+                    // 初洗
+                    try
+                    {
+                        washTime = new TimeSpan();
+                        washTime = endoscopeTemp.FirstWashEnd.Value - endoscopeTemp.FirstWashBegin.Value;
+                    }
+                    catch (Exception)
+                    {
+                        endoscopeTemp.FirstWashEnd = null;
+                        endoscopeTemp.FirstWashBegin = null;
+                    }
+
+                    if (washTime.TotalSeconds >= Convert.ToInt32(GSetting.StepTime["FirstWash"]))
+                    {
+                        this.firstWashIsPss.Values.Image = global::ProxyClient.Properties.Resources.right;
+                        this.firstWashTime.ForeColor = Color.Green;
+                    }
+                    else
+                    {
+                        this.firstWashIsPss.Values.Image = global::ProxyClient.Properties.Resources.wrong;
+                        this.firstWashTime.ForeColor = Color.Red;
+                    }
+
+                    this.firstWashBegin.Text = endoscopeTemp.FirstWashBegin.Value.ToString();
+                    this.firstWashEnd.Text = endoscopeTemp.FirstWashEnd.Value.ToString();
+                    this.firstWashTime.Text = washTime > TimeSpan.Zero ? washTime.ToSafeString() : TimeSpan.Zero.ToSafeString();
+
+                    // 酶洗
+                    try
+                    {
+                        washTime = new TimeSpan();
+                        washTime = endoscopeTemp.EnzymeWashEnd.Value - endoscopeTemp.EnzymeWashBegin.Value;
+                    }
+                    catch (Exception)
+                    {
+                        endoscopeTemp.EnzymeWashBegin = null;
+                        endoscopeTemp.EnzymeWashEnd = null;
+                    }
+
+                    if (washTime.TotalSeconds >= Convert.ToInt32(GSetting.StepTime["EnzymeWash"]))
+                    {
+                        this.enzymeWashIsPass.Values.Image = global::ProxyClient.Properties.Resources.right;
+                        this.manualWashTime.ForeColor = Color.Green;
+                    }
+                    else
+                    {
+                        this.enzymeWashIsPass.Values.Image = global::ProxyClient.Properties.Resources.wrong;
+                        this.firstWashTime.ForeColor = Color.Red;
+                    }
+
+                    this.enzymeWashTime.Text = washTime > TimeSpan.Zero ? washTime.ToSafeString() : TimeSpan.Zero.ToSafeString();
+                    this.enzymeWashBegin.Text = endoscopeTemp.EnzymeWashBegin.Value.ToString();
+                    this.enzymeWashEnd.Text = endoscopeTemp.EnzymeWashEnd.Value.ToString();
+
+                    // 次洗
+                    try
+                    {
+                        washTime = new TimeSpan();
+                        washTime = endoscopeTemp.CleanOutEnd.Value - endoscopeTemp.CleanOutBegin.Value;
+                    }
+                    catch (Exception)
+                    {
+                        endoscopeTemp.CleanOutEnd = null;
+                        endoscopeTemp.CleanOutBegin = null;
+                    }
+
+                    if (washTime.TotalSeconds >= Convert.ToInt32(GSetting.StepTime["Cleanout"]))
+                    {
+                        this.cleanOutWashIsPass.Values.Image = global::ProxyClient.Properties.Resources.right;
+                        this.manualWashTime.ForeColor = Color.Green;
+                    }
+                    else
+                    {
+                        this.cleanOutWashIsPass.Values.Image = global::ProxyClient.Properties.Resources.wrong;
+                        this.firstWashTime.ForeColor = Color.Red;
+                    }
+
+                    this.cleanOutWashTime.Text = washTime > TimeSpan.Zero ? washTime.ToSafeString() : TimeSpan.Zero.ToSafeString();
+                    this.cleanOutWashBegin.Text = endoscopeTemp.CleanOutBegin.Value.ToString();
+                    this.cleanOutWashEnd.Text = endoscopeTemp.CleanOutEnd.Value.ToString();
+
+                    // 消毒
+                    try
+                    {
+                        washTime = new TimeSpan();
+                        washTime = endoscopeTemp.DipInEnd.Value - endoscopeTemp.DipInBegin.Value;
+                    }
+                    catch (Exception)
+                    {
+                        endoscopeTemp.DipInEnd = null;
+                        endoscopeTemp.DipInBegin = null;
+                    }
+
+                    if (washTime.TotalSeconds >= Convert.ToInt32(GSetting.StepTime["DipIn"]))
+                    {
+                        this.dipInBeginIsPass.Values.Image = global::ProxyClient.Properties.Resources.right;
+                        this.manualWashTime.ForeColor = Color.Green;
+                    }
+                    else
+                    {
+                        this.dipInBeginIsPass.Values.Image = global::ProxyClient.Properties.Resources.wrong;
+                        this.firstWashTime.ForeColor = Color.Red;
+                    }
+
+                    this.dipInBegin.Text = endoscopeTemp.DipInBegin.Value.ToString();
+                    this.dipInEnd.Text = endoscopeTemp.DipInEnd.Value.ToString();
+                    this.dipInTime.Text = washTime > TimeSpan.Zero ? washTime.ToSafeString() : TimeSpan.Zero.ToSafeString();
+
+                    // 末洗
+                    try
+                    {
+                        washTime = new TimeSpan();
+                        washTime = endoscopeTemp.LastWashEnd.Value - endoscopeTemp.LastWashBegin.Value;
+                    }
+                    catch (Exception)
+                    {
+                        endoscopeTemp.LastWashEnd = null;
+                        endoscopeTemp.LastWashBegin = null;
+                    }
+
+                    if (washTime.TotalSeconds >= Convert.ToInt32(GSetting.StepTime["LastWash"]))
+                    {
+                        this.lastWashIsPass.Values.Image = global::ProxyClient.Properties.Resources.right;
+                        this.manualWashTime.ForeColor = Color.Green;
+                    }
+                    else
+                    {
+                        this.lastWashIsPass.Values.Image = global::ProxyClient.Properties.Resources.wrong;
+                        this.firstWashTime.ForeColor = Color.Red;
+                    }
+
+                    this.lastWashBegin.Text = endoscopeTemp.LastWashBegin.Value.ToString();
+                    this.lastWashEnd.Text = endoscopeTemp.LastWashEnd.Value.ToString();
+                    this.lastWashTime.Text = washTime > TimeSpan.Zero ? washTime.ToSafeString() : TimeSpan.Zero.ToSafeString();
+                    #endregion
+                }
+
+                // 二次清洗
+                if (endoscopeTemp.CleanType.Trim() == "2")
+                {
+                    if (GSetting.PortMapDict.Keys.Contains(endoscopeTemp.AutoCleanNo))
+                    {
+                        if (GSetting.PortMapDict[endoscopeTemp.AutoCleanNo].MarkText == "自动清洗机")
+                        {
+                            this.secGroBox.Values.Description = endoscopeTemp.AutoCleanNo + "号自动清洗机";
+                        }
+                        else
+                        {
+                            this.secGroBox.Values.Description = "手动清洗";
+                        }
+                    }
+
+                    this.secGroBox.Values.Description += string.Format("({0})", endoscopeTemp.WashDate.Value.ToLongDateString());
+                    this.cleanGroBox.Values.Heading = string.Empty;
+                    this.cleanGroBox.Values.Description = string.Empty;
+
+                    // 设置软件类型为手洗工作站 AutoClean=2时 为机洗，机洗和手洗的差别在于二次清洗浸泡消毒的时间长短。
+                    if (GSetting.AutoClean == "1")
+                    {
+                        this.cleanGroBox.Enabled = false;
+                        this.secGroBox.Enabled = true;
+
+                        // 二次消毒
+                        try
+                        {
+                            washTime = new TimeSpan();
+                            washTime = endoscopeTemp.DipInSecEnd.Value - endoscopeTemp.DipInSecBegin.Value;
+                        }
+                        catch (Exception)
+                        {
+                            endoscopeTemp.DipInSecBegin = null;
+                            endoscopeTemp.LastWashEnd = null;
+                        }
+
+                        if (washTime.TotalSeconds >= Convert.ToInt32(GSetting.StepTime["DipInSec"]))
+                        {
+                            this.dipInSecIsPass.Values.Image = global::ProxyClient.Properties.Resources.right;
+                            this.manualWashTime.ForeColor = Color.Green;
+                        }
+                        else
+                        {
+                            this.dipInSecIsPass.Values.Image = global::ProxyClient.Properties.Resources.wrong;
+                            this.firstWashTime.ForeColor = Color.Red;
+                        }
+
+                        this.dipInSecBegin.Text = endoscopeTemp.DipInSecBegin.Value.ToString();
+                        this.dipInSecEnd.Text = endoscopeTemp.DipInSecEnd.Value.ToString();
+                        this.dipInSecTime.Text = washTime > TimeSpan.Zero ? washTime.ToSafeString() : TimeSpan.Zero.ToSafeString();
+
+                        // 二次末洗
+                        try
+                        {
+                            washTime = new TimeSpan();
+                            washTime = endoscopeTemp.LastWashSecEnd.Value - endoscopeTemp.LastWashSecBegin.Value;
+                        }
+                        catch (Exception)
+                        {
+                            endoscopeTemp.LastWashSecEnd = null;
+                            endoscopeTemp.LastWashSecBegin = null;
+                        }
+
+                        if (washTime.TotalSeconds >= Convert.ToInt32(GSetting.StepTime["LastWashSec"]))
+                        {
+                            this.lastWashSecIsPass.Values.Image = global::ProxyClient.Properties.Resources.right;
+                            this.manualWashTime.ForeColor = Color.Green;
+                        }
+                        else
+                        {
+                            this.lastWashSecIsPass.Values.Image = global::ProxyClient.Properties.Resources.wrong;
+                            this.firstWashTime.ForeColor = Color.Red;
+                        }
+
+                        this.lastWashSecBegin.Text = endoscopeTemp.LastWashSecBegin.Value.ToString();
+                        this.lastWashSecEnd.Text = endoscopeTemp.LastWashSecEnd.Value.ToString();
+                        this.lastWashSecTime.Text = washTime > TimeSpan.Zero ? washTime.ToSafeString() : TimeSpan.Zero.ToSafeString();
+                    }
+                    else
+                    {
+                        this.cleanGroBox.Enabled = false;
+                        this.secGroBox.Enabled = true;
+
+                        // 二次消毒
+                        try
+                        {
+                            washTime = new TimeSpan();
+                            washTime = endoscopeTemp.DipInSecEnd.Value - endoscopeTemp.DipInSecBegin.Value;
+                        }
+                        catch (Exception)
+                        {
+                            endoscopeTemp.DipInSecEnd = null;
+                            endoscopeTemp.DipInSecBegin = null;
+                        }
+
+                        if (washTime.TotalSeconds >= Convert.ToInt32(GSetting.StepTime["DipInSecAuto"]))
+                        {
+                            this.dipInSecIsPass.Values.Image = global::ProxyClient.Properties.Resources.right;
+                            this.manualWashTime.ForeColor = Color.Green;
+                        }
+                        else
+                        {
+                            this.dipInSecIsPass.Values.Image = global::ProxyClient.Properties.Resources.wrong;
+                            this.firstWashTime.ForeColor = Color.Red;
+                        }
+
+                        this.dipInSecBegin.Text = endoscopeTemp.DipInSecBegin.Value.ToString();
+                        this.dipInSecEnd.Text = endoscopeTemp.DipInSecEnd.Value.ToString();
+                        this.dipInSecTime.Text = washTime > TimeSpan.Zero ? washTime.ToSafeString() : TimeSpan.Zero.ToSafeString();
+
+                        // 二次末洗
+                        try
+                        {
+                            washTime = new TimeSpan();
+                            washTime = endoscopeTemp.LastWashSecEnd.Value - endoscopeTemp.LastWashSecBegin.Value;
+                        }
+                        catch (Exception)
+                        {
+                            endoscopeTemp.LastWashSecEnd = null;
+                            endoscopeTemp.LastWashSecBegin = null;
+                        }
+
+                        if (washTime.TotalSeconds >= Convert.ToInt32(GSetting.StepTime["LastWashSecAuto"]))
+                        {
+                            this.lastWashSecIsPass.Values.Image = global::ProxyClient.Properties.Resources.right;
+                            this.manualWashTime.ForeColor = Color.Green;
+                        }
+                        else
+                        {
+                            this.lastWashSecIsPass.Values.Image = global::ProxyClient.Properties.Resources.wrong;
+                            this.firstWashTime.ForeColor = Color.Red;
+                        }
+
+                        this.lastWashSecBegin.Text = endoscopeTemp.LastWashSecBegin.Value.ToString();
+                        this.lastWashSecEnd.Text = endoscopeTemp.LastWashSecEnd.Value.ToString();
+                        this.lastWashSecTime.Text = washTime > TimeSpan.Zero ? washTime.ToSafeString() : TimeSpan.Zero.ToSafeString();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+    }
+}

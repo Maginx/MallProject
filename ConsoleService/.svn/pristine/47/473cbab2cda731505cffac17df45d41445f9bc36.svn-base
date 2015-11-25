@@ -1,0 +1,22 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Runtime.Serialization;
+
+namespace MallHost.Service
+{
+    /// <summary>
+    /// 用户角色枚举
+    /// </summary>
+    [DataContract]
+    enum UserRole
+    {
+        [DataMember]
+        Washer,
+        [DataMember]
+        Nurse,
+        [DataMember]
+        Dcotor
+    }
+}

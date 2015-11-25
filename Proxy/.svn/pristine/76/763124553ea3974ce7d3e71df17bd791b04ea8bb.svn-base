@@ -1,0 +1,42 @@
+<configuration>
+  <appSettings>
+    <add key="wcfService" value="http://127.0.0.1:8887/Service" />
+    <add key="selfAddress" value="127.0.0.1" />
+    <add key="selfPort" value="10000" />
+    <add key="armAddress" value="192.168.0.1" />
+    <add key="armPort" value="8888" />
+    <add key="cleanType" value="1" />
+    <add key="license" value="cKH1jAf87SukiIF1d8nB/fbBs7kJKNTqEXSwNkrDM0c=" />
+  </appSettings>
+  <portMapping>
+    <port portCode="01" stepName="FirstWash" remark="刷洗槽" />
+    <port portCode="02" stepName="EnzymeWash" remark="酶洗槽" />
+    <port portCode="03" stepName="Cleanout" remark="次洗槽" />
+    <port portCode="04" stepName="DipIn" remark="消毒槽" />
+    <port portCode="05" stepName="LastWash" remark="末洗槽" />
+    <port portCode="20" stepName="OtherAutoMachine" remark="自动清洗机" />
+    <port portCode="06" stepName="DipIn" remark="消毒槽" />
+    <port portCode="07" stepName="LastWash" remark="末洗槽" />
+  </portMapping>
+  <portName>
+    <port stepName="FirstWash" remark="刷洗槽"></port>
+    <port stepName="EnzymeWash" remark="酶洗槽"></port>
+    <port stepName="Cleanout" remark="次洗槽"></port>
+    <port stepName="DipIn" remark="消毒槽"></port>
+    <port stepName="LastWash" remark="末洗槽"></port>
+    <port stepName="MallAutoMachine" remark="迈尔清洗机"></port>
+    <port stepName="OtherAutoMachine" remark="清洗机"></port>
+  </portName>
+  <stepTime>
+    <step stepName="ManualWash" time="0" remark="刷洗" />
+    <step stepName="FirstWash" time="0" remark="初洗" />
+    <step stepName="EnzymeWash" time="0" remark="酶洗" />
+    <step stepName="Cleanout" time="0" remark="次洗" />
+    <step stepName="DipIn" time="0" remark="消毒" />
+    <step stepName="LastWash" time="0" remark="末洗" />
+    <step stepName="DipInSec" time="0" remark="二次消毒" />
+    <step stepName="LastWashSec" time="0" remark="二次末洗" />
+    <step stepName="DipInSecAuto" time="0" remark="二次消毒（机洗）" />
+    <step stepName="LastWashSecAuto" time="0" remark="二次末洗（机洗）" />
+  </stepTime>
+</configuration>

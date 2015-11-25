@@ -1,0 +1,369 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using ProxyClient.Controls;
+
+namespace ProxyClient.Steps
+{
+    /// <summary>
+    /// 清洗基类
+    /// </summary>
+    internal class Wash
+    {
+        #region 构造方法
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Wash"/> class.
+        /// </summary>
+        public Wash()
+        {
+            States = new Dictionary<string, EndoscopeState>();
+            this.WasherNo = string.Empty;
+            this.WasherName = string.Empty;
+            this.EndoscopeSN = string.Empty;
+            this.Sim = string.Empty;
+            this.PortNo = string.Empty;
+            this.WorkState = string.Empty;
+            this.State = new EndoscopeState(string.Empty);
+
+            if (GSetting.EndoscStates.Keys.Contains(this.EndoscopeSN))
+            {
+                this.State = GSetting.EndoscStates[this.EndoscopeSN];
+            }
+        }
+        #endregion
+
+        #region 公有对象
+        /// <summary>
+        /// 清洗工编号
+        /// </summary>
+        /// <value>
+        /// The washer no.
+        /// </value>
+        public virtual string WasherNo { get; set; }
+
+        /// <summary>
+        /// 清洗工名
+        /// </summary>
+        public virtual string WasherName { get; set; }
+
+        /// <summary>
+        /// 内镜SIM卡号
+        /// </summary>
+        /// <value>
+        /// The endoscope sim.
+        /// </value>
+        public virtual string EndoscopeSIM { get; set; }
+
+        /// <summary>
+        /// 内镜编号
+        /// </summary>
+        /// <value>
+        /// The endoscope sn.
+        /// </value>
+        public virtual string EndoscopeSN { get; set; }
+
+        /// <summary>
+        /// 临时状态对象
+        /// </summary>
+        /// <value>
+        /// The this.State.
+        /// </value>
+        public virtual EndoscopeState State { get; protected set; }
+
+        /// <summary>
+        /// Gets or sets the states.
+        /// </summary>
+        /// <value>
+        /// The states.
+        /// </value>
+        public virtual Dictionary<string, EndoscopeState> States { get; set; }
+
+        /// <summary>
+        /// Gets or sets the sim.
+        /// </summary>
+        /// <value>
+        /// The sim.
+        /// </value>
+        public string Sim { get; set; }
+
+        /// <summary>
+        /// Gets or sets the port no.
+        /// </summary>
+        /// <value>
+        /// The port no.
+        /// </value>
+        public string PortNo { get; set; }
+
+        /// <summary>
+        /// Gets or sets the this.State of the work.
+        /// </summary>
+        /// <value>
+        /// The this.State of the work.
+        /// </value>
+        public string WorkState { get; set; }
+        #endregion
+
+        #region 虚方法
+        /// <summary>
+        /// 处理Socket接收数据
+        /// </summary>
+        /// <param name="data">数据值</param>
+        public virtual void DatagramProcess(MonitorData data)
+        {
+            this.WorkState = data.WorkState;
+            this.PortNo = data.PortNO;
+            this.Sim = data.SIM;
+            return;
+        }
+
+        /// <summary>
+        /// 识别SIM卡号
+        /// </summary>
+        /// <param name="sim">SIM卡号</param>
+        public virtual void SIMIdentify(string sim)
+        {
+            return;
+        }
+
+        /// <summary>
+        /// 验证员工是否打卡
+        /// </summary>
+        /// <returns>true：checked；false：unchecked</returns>
+        public virtual bool WasherChecked()
+        {
+            if (!string.IsNullOrEmpty(this.WasherNo) && !string.IsNullOrEmpty(this.WasherName))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 验证内镜、用户信息是否全部为空
+        /// </summary>
+        /// <returns>false 全部为空</returns>
+        public virtual bool NullOfStrs()
+        {
+            if (string.IsNullOrEmpty(this.WasherNo) || string.IsNullOrEmpty(this.WasherName) || string.IsNullOrEmpty(this.EndoscopeSIM) || string.IsNullOrEmpty(this.EndoscopeSN))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 清空所有条件
+        /// </summary>
+        public void CleanAllStr()
+        {
+            this.EndoscopeSN = string.Empty;
+            this.EndoscopeSIM = string.Empty;
+            this.WasherNo = string.Empty;
+            this.WasherName = string.Empty;
+        }
+        #endregion
+
+        #region 公有方法
+        /// <summary>
+        /// 显示临时消息
+        /// </summary>
+        /// <param name="msg">临时消息</param>
+        /// <param name="color">颜色</param>
+        public void PrintTempRecordMsg(string msg, Color color)
+        {
+            if (color.IsEmpty)
+            {
+                color = Color.Green;
+            }
+
+            GSetting.GetFromInstance<TempRecord>().richTxtTempRecord.Invoke(FormHelper.RichTextBoxMethod, msg, Color.Green);
+        }
+
+        /// <summary>
+        /// 在清洗状态面板上显示清洗数据
+        /// </summary>
+        /// <param name="msg">数据</param>
+        /// <param name="color">The color.</param>
+        public void ShowCleanStep(string msg, Color color)
+        {
+            if (!GSetting.EndoscStates.Keys.Contains(this.EndoscopeSN))
+            {
+                return;
+            }
+
+            if (color.IsEmpty)
+            {
+                GSetting.EndoscStates[this.EndoscopeSN].txtCleanStep.ForeColor = Color.FromArgb(0, 192, 0);
+            }
+            else
+            {
+                GSetting.EndoscStates[this.EndoscopeSN].txtCleanStep.ForeColor = color;
+            }
+
+            GSetting.EndoscStates[this.EndoscopeSN].txtCleanStep.Invoke(FormHelper.ShowCleanStepEvent, GSetting.EndoscStates[this.EndoscopeSN].txtCleanStep, msg);
+            this.PrintTempRecordMsg(this.EndoscopeSN + msg, color);
+        }
+
+        /// <summary>
+        /// 显示主窗体左下角提示信息
+        /// </summary>
+        /// <param name="msg">信息</param>
+        /// <param name="color">信息颜色</param>
+        public void ShowStatusTips(string msg, Color color)
+        {
+            if (color.IsEmpty)
+            {
+                color = Color.Green;
+            }
+
+            GSetting.GetFromInstance<MainForm>().statusStripTips.Invoke(FormHelper.TextBoxMethod, msg, color);
+            this.PrintTempRecordMsg(this.EndoscopeSN + msg, color);
+        }
+
+        /// <summary>
+        /// 发送信息
+        /// </summary>
+        /// <param name="flag">The flag.</param>
+        public void SendSocketMsg(string flag)
+        {
+            SendSocket.SendMsg.BeginInvoke(string.Format(SendSocket.ProtocalFormat, this.PortNo, this.PortNo, flag), SendSocket.CallBack, SendSocket.SendMsg);
+        }
+
+        /// <summary>
+        /// 验证自动清洗机数据
+        /// </summary>
+        /// <param name="endoscope">The endoscope.</param>
+        /// <returns>验证结果</returns>
+        public string VerifyCleanDataAuto()
+        {
+            EndoscopeState endoscope = GSetting.EndoscStates[this.EndoscopeSN];
+            var temp = new StringBuilder();
+
+            try
+            {
+                if (endoscope.cleanType == 1)
+                {
+                    if (endoscope.BrushWashTime < Convert.ToInt32(GSetting.StepTime["ManualWash"]))
+                    {
+                        temp.Append("刷洗不合格；");
+                    }
+
+                    if (endoscope.FirstWashTime < Convert.ToInt32(GSetting.StepTime["FirstWash"]))
+                    {
+                        temp.Append("初洗不合格；");
+                    }
+
+                    if (endoscope.EzymeWashTime < Convert.ToInt32(GSetting.StepTime["EnzymeWashAuto"]))
+                    {
+                        temp.Append("酶洗不合格；");
+                    }
+
+                    if (endoscope.CleanOutTime < Convert.ToInt32(GSetting.StepTime["CleanoutAuto"]))
+                    {
+                        temp.Append("清洗不合格；");
+                    }
+
+                    if (endoscope.DipInTime < Convert.ToInt32(GSetting.StepTime["DipInAuto"]))
+                    {
+                        temp.Append("消毒不合格；");
+                    }
+
+                    if (endoscope.LastWashTime < Convert.ToInt32(GSetting.StepTime["LastWashAuto"]))
+                    {
+                        temp.Append("末洗不合格；");
+                    }
+
+                }
+                else
+                {
+                    if (endoscope.DipInSecTime < Convert.ToInt32(GSetting.StepTime["DipInSecAuto"]))
+                    {
+                        temp.Append("（二次机洗）消毒不合格；");
+                    }
+
+                    if (endoscope.LastSecWashTime < Convert.ToInt32(GSetting.StepTime["LastWashSecAuto"]))
+                    {
+                        temp.Append("（二次机洗）末洗不合格；");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+            return temp.ToString();
+        }
+
+        /// <summary>
+        /// 检查清洗数据
+        /// </summary>
+        /// <returns>
+        /// 清洗结果
+        /// </returns>
+        public string VerifyCleanData()
+        {
+            var endoscope = GSetting.EndoscStates[this.EndoscopeSN];
+            var temp = new StringBuilder();
+
+            try
+            {
+                if (endoscope.cleanType == 1)
+                {
+                    if (endoscope.BrushWashTime < Convert.ToInt32(GSetting.StepTime["ManualWash"]))
+                    {
+                        temp.Append("刷洗不合格；");
+                    }
+
+                    if (endoscope.FirstWashTime < Convert.ToInt32(GSetting.StepTime["FirstWash"]))
+                    {
+                        temp.Append("初洗不合格；");
+                    }
+
+
+                    if (endoscope.EzymeWashTime < Convert.ToInt32(GSetting.StepTime["EnzymeWash"]))
+                    {
+                        temp.Append("酶洗不合格；");
+                    }
+
+                    if (endoscope.CleanOutTime < Convert.ToInt32(GSetting.StepTime["Cleanout"]))
+                    {
+                        temp.Append("清洗不合格；");
+                    }
+
+                    if (endoscope.DipInTime < Convert.ToInt32(GSetting.StepTime["DipIn"]))
+                    {
+                        temp.Append("消毒不合格；");
+                    }
+
+                    if (endoscope.LastWashTime < Convert.ToInt32(GSetting.StepTime["LastWash"]))
+                    {
+                        temp.Append("末洗不合格；");
+                    }
+                }
+                else
+                {
+                    if (endoscope.DipInSecTime < Convert.ToInt32(GSetting.StepTime["DipInSec"]))
+                    {
+                        temp.Append("（二次）消毒不合格；");
+                    }
+
+                    if (endoscope.LastSecWashTime < Convert.ToInt32(GSetting.StepTime["LastWashSec"]))
+                    {
+                        temp.Append("（二次）末洗不合格；");
+                    }
+
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+            return temp.ToString();
+        }
+        #endregion
+    }
+}

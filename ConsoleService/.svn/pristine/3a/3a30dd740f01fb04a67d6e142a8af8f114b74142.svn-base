@@ -1,0 +1,63 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace MallHost
+{
+    /// <summary>
+    /// 工具类
+    /// </summary>
+    public static class Tool
+    {
+        /// <summary>
+        /// Determines whether the specified objs is valid.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objs">The objs.</param>
+        /// <returns>有效true，无效false</returns>
+        public static bool IsValid<T>(this T[] objs)
+        {
+            if (objs != null && objs.Length > 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Fors the each.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objs">The objs.</param>
+        /// <param name="action">The action.</param>
+        public static void ForEach<T>(this T[] objs, Action<T> action)
+        {
+            if (!objs.IsValid())
+            {
+                return;
+            }
+
+            foreach (var o in objs)
+            {
+                action(o);
+            }
+        }
+
+        public static string SafeRead(this System.Data.SqlClient.SqlDataReader reader,string col)
+        {
+            if (reader == null)
+            {
+                return string.Empty;
+            }
+
+            if (reader[col] == null)
+            {
+                return string.Empty;
+            }
+
+            return reader[col].ToString();
+        }
+    }
+}

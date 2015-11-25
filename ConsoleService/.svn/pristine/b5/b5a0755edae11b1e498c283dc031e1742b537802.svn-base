@@ -1,0 +1,1134 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Xml;
+//using ClassLibrary;
+using MallHost.Service;
+using MallHost;
+
+
+namespace MallHost.Data
+{
+    /// <summary>
+    /// 数据对象
+    /// </summary>
+    class DataBase : IDataBase
+    {
+        #region 更新endoscopeCleanTemp记录
+        /// <summary>
+        /// 更新endoscopeCleanTemp记录
+        /// </summary>
+        /// <param name="time">清洗时间（开始或结束时间）</param>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <param name="step">清洗工序</param>
+        /// <returns>
+        /// 更新结果（true 表示更新成功，false表示更新失败）
+        /// </returns>
+        public bool RecordCleanTime(string time, string endoscopeSN, string step)
+        {
+            bool result = false;
+            var updatesql = "update EndoscopeTemp set @step=@time where endoscopeSN=@endoSn";
+
+            SqlParameter[] paras = 
+            {
+                 this.GetSqlParameter("@step", step, DbType.String),
+                 this.GetSqlParameter("@time",time ,DbType.String),
+                 this.GetSqlParameter("@endoSn",endoscopeSN ,DbType.String)
+            };
+
+            int temp = SqlHelper.ExecuteNonQuery(Global.ConnStr, CommandType.Text, updatesql, paras);
+
+            if (temp > 0) result = true;
+            return result;
+        }
+        #endregion
+
+        #region Get endoscope information by SIM
+        /// <summary>
+        /// 根据SIM获取相关信息
+        /// </summary>
+        /// <param name="endoscopeSim">内镜卡号</param>
+        /// <param name="tablename">表名</param>
+        /// <returns>
+        /// 内镜详细信息
+        /// </returns>
+        public EndoscopeInfo GetEndoscopeMsgBySIM(string endoscopeSim, string tablename)
+        {
+            EndoscopeInfo endoscope = null;
+            var selectsql = "select * from EndoscopeInfo where endoscopeSIM=@endosope";
+
+            SqlParameter[] paras = 
+            {
+                this.GetSqlParameter("@endoscope",endoscopeSim,DbType.String)
+            };
+
+            // reader读取内镜卡号
+            using (var reader = SqlHelper.ExecuteReader(Global.ConnStr, CommandType.Text, selectsql, paras))
+            {
+                if (reader == null || !reader.HasRows)
+                {
+                    return endoscope;
+                }
+
+                while (reader.Read())
+                {
+                    endoscope = new EndoscopeInfo { EndoscopeSn = reader.SafeRead<string>("endoscopeSN") };
+                }
+            }
+
+            return endoscope;
+        }
+        #endregion
+
+        #region  Get user information by SIM
+        /// <summary>
+        /// 根据SIM获取用户
+        /// </summary>
+        /// <param name="userSIM">用户卡号</param>
+        /// <param name="table">The table.</param>
+        /// <returns>
+        /// 用户信息
+        /// </returns>
+        public UserInfo GetUserInfo(string userSim, string table)
+        {
+            UserInfo userinfo = null;
+            var tempstr = "select * from userInfo where userSIM=@userSim";
+            SqlParameter[] paras =
+            {
+                this.GetSqlParameter("@userSim",userSim,DbType.String)
+            };
+
+            using (SqlDataReader reader = SqlHelper.ExecuteReader(Global.ConnStr, CommandType.Text, "", paras))
+            {
+                if (reader == null || !reader.HasRows)
+                {
+                    return null;
+                }
+
+                while (reader.Read())
+                {
+                    userinfo = new UserInfo
+                    {
+                        UserSn = reader.SafeRead<string>("userSN"),
+                        UserName = reader.SafeRead<string>("userName")
+                    };
+                }
+            }
+
+            return userinfo;
+        }
+        #endregion
+
+        #region Reset endoscope information
+        /// <summary>
+        /// 重置内镜信息
+        /// </summary>
+        /// <param name="endoscopeSn">内镜编号</param>
+        /// <param name="endoscopeSim">内镜卡号</param>
+        /// <param name="washerNo">清洗工编号</param>
+        /// <param name="washerRealName">清洗工名</param>
+        /// <param name="cleanType">清洗类型</param>
+        /// <param name="washDate">清洗日期</param>
+        /// <param name="disinfection">消毒液</param>
+        /// <param name="autoClean">自动清洗机编号</param>
+        /// <returns>
+        /// 重置结果
+        /// </returns>
+        public bool ResetEndoscope(string endoscopeSn, string endoscopeSim, string washerNo, string washerRealName, string cleanType, string washDate, string disinfection, string autoClean)
+        {
+            SqlConnection connection = null;
+            var deletesql = "delete from where endoscopeSN=@endoscopeSn";
+            SqlParameter[] deleteparas =
+            {
+                this.GetSqlParameter("@endoscopeSn",endoscopeSn,DbType.String)
+            };
+
+            using (connection = new SqlConnection(Global.ConnStr))
+            {
+                SqlTransaction tran = connection.BeginTransaction();
+                int result = SqlHelper.ExecuteNonQuery(tran, CommandType.Text, deletesql, deleteparas);
+
+                if (result <= 0)
+                {
+                    tran.Rollback();
+                }
+
+                try
+                {
+                    var insertsql = @"insert into EndoscopeTemp (endoscopeSN,endoscopeSIM,washerNo,washerRealName,cleanType,disinfection,washDate,autoCleanNo)
+                                    values(@endoscopeSn,@endoscopeSim,@washerNo,@washerRealName,@cleanType,@disinfection,@washDate,@autoClaen)";
+                    SqlParameter[] insertparas =
+                    {
+                        this.GetSqlParameter("@endoscopeSn",endoscopeSn,DbType.String),
+                        this.GetSqlParameter("@endoscopeSim",endoscopeSim,DbType.String),
+                        this.GetSqlParameter("@washerNo",washerNo,DbType.String),
+                        this.GetSqlParameter("@washerRealName",washerRealName,DbType.String),
+                        this.GetSqlParameter("@cleanType",cleanType,DbType.String),
+                        this.GetSqlParameter("@disinfection",disinfection,DbType.String),
+                        this.GetSqlParameter("@washDate",washDate,DbType.DateTime),
+                        this.GetSqlParameter("@autoClean",autoClean,DbType.String)
+                    };
+
+                    result = SqlHelper.ExecuteNonQuery(tran, CommandType.Text, insertsql, insertparas);
+
+                    if (result > 0)
+                    {
+                        tran.Commit();
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Global.Log(ex.Message);
+                    tran.Rollback();
+                }
+            }
+
+            return false;
+        }
+        #endregion
+
+        #region Get endoscope information  by  endoscpoeSN
+        /// <summary>
+        /// 获得内镜信息
+        /// </summary>
+        /// <param name="endoscopeSn">内镜编号</param>
+        /// <returns>
+        /// 内镜信息
+        /// </returns>
+        public EndoscopeTemp GetNewCleanMsg(string endoscopeSn)
+        {
+            var endoscopeclean = new EndoscopeTemp();
+            SqlConnection connection = null;
+            var selectsql = "select * from endoscopeTemp where endoscopeSN=@endoscopeSn";
+            SqlParameter[] paras =
+            {
+                 this.GetSqlParameter("@endoscopeSn",endoscopeSn,DbType.String)
+            };
+
+            using (SqlDataReader reader = SqlHelper.ExecuteReader(Global.ConnStr, CommandType.Text, selectsql, paras))
+            {
+                if (!reader.HasRows)
+                {
+                    return endoscopeclean;
+                }
+
+                while (reader.Read())
+                {
+                    endoscopeclean = new EndoscopeTemp
+                    {
+                        EndoscopeSn = reader.SafeRead<string>("endoscopeSN"),
+                        EndoscopeSim = reader.SafeRead<string>("endoscopeSIM"),
+                        CleanType = reader.SafeRead<string>("cleanType"),
+                        WasherNo = reader.SafeRead<string>("washNo"),
+                        WasherName = reader.SafeRead<string>("washerRealName"),
+                        AutoCleanNo = reader.SafeRead<string>("autoCleanNo")
+                    };
+
+                    var time = new DateTime();
+                    DateTime.TryParse(reader.SafeRead<string>("washDate"), out time);
+                    endoscopeclean.WashDate = time;
+
+                    if (string.Equals(endoscopeclean.CleanType, "1"))
+                    {
+                        endoscopeclean.BrushWashBegin = reader.SafeRead<DateTime>("brushWashBegin");
+                        endoscopeclean.BrushWashEnd = reader.SafeRead<DateTime>("brushWashEnd");
+                        endoscopeclean.FirstWashBegin = reader.SafeRead<DateTime>("firstWashBegin");
+                        endoscopeclean.FirstWashEnd = reader.SafeRead<DateTime>("firstWashEnd");
+                        endoscopeclean.EnzymeWashBegin = reader.SafeRead<DateTime>("enzymeWashBegin");
+                        endoscopeclean.EnzymeWashEnd = reader.SafeRead<DateTime>("enzymeWashEnd");
+                        endoscopeclean.CleanOutBegin = reader.SafeRead<DateTime>("cleanOutWashBegin");
+                        endoscopeclean.CleanOutEnd = reader.SafeRead<DateTime>("cleanOutWashEnd");
+                        endoscopeclean.DipInBegin = reader.SafeRead<DateTime>("dipInWashBegin");
+                        endoscopeclean.DipInEnd = reader.SafeRead<DateTime>("dipInwashEnd");
+                        endoscopeclean.LastWashBegin = reader.SafeRead<DateTime>("lastWashBegin");
+                        endoscopeclean.LastWashEnd = reader.SafeRead<DateTime>("lastWashEnd");
+                    }
+
+                    if (string.Equals(endoscopeclean.CleanType, "2"))
+                    {
+                        endoscopeclean.DipInSecBegin = reader.SafeRead<DateTime>("dipInWashSecBegin");
+                        endoscopeclean.DipInSecEnd = reader.SafeRead<DateTime>("dipInWashSecEnd");
+                        endoscopeclean.LastWashSecBegin = reader.SafeRead<DateTime>("lastWashSecBegin");
+                        endoscopeclean.LastWashSecEnd = reader.SafeRead<DateTime>("lastWashSecEnd");
+                    }
+                }
+            }
+
+            return endoscopeclean;
+        }
+        #endregion
+
+        #region Update temp record data
+        /// <summary>
+        /// 确定清洗信息
+        /// </summary>
+        /// <param name="table">表名</param>
+        /// <param name="endoscopeSn">内镜编号</param>
+        /// <param name="totalTime">清洗时间</param>
+        /// <param name="recordTime">记录时间</param>
+        /// <returns>
+        /// 是否确认成功
+        /// </returns>
+        public bool UpdateTempRecord(string table, string endoscopeSn, string totalTime, string recordTime)
+        {
+            var updatesql = "update endoscopeTemp set washTotalTime=@totalTime where endoscopeSN=@endoSn";
+            SqlParameter[] paras =
+            {
+                 this.GetSqlParameter("@totalTime",totalTime,DbType.String),
+                 this.GetSqlParameter("@endoSn",endoscopeSn,DbType.String),
+                 this.GetSqlParameter("@endoSn",endoscopeSn,DbType.String)
+            };
+
+            int result = SqlHelper.ExecuteNonQuery(Global.ConnStr, CommandType.Text, updatesql, paras);
+
+            if (result > 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        #endregion
+
+        #region  Insert trace data records
+        /// <summary>
+        /// 将临时记录写入终表
+        /// </summary>
+        /// <param name="tableName">表名</param>
+        /// <param name="endocscopeSn">内镜编号</param>
+        /// <returns>
+        /// 写入是否成功
+        /// </returns>
+        public bool RecordTraceData(string tableName, string endocscopeSn, string recordTime)
+        {
+            EndoscopeTemp endoTemp = null;
+            SqlTransaction tran;
+            var selectsql = string.Format("select * from endoscopeRecord where recordTime='{0}'", recordTime);
+            object tempobj = SqlHelper.ExecuteScalar(Global.ConnStr, CommandType.Text, selectsql);
+
+            if (tempobj != null)
+            {
+                return false;
+            }
+            selectsql = string.Format("select * from endoscopeTemp where endoscopeSN='{0}'", endocscopeSn);
+
+            using (SqlDataReader reader = SqlHelper.ExecuteReader(Global.ConnStr, CommandType.Text, selectsql))
+            {
+                if (!reader.HasRows)
+                {
+                    return false;
+                }
+                while (reader.Read())
+                {
+                    endoTemp = new EndoscopeTemp();
+                    endoTemp.EndoscopeSn = reader.SafeRead<string>("endoscopeSN");
+                    endoTemp.EndoscopeSn = reader.SafeRead<string>("endoscopeSIM");
+                    endoTemp.RecordTime = reader.SafeRead<DateTime>("recordTime");
+                    endoTemp.BrushWashBegin = reader.SafeRead<DateTime>("brushWashBegin");
+                    endoTemp.BrushWashEnd = reader.SafeRead<DateTime>("brushWashEnd");
+                    endoTemp.FirstWashBegin = reader.SafeRead<DateTime>("firstWashBegin");
+                    endoTemp.FirstWashEnd = reader.SafeRead<DateTime>("firstWashEnd");
+                    endoTemp.EnzymeWashBegin = reader.SafeRead<DateTime>("enzymeWashBegin");
+                    endoTemp.EnzymeWashEnd = reader.SafeRead<DateTime>("enzymeWashEnd");
+                    endoTemp.CleanOutBegin = reader.SafeRead<DateTime>("cleanOutWashBegin");
+                    endoTemp.CleanOutEnd = reader.SafeRead<DateTime>("cleanOutWashEnd");
+                    endoTemp.DipInBegin = reader.SafeRead<DateTime>("dipInWashBegin");
+                    endoTemp.DipInEnd = reader.SafeRead<DateTime>("dipInwashEnd");
+                    endoTemp.LastWashBegin = reader.SafeRead<DateTime>("lastWashBegin");
+                    endoTemp.LastWashEnd = reader.SafeRead<DateTime>("lastWashEnd");
+                    endoTemp.DipInSecBegin = reader.SafeRead<DateTime>("dipInWashSecBegin");
+                    endoTemp.DipInSecEnd = reader.SafeRead<DateTime>("dipInWashSecEnd");
+                    endoTemp.LastWashSecBegin = reader.SafeRead<DateTime>("lastWashSecBegin");
+                    endoTemp.LastWashSecEnd = reader.SafeRead<DateTime>("lastWashSecEnd");
+                    endoTemp.Quality = reader.SafeRead<bool>("qualified");
+                    endoTemp.WasherNo = reader.SafeRead<string>("washerNo");
+                    endoTemp.WasherName = reader.SafeRead<string>("washerRealName");
+                    endoTemp.CleanType = reader.SafeRead<string>("cleanType");
+                    endoTemp.Disinfection = reader.SafeRead<bool>("disinfection");
+                    endoTemp.WashDate = reader.SafeRead<DateTime>("washDate");
+                    endoTemp.AutoCleanNo = reader.SafeRead<string>("autoCleanNo");
+                }
+            }
+
+            using (var conn = new SqlConnection(Global.ConnStr))
+            {
+                tran = conn.BeginTransaction();
+                var insertsql = @"insert into ednsocopeRecordInfo (
+                                endoscopeSN,endoscopeSIM,recordTime,brushWashBegin,brushWashEnd,
+                                firstWashBegin,firstWashEnd,enzymeWashBegin,enzymeWashEnd,cleanOutWashBegin,
+                                cleanOutWashEnd,dipInWashBegin,dipInWashEnd,lastWashBegin,lastWashEnd,
+                                dipInWashSecBegin,dipInWashSecEnd,lastWashSecBegin,lastWashSecEnd) 
+                                values( @endoSn,@endoSim,@recordTime,@bruWashB,@bruWashE,
+                                @firWashB,@firWashE,@enWashB,@enWashE,@cleanWashB,
+                                @cleanWashE,@dipWashB,@dipWashE,@lastWashB,@lastWashE,
+                                @dipWashSecB,@dipWashSecE,@lastWashSecB,@lastWashSecE)";
+                SqlParameter[] paras =
+                {
+                   this.GetSqlParameter("@endoSn",endoTemp.EndoscopeSn,DbType.String),
+                   this.GetSqlParameter("@endoSim",endoTemp.EndoscopeSim,DbType.String),
+                   this.GetSqlParameter("@recordTime",endoTemp.RecordTime,DbType.DateTime),
+                   this.GetSqlParameter("@bruWashB",endoTemp.BrushWashBegin,DbType.DateTime),
+                   this.GetSqlParameter("@bruWashE",endoTemp.BrushWashEnd,DbType.DateTime),
+                   this.GetSqlParameter("@firWashB",endoTemp.FirstWashBegin,DbType.DateTime),
+                   this.GetSqlParameter("@firWashE",endoTemp.FirstWashEnd,DbType.DateTime),
+                   this.GetSqlParameter("@enWashB",endoTemp.EnzymeWashBegin,DbType.DateTime),
+                   this.GetSqlParameter("@enWashE",endoTemp.EnzymeWashEnd,DbType.DateTime),
+                   this.GetSqlParameter("@cleanWashB",endoTemp.CleanOutBegin,DbType.DateTime),
+                   this.GetSqlParameter("@cleanWashE",endoTemp.CleanOutEnd,DbType.DateTime),
+                   this.GetSqlParameter("@dipWashB",endoTemp.DipInBegin,DbType.DateTime),
+                   this.GetSqlParameter("@dipWashE",endoTemp.DipInEnd,DbType.DateTime),
+                   this.GetSqlParameter("@lastWashB",endoTemp.LastWashBegin,DbType.DateTime),
+                   this.GetSqlParameter("@lastWashE",endoTemp.LastWashEnd,DbType.DateTime),
+                   this.GetSqlParameter("@dipWashSecB",endoTemp.DipInSecBegin,DbType.DateTime),
+                   this.GetSqlParameter("@dipWashSecE",endoTemp.DipInSecEnd,DbType.DateTime),
+                   this.GetSqlParameter("@lastWashSecB",endoTemp.LastWashSecBegin,DbType.DateTime),
+                   this.GetSqlParameter("@lastWashSecE",endoTemp.LastWashSecEnd,DbType.DateTime)
+                };
+
+                // Insert record into RecordInfo with transaction
+                int result = SqlHelper.ExecuteNonQuery(tran, CommandType.Text, insertsql, paras);
+
+                // failed
+                if (result <= 0)
+                {
+                    tran.Rollback();
+                }
+
+                selectsql = string.Format("select  MAX(recordInfoId),patientNo from endoscopeRecordInfo where endoscopeSN='{0}'", endoTemp.EndoscopeSn);
+
+                string patientnum = string.Empty;
+                int recordiinfoid = 0;
+
+                using (var reader = SqlHelper.ExecuteReader(Global.ConnStr, CommandType.Text, selectsql))
+                {
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            patientnum = reader.SafeRead<string>("patientNo");
+                            recordiinfoid = reader.SafeRead<int>("recordInfoId");
+                        }
+                    }
+                }
+
+                insertsql = @"insert into endoscopeRecord (
+                              endoscopeSN,endoscopeSIM,wahserNo,washerRealName,recordInfoId,recordTime,
+                              cleanType,disinfection,washDate,washTotalTime,washBeginTime,washEndTime,
+                              autoCleanNo,prePatientNo,qulitified) values(
+                              @endoSn,@endoSim,@wahserNo,@washerName,@recordInfoId,@recordTime,@cleanType,
+                              @disinfection,@washDate,@washTotalTime,@washBeginTime,@washEndTime,@autoCleanNo,
+                              @prePatientNo,@qulitified)";
+                SqlParameter[] insertparas =
+                {
+                   this.GetSqlParameter("@endoSn",endoTemp.EndoscopeSn,DbType.String),
+                   this.GetSqlParameter("@endoSim",endoTemp.EndoscopeSim,DbType.String),
+                   this.GetSqlParameter("@wahserNo",endoTemp.WasherNo,DbType.String),
+                   this.GetSqlParameter("@washerName",endoTemp.WasherName,DbType.String),
+                   this.GetSqlParameter("@recordInfoId",recordiinfoid.ToString(),DbType.String),
+                   this.GetSqlParameter("@recordTime",endoTemp.RecordTime,DbType.DateTime),
+                   this.GetSqlParameter("@cleanType",endoTemp.CleanType,DbType.String),
+                   this.GetSqlParameter("@disinfection",endoTemp.Disinfection,DbType.Boolean),
+                   this.GetSqlParameter("@washDate",endoTemp.WashDate,DbType.Date),
+                   //this.GetSqlParameter("@washTotalTime",endoTemp,DbType.DateTime),
+                   this.GetSqlParameter("@washBeginTime",endoTemp.CleanType=="1"?endoTemp.BrushWashBegin:endoTemp.DipInSecBegin,DbType.DateTime),
+                   this.GetSqlParameter("@washEndTime",endoTemp.CleanType=="1"?endoTemp.LastWashEnd:endoTemp.LastWashSecEnd,DbType.DateTime),
+                   this.GetSqlParameter("@autoCleanNo",endoTemp.AutoCleanNo,DbType.String),
+                   this.GetSqlParameter("@prePatientNo",patientnum,DbType.String),
+                   this.GetSqlParameter("@qulitified",endoTemp.Quality,DbType.Boolean)
+                };
+
+                // insert into Record with transaction
+                result = SqlHelper.ExecuteNonQuery(tran, CommandType.Text, insertsql, insertparas);
+
+                if (result >= 0)
+                {
+                    tran.Commit();
+                    return true;
+                }
+
+                tran.Rollback();
+            }
+
+            return false;
+        }
+        #endregion
+
+        #region Is bind to a cleaner
+        /// <summary>
+        /// 是否绑定员工
+        /// </summary>
+        /// <param name="endoscopeSn">内镜编号</param>
+        /// <returns>是否绑定</returns>
+        public bool IsBindingWaher(string endoscopeSn)
+        {
+            var selectsql = string.Format("select washerNo from endoscopeTemp where endoscopeSN='{0}'", endoscopeSn);
+            object temp = SqlHelper.ExecuteScalar(Global.ConnStr, CommandType.Text, selectsql);
+
+            if (temp == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        #endregion
+
+        #region Is exist a data
+        /// <summary>
+        /// 是否存在具体的一条数据
+        /// </summary>
+        /// <param name="endoscopeSn">内镜编码</param>
+        /// <param name="table">表名</param>
+        /// <param name="col">列名</param>
+        /// <returns>查找结果</returns>
+        public bool IsExitOneColumn(string endoscopeSn, string tableName, string col)
+        {
+            var selectsql = string.Format("select {0} from {1} where endoscopeSN={2}", col, tableName, endoscopeSn);
+            object temp = SqlHelper.ExecuteScalar(Global.ConnStr, CommandType.Text, selectsql);
+
+            if (temp == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        #endregion
+
+        #region Connect to databases
+        /// <summary>
+        /// 连接数据库
+        /// </summary>
+        /// <returns>连接结果</returns>
+        public static bool ConnectDataBase()
+        {
+            using (var connection = new SqlConnection(Global.ConnStr))
+            {
+                try
+                {
+                    connection.Open();
+                    return true;
+                }
+                catch (SqlException ex)
+                {
+                    Global.Log(ex);
+                }
+                catch (Exception ex)
+                {
+                    Global.Log(ex);
+                }
+            }
+
+            return false;
+        }
+        #endregion
+
+        #region  Set cleanning qualified
+        /// <summary>
+        /// 设置清洗是否合格
+        /// </summary>
+        /// <param name="endoscopeSn">内镜编号</param>
+        /// <param name="qulified">合格</param>
+        /// <returns>设置结果</returns>
+        public bool SetOneTable(string endoscopeSn, string qulified, string col)
+        {
+            var updatesql = string.Format("update endoscopeTemp set {0}='{1}' where endoscopeSN='{2}'", col, qulified, endoscopeSn);
+            int result = SqlHelper.ExecuteNonQuery(Global.ConnStr, CommandType.Text, updatesql);
+
+            if (result > 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        #endregion
+
+        #region Insert a endoscope information into table
+        /// <summary>
+        /// 插入内镜信息
+        /// </summary>
+        /// <param name="tableName">表名</param>
+        /// <param name="endoscopeInfo">内镜信息</param>
+        /// <returns>是否成功</returns>
+        public bool ModifyEndoscope(string tableName, EndoscopeInfo endoscopeInfo)
+        {
+            var selectsql = string.Format("select endoscopeID from endoscopeInfo where endoscopeSN='{0}'", endoscopeInfo.EndoscopeSn);
+            object temp = SqlHelper.ExecuteScalar(Global.ConnStr, CommandType.Text, selectsql);
+            SqlParameter[] paras = 
+            {
+                this.GetSqlParameter("endoSn",endoscopeInfo.EndoscopeSn,DbType.String),
+                this.GetSqlParameter("endoSim",endoscopeInfo.EndoscopeSim,DbType.String),
+                this.GetSqlParameter("endoType",endoscopeInfo.EndoscopeType,DbType.String),
+                this.GetSqlParameter("endoTypeName",endoscopeInfo.EndoscopeName,DbType.String),
+                this.GetSqlParameter("endoSerYear",endoscopeInfo.EndoscopeServYear,DbType.Int32),
+                this.GetSqlParameter("endoUseTime",endoscopeInfo.EndoscopeUseTime,DbType.DateTime),
+                this.GetSqlParameter("endoSeal",endoscopeInfo.EndoscopeSeal,DbType.String),
+                this.GetSqlParameter("remark",endoscopeInfo.Remark,DbType.String)
+            };
+
+            using (var conn = new SqlConnection(Global.ConnStr))
+            {
+                var tran = conn.BeginTransaction();
+                if (temp == null)
+                {
+                    var insertsql = @"insert into endoscopeInfo (
+                                    endoscopeSN,endoscopeSIM,endoscopeType,endoscopeTypeName,endoscopeServiceYear
+                                    endoscopeUseTime,endoscopeSeal,remark) values(
+                                    @endoSn,@endoSim,@endoType,@endoTypeName,@endoSerYear,@endoUseTime,@endoSeal,@remark)";
+
+
+
+                    int result = SqlHelper.ExecuteNonQuery(tran, CommandType.Text, insertsql, paras);
+
+                    if (result <= 0)
+                    {
+                        tran.Rollback();
+                    }
+
+                    insertsql = string.Format("insert into endoscopeTemp (endoscopeSN,endoscopeSIM,cleanTye) values('{0}','{1}','{2}')", endoscopeInfo.EndoscopeSn, endoscopeInfo.EndoscopeSim, 1);
+                    result = SqlHelper.ExecuteNonQuery(tran, CommandType.Text, insertsql);
+                    if (result > 0)
+                    {
+                        tran.Commit();
+                        return true;
+                    }
+
+                    tran.Rollback();
+
+                }
+                else
+                {
+                    var updatesql = string.Format(@"update endoscopeIno set endoscopeSN=@endoSn,endoscopeSIM=@endoSim,endoscopeType=@endoType,
+                                    endoscopeTypeName=@endoTypeName,endoscopeServiceYear=@endoSerYear,endoscopeUseTime=@endoUseTime,
+                                    endoscopeSeal=@endoSeal,remark=@remark where endoscopeID='{0}'", endoscopeInfo.Id);
+                    int result = SqlHelper.ExecuteNonQuery(tran, CommandType.Text, updatesql, paras);
+
+                    if (result > 0)
+                    {
+                        tran.Commit();
+                        return true;
+                    }
+
+                    return false;
+                }
+            }
+
+            return false;
+        }
+        #endregion
+
+        #region Insert users into user table
+        /// <summary>
+        /// 插入用户
+        /// </summary>
+        /// <param name="tableName">表名</param>
+        /// <param name="user">用户</param>
+        /// <returns>是否成功</returns>
+        public bool ModifyUser(string tableName, UserInfo user)
+        {
+            var selectsql = string.Format("select * from userInfo where userSn='{0}'", user.UserSn);
+            object temp = SqlHelper.ExecuteScalar(Global.ConnStr, CommandType.Text, selectsql);
+            SqlParameter[] paras =
+            {
+                    this.GetSqlParameter("@userSn",user.UserSn,DbType.String),
+                    this.GetSqlParameter("@userSIM",user.UserSim,DbType.String),
+                    this.GetSqlParameter("@userPass",user.UserPass,DbType.String),
+                    this.GetSqlParameter("@userName",user.UserName,DbType.String),
+                    this.GetSqlParameter("@userRole",user.UserRole,DbType.Int32),
+                    this.GetSqlParameter("@userTime",DateTime.Now,DbType.DateTime),
+                    this.GetSqlParameter("@userType",((int)user.UserType)==1?9:1,DbType.Int32),
+                    this.GetSqlParameter("@remark",user.Remark,DbType.String)
+            };
+
+            if (temp == null)
+            {
+                var insertsql = @"insert into userInfo (userSn,userSim,userPass,userName,userTime,userRole,userType,remark)
+                                values (@userSn,@userSim,@userPass,@userName,@userTime,@userRole,@userType,@remark)";
+                int result = SqlHelper.ExecuteNonQuery(Global.ConnStr, CommandType.Text, insertsql, paras);
+
+                if (result > 0)
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                var updateSql = string.Format(@"update userInfo set userSn=@userSn,userSim=@userSim , userPass=@userPass,userName=@userName
+                                    userTime=@userTime,userRole=@userRole,userType=@userType,remark=@remark where id='{0}'", user.Id);
+                int result = SqlHelper.ExecuteNonQuery(Global.ConnStr, CommandType.Text, updateSql, paras);
+
+                if (result > 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        #endregion
+
+        #region delete user
+        /// <summary>
+        /// 删除用户
+        /// </summary>
+        /// <param name="tableName">表名</param>
+        /// <param name="condition">条件</param>
+        /// <returns>执行结果</returns>
+        public bool DeleteUser(string condition)
+        {
+            var deletesql = string.Format("delete from userInfo where userSN='{0}'", condition);
+            int result = SqlHelper.ExecuteNonQuery(Global.ConnStr, CommandType.Text, deletesql);
+
+            if (result > 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        #endregion
+
+        #region Delete endoscope
+        /// <summary>
+        /// 删除内镜
+        /// </summary>
+        /// <param name="condition">删除条件</param>
+        /// <returns>删除结果</returns>
+        public bool DeleteEndoscope(string condition)
+        {
+            var deletesqp = string.Format("delete from endoscopeInfo where endoscopeSN='{0}'", condition);
+            using (var conn = new SqlConnection(Global.ConnStr))
+            {
+                var tran = conn.BeginTransaction();
+                int result = SqlHelper.ExecuteNonQuery(tran, CommandType.Text, deletesqp);
+
+                if (result <= 0)
+                {
+                    tran.Rollback();
+                }
+
+                deletesqp = string.Format("delete from endoscopeTemp where endoscopeSN='{0}'", condition);
+
+                result = SqlHelper.ExecuteNonQuery(tran, CommandType.Text, deletesqp);
+
+                if (result <= 1)
+                {
+                    tran.Rollback();
+                }
+
+                tran.Commit();
+            }
+
+            return true;
+        }
+        #endregion
+
+        #region load user information
+        /// <summary>
+        /// 加载用户信息
+        /// </summary>
+        /// <returns>用户信息</returns>
+        public List<UserInfo> LoadUsers()
+        {
+            var seletsql = "select * from userInfo";
+            var userinfos = new List<UserInfo>();
+
+            using (SqlDataReader reader = SqlHelper.ExecuteReader(Global.ConnStr, CommandType.Text, seletsql))
+            {
+                if (!reader.HasRows)
+                {
+                    return new List<UserInfo>();
+                }
+
+                while (reader.Read())
+                {
+                    var userInfo = new UserInfo
+                    {
+                        UserSn = reader.SafeRead<string>("userSn"),
+                        Id = reader.SafeRead<int>("id"),
+                        UserName = reader.SafeRead<string>("userName"),
+                        UserPass = reader.SafeRead<string>("userPass"),
+                        UserSim = reader.SafeRead<string>("userSim"),
+                        UserRole = reader.SafeRead<ClassLibrary.UserRole>("userRole"),
+                        UserTime = reader.SafeRead<DateTime>("userTime"),
+                        UserType = reader.SafeRead<ClassLibrary.UserType>("userType"),
+                        Remark = reader.SafeRead<string>("remark")
+                    };
+                    userinfos.Add(userInfo);
+                }
+            }
+
+            return userinfos;
+        }
+        #endregion
+
+        #region  Load endoscope information
+        /// <summary>
+        /// 加载内镜信息
+        /// </summary>
+        /// <returns><内镜信息/returns>
+        public List<EndoscopeInfo> LoadEndoscopes()
+        {
+            var selectsql = "select * from endoscopeInfo";
+            var endoscopes = new List<EndoscopeInfo>();
+
+            using (SqlDataReader reader = SqlHelper.ExecuteReader(Global.ConnStr, CommandType.Text, selectsql))
+            {
+                if (!reader.HasRows)
+                {
+                    return new List<EndoscopeInfo>();
+                }
+
+                while (reader.Read())
+                {
+                    var endoscopeInfo = new EndoscopeInfo
+                    {
+                        EndoscopeSn = reader.SafeRead<string>("endoscopeSn"),
+                        Id = reader.SafeRead<int>("id"),
+                        EndoscopeSim = reader.SafeRead<string>("endoscopeSim"),
+                        EndoscopeSeal = reader.SafeRead<string>("endoscopeSeal"),
+                        EndoscopeServYear = reader.SafeRead<int>("endoscopeServYear"),
+                        EndoscopeType = reader.SafeRead<string>("endoscopeType"),
+                        EndoscopeName = reader.SafeRead<string>("endoscopeName"),
+                        EndoscopeUseTime = reader.SafeRead<DateTime>("endoscopeUseTime"),
+                        Remark = reader.SafeRead<string>("remark")
+                    };
+
+                    endoscopes.Add(endoscopeInfo);
+                }
+            }
+
+            return endoscopes;
+        }
+        #endregion
+
+        #region Trace the cleanning  data
+        /// <summary>
+        /// 查询追溯结果
+        /// </summary>
+        /// <param name="sql">The SQL.</param>
+        /// <returns>
+        /// XML结果
+        /// </returns>
+        public string SearchResult(string sql)
+        {
+            DataSet dataSet = SqlHelper.ExecuteDataset(Global.ConnStr, CommandType.Text, sql);
+
+            if (dataSet == null)
+            {
+                return string.Empty;
+            }
+
+            return dataSet.GetXml();
+        }
+        #endregion
+
+        #region First clean
+        /// <summary>
+        /// 一次清洗
+        /// </summary>
+        /// <returns>一次清洗结果</returns>
+        public string SearchFirstWash(string beginTime, string endTime)
+        {
+            var select = string.Format(@"select a.*,b.* from endsocopeRecord as a full jion endoscopeRecordInfo as b 
+                                        on a.recordInfoId=b.recordInfoId where a.cleanType='1' and a.recordTime between '{0}' and '{1}' 
+                                        order by a.recordTime desc", beginTime, endTime);
+            DataTable table = this.CreateNewDataTable("1");
+
+            using (var reader = SqlHelper.ExecuteReader(Global.ConnStr, CommandType.Text, select))
+            {
+                if (!reader.HasRows)
+                {
+                    return string.Empty;
+                }
+
+                while (reader.Read())
+                {
+                    DataRow row = table.NewRow();
+                    row[0] = reader.SafeRead<string>("endoscopeSN");
+                    row[1] = reader.SafeRead<string>("washerRealName");
+                    row[2] = reader.SafeRead<string>("washDate");
+                    row[3] = reader.SafeRead<string>("washTotalTime");
+                    row[4] = reader.SafeRead<string>("washBeginTime");
+                    row[5] = reader.SafeRead<string>("washEndTime");
+                    row[6] = reader.SafeRead<string>("autoCleanNo");
+                    row[7] = VerifyData(reader.SafeRead<string>("brushWashEnd"), reader.SafeRead<string>("brushWashBegin"));
+                    row[8] = VerifyData(reader.SafeRead<string>("firstWashEnd"), reader.SafeRead<string>("firstWashBegin"));
+                    row[9] = VerifyData(reader.SafeRead<string>("enzymeWashEnd"), reader.SafeRead<string>("enzymeWashBegin"));
+                    row[10] = VerifyData(reader.SafeRead<string>("cleanOutWashEnd"), reader.SafeRead<string>("cleanOutWashBegin"));
+                    row[11] = VerifyData(reader.SafeRead<string>("dipInWashEnd"), reader.SafeRead<string>("dipInWashBegin"));
+                    row[12] = VerifyData(reader.SafeRead<string>("lastWashEnd"), reader.SafeRead<string>("lastWashBegin"));
+                    row[13] = reader.SafeRead<string>("wareNo");
+                    row[14] = reader.SafeRead<string>("doctorName");
+                    row[15] = reader.SafeRead<string>("patientNo");
+                    row[16] = reader.SafeRead<string>("prePatientNo");
+                    row[17] = reader.SafeRead<string>("qualified");
+                    row[18] = reader.SafeRead<string>("nurseNo");
+                    table.Rows.Add(row);
+                }
+            }
+
+            var dataSet = new DataSet();
+            dataSet.Tables.Add(table);
+            return dataSet.GetXml();
+        }
+        #endregion
+
+        #region Second clean
+        /// <summary>
+        /// 二次清洗
+        /// </summary>
+        /// <returns>二次清洗结果</returns>
+        public string SearchSecondWash(string beginTime, string endTime)
+        {
+            var select = string.Format(@"select a.*,b.* from endsocopeRecord as a full jion endoscopeRecordInfo as b 
+                                        on a.recordInfoId=b.recordInfoId where a.cleanType='2' and a.recordTime between '{0}' and '{1}' 
+                                        order by a.recordTime desc", beginTime, endTime);
+            DataTable table = this.CreateNewDataTable("2");
+
+            using (var reader = SqlHelper.ExecuteReader(Global.ConnStr, CommandType.Text, select))
+            {
+                if (!reader.HasRows)
+                {
+                    return string.Empty;
+                }
+
+                while (reader.Read())
+                {
+                    DataRow row = table.NewRow();
+                    row[0] = reader.SafeRead<string>("endoscopeSN");
+                    row[1] = reader.SafeRead<string>("washerRealName");
+                    row[2] = reader.SafeRead<DateTime>("washDate").ToLongDateString();
+                    row[3] = reader.SafeRead<string>("washTotalTime");
+                    row[4] = reader.SafeRead<string>("washBeginTime");
+                    row[5] = reader.SafeRead<string>("washEndTime");
+                    row[6] = reader.SafeRead<string>("autoCleanNo");
+                    row[7] = VerifyData(reader.SafeRead<string>("dipInWashSecEnd"), reader.SafeRead<string>("dipInWashSecBegin"));
+                    row[8] = VerifyData(reader.SafeRead<string>("lastWashSecEnd"), reader.SafeRead<string>("lastWashSecBegin"));
+                    row[9] = reader.SafeRead<string>("wareNo");
+                    row[10] = reader.SafeRead<string>("doctorName");
+                    row[11] = reader.SafeRead<string>("patientNo");
+                    row[12] = reader.SafeRead<string>("prePatientNo");
+                    row[13] = reader.SafeRead<string>("qualified");
+                    row[14] = reader.SafeRead<string>("nurseNo");
+                    table.Rows.Add(row);
+                }
+            }
+            var dataSet = new DataSet();
+            dataSet.Tables.Add(table);
+            return dataSet.GetXml();
+        }
+        #endregion
+
+        #region Verify clean time
+        /// <summary>
+        /// 验证时间数据
+        /// </summary>
+        /// <param name="strBegin">开始时间</param>
+        /// <param name="strEnd">结束时间</param>
+        /// <returns>时间段</returns>
+        string VerifyData(string strEnd, string strBegin)
+        {
+            string result = "00:00:00";
+            try
+            {
+                DateTime begin = Convert.ToDateTime(strBegin);
+                DateTime end = Convert.ToDateTime(strEnd);
+                result = (end - begin).ToString();
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+            return result;
+        }
+        #endregion
+
+        #region DataTable struct convert to xml
+        /// <summary>
+        /// 创建新的DataTable 转化成XML
+        /// </summary>
+        /// <param name="flag"></param>
+        /// <returns></returns>
+        DataTable CreateNewDataTable(string flag)
+        {
+            DataTable temp = new DataTable();
+            DataColumn endoscopeSN = new DataColumn();
+            endoscopeSN.ColumnName = "endoscopeSN";
+            temp.Columns.Add(endoscopeSN);
+
+            DataColumn washerRealName = new DataColumn();
+            washerRealName.ColumnName = "washerRealName";
+            temp.Columns.Add(washerRealName);
+
+            DataColumn washDate = new DataColumn();
+            washDate.ColumnName = "washDate";
+            temp.Columns.Add(washDate);
+
+            DataColumn washTotalTime = new DataColumn();
+            washTotalTime.ColumnName = "washTotalTime";
+            temp.Columns.Add(washTotalTime);
+
+            DataColumn washBeginTime = new DataColumn();
+            washBeginTime.ColumnName = "washBeginTime";
+            temp.Columns.Add(washBeginTime);
+
+            DataColumn washEndTime = new DataColumn();
+            washEndTime.ColumnName = "washEndTime";
+            temp.Columns.Add(washEndTime);
+
+            DataColumn autoCleanNo = new DataColumn();
+            autoCleanNo.ColumnName = "autoCleanNo";
+            temp.Columns.Add(autoCleanNo);
+
+            if (flag == "1")
+            {
+                DataColumn brushWashTime = new DataColumn();
+                brushWashTime.ColumnName = "brushWashTime";
+                temp.Columns.Add(brushWashTime);
+
+                DataColumn firstWashTime = new DataColumn();
+                firstWashTime.ColumnName = "firstWashTime";
+                temp.Columns.Add(firstWashTime);
+
+                DataColumn enzymeWashTime = new DataColumn();
+                enzymeWashTime.ColumnName = "enzymeWashTime";
+                temp.Columns.Add(enzymeWashTime);
+
+                DataColumn cleanOutWashTime = new DataColumn();
+                cleanOutWashTime.ColumnName = "cleanOutWashTime";
+                temp.Columns.Add(cleanOutWashTime);
+
+                DataColumn dipInWashTime = new DataColumn();
+                dipInWashTime.ColumnName = "dipInWashTime";
+                temp.Columns.Add(dipInWashTime);
+
+                DataColumn lastWashTime = new DataColumn();
+                lastWashTime.ColumnName = "lastWashTime";
+                temp.Columns.Add(lastWashTime);
+                temp.TableName = "FirstWash";
+            }
+            else
+            {
+                DataColumn dipInWashSecTime = new DataColumn();
+                dipInWashSecTime.ColumnName = "dipInWashSecTime";
+                temp.Columns.Add(dipInWashSecTime);
+
+                DataColumn lastWashSecTime = new DataColumn();
+                lastWashSecTime.ColumnName = "lastWashSecTime";
+                temp.Columns.Add(lastWashSecTime);
+                temp.TableName = "SecondWash";
+            }
+            DataColumn wareNo = new DataColumn();
+            wareNo.ColumnName = "wareNo";
+            temp.Columns.Add(wareNo);
+
+            DataColumn doctorName = new DataColumn();
+            doctorName.ColumnName = "doctorName";
+            temp.Columns.Add(doctorName);
+
+
+            DataColumn patientNo = new DataColumn();
+            patientNo.ColumnName = "patientNo";
+            temp.Columns.Add(patientNo);
+
+            DataColumn prePatientNo = new DataColumn();
+            prePatientNo.ColumnName = "prePatientNo";
+            temp.Columns.Add(prePatientNo);
+
+            DataColumn qualified = new DataColumn();
+            qualified.ColumnName = "qualified";
+            temp.Columns.Add(qualified);
+
+            DataColumn nurseNo = new DataColumn();
+            nurseNo.ColumnName = "nurseNo";
+            temp.Columns.Add(nurseNo);
+
+            return temp;
+        }
+        #endregion
+
+        #region  Get clean result by condition
+        /// <summary>
+        /// 根据搜索条件获取内容
+        /// </summary>
+        /// <param name="condition">条件</param>
+        /// <param name="value">值</param>
+        /// <returns>查询结果集</returns>
+        public string GetSearchResultByName(string condition, string value)
+        {
+            var select = string.Format(@"select a.*,b.* from endsocopeRecord as a full jion endoscopeRecordInfo as b 
+                                        on a.recordInfoId=b.recordInfoId where  {0}='{1}' order by a.recordTime desc", condition, value);
+            DataTable t1 = null;
+            DataTable t2 = null;
+            DataSet set = null;
+
+            using (var reader = SqlHelper.ExecuteReader(Global.ConnStr, CommandType.Text, select))
+            {
+                if (!reader.HasRows)
+                {
+                    return string.Empty;
+                }
+
+                while (reader.Read())
+                {
+                    if (string.Equals(reader.SafeRead<string>("cleanType"), "1"))
+                    {
+                        DataRow row = t1.NewRow();
+                        row[0] = reader.SafeRead<string>("endoscopeSN");
+                        row[1] = reader.SafeRead<string>("washerRealName");
+                        row[2] = reader.SafeRead<string>("washDate");
+                        row[3] = reader.SafeRead<string>("washTotalTime");
+                        row[4] = reader.SafeRead<string>("washBeginTime");
+                        row[5] = reader.SafeRead<string>("washEndTime");
+                        row[6] = reader.SafeRead<string>("autoCleanNo");
+                        row[7] = VerifyData(reader.SafeRead<string>("brushWashEnd"), reader.SafeRead<string>("brushWashBegin"));
+                        row[8] = VerifyData(reader.SafeRead<string>("firstWashEnd"), reader.SafeRead<string>("firstWashBegin"));
+                        row[9] = VerifyData(reader.SafeRead<string>("enzymeWashEnd"), reader.SafeRead<string>("enzymeWashBegin"));
+                        row[10] = VerifyData(reader.SafeRead<string>("cleanOutWashEnd"), reader.SafeRead<string>("cleanOutWashBegin"));
+                        row[11] = VerifyData(reader.SafeRead<string>("dipInWashEnd"), reader.SafeRead<string>("dipInWashBegin"));
+                        row[12] = VerifyData(reader.SafeRead<string>("lastWashEnd"), reader.SafeRead<string>("lastWashBegin"));
+                        row[13] = reader.SafeRead<string>("wareNo");
+                        row[14] = reader.SafeRead<string>("doctorName");
+                        row[15] = reader.SafeRead<string>("patientNo");
+                        row[16] = reader.SafeRead<string>("prePatientNo");
+                        row[17] = reader.SafeRead<string>("qualified");
+                        row[18] = reader.SafeRead<string>("nurseNo");
+                        t1.Rows.Add(row);
+                    }
+                    else
+                    {
+                        DataRow row = t2.NewRow();
+                        row[0] = reader.SafeRead<string>("endoscopeSN");
+                        row[1] = reader.SafeRead<string>("washerRealName");
+                        row[2] = reader.SafeRead<DateTime>("washDate").ToLongDateString();
+                        row[3] = reader.SafeRead<string>("washTotalTime");
+                        row[4] = reader.SafeRead<string>("washBeginTime");
+                        row[5] = reader.SafeRead<string>("washEndTime");
+                        row[6] = reader.SafeRead<string>("autoCleanNo");
+                        row[7] = VerifyData(reader.SafeRead<string>("dipInWashSecEnd"), reader.SafeRead<string>("dipInWashSecBegin"));
+                        row[8] = VerifyData(reader.SafeRead<string>("lastWashSecEnd"), reader.SafeRead<string>("lastWashSecBegin"));
+                        row[9] = reader.SafeRead<string>("wareNo");
+                        row[10] = reader.SafeRead<string>("doctorName");
+                        row[11] = reader.SafeRead<string>("patientNo");
+                        row[12] = reader.SafeRead<string>("prePatientNo");
+                        row[13] = reader.SafeRead<string>("qualified");
+                        row[14] = reader.SafeRead<string>("nurseNo");
+                        t2.Rows.Add(row);
+                    }
+                }
+            }
+            set.Tables.Add(t1);
+            set.Tables.Add(t2);
+            return set.GetXml();
+        }
+        #endregion
+    }
+}
+

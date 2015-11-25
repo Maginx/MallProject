@@ -1,0 +1,622 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="MallProxy" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsp:Policy wsu:Id="WSHttpBinding_IMallProxy_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <wsaw:UsingAddressing />
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import namespace="http://tempuri.org/" />
+      <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+      <xsd:import namespace="http://schemas.datacontract.org/2004/07/MallHost" />
+      <xsd:import namespace="http://schemas.datacontract.org/2004/07/ClassLibrary" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IMallProxy_ChechDinInSec_InputMessage">
+    <wsdl:part name="parameters" element="tns:ChechDinInSec" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_ChechDinInSec_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ChechDinInSecResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_GetUserEndoscopeMsgBySIM_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetUserEndoscopeMsgBySIM" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_GetUserEndoscopeMsgBySIM_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetUserEndoscopeMsgBySIMResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_RecordEveryCleanStep_InputMessage">
+    <wsdl:part name="parameters" element="tns:RecordEveryCleanStep" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_RecordEveryCleanStep_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RecordEveryCleanStepResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_ResetEndoscopeMsg_InputMessage">
+    <wsdl:part name="parameters" element="tns:ResetEndoscopeMsg" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_ResetEndoscopeMsg_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ResetEndoscopeMsgResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_GetLatestCleanMsgByEndoscopeSN_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetLatestCleanMsgByEndoscopeSN" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_GetLatestCleanMsgByEndoscopeSN_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetLatestCleanMsgByEndoscopeSNResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_SureRecordBySN_InputMessage">
+    <wsdl:part name="parameters" element="tns:SureRecordBySN" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_SureRecordBySN_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SureRecordBySNResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_CheckOneCol_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckOneCol" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_CheckOneCol_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckOneColResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_CleanQulified_InputMessage">
+    <wsdl:part name="parameters" element="tns:CleanQulified" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_CleanQulified_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CleanQulifiedResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_SetAutoCleanNo_InputMessage">
+    <wsdl:part name="parameters" element="tns:SetAutoCleanNo" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_SetAutoCleanNo_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SetAutoCleanNoResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_ModifyUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:ModifyUser" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_ModifyUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ModifyUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_ModifyEndoscope_InputMessage">
+    <wsdl:part name="parameters" element="tns:ModifyEndoscope" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_ModifyEndoscope_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ModifyEndoscopeResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_DeleteEndoscope_InputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteEndoscope" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_DeleteEndoscope_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteEndoscopeResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_DeleteUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteUser" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_DeleteUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_LoadEndoscopeMsg_InputMessage">
+    <wsdl:part name="parameters" element="tns:LoadEndoscopeMsg" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_LoadEndoscopeMsg_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LoadEndoscopeMsgResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_LoadUserMsg_InputMessage">
+    <wsdl:part name="parameters" element="tns:LoadUserMsg" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_LoadUserMsg_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LoadUserMsgResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_SearchTrace_InputMessage">
+    <wsdl:part name="parameters" element="tns:SearchTrace" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_SearchTrace_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SearchTraceResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_SearchFirstWash_InputMessage">
+    <wsdl:part name="parameters" element="tns:SearchFirstWash" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_SearchFirstWash_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SearchFirstWashResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_SearchSecondWash_InputMessage">
+    <wsdl:part name="parameters" element="tns:SearchSecondWash" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_SearchSecondWash_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SearchSecondWashResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_GetSearchResultByName_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetSearchResultByName" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_GetSearchResultByName_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetSearchResultByNameResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_LoginUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:LoginUser" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_LoginUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LoginUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_LoadPatients_InputMessage">
+    <wsdl:part name="parameters" element="tns:LoadPatients" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_LoadPatients_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LoadPatientsResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_RegisterPatient_InputMessage">
+    <wsdl:part name="parameters" element="tns:RegisterPatient" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_RegisterPatient_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RegisterPatientResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_DeletePatients_InputMessage">
+    <wsdl:part name="parameters" element="tns:DeletePatients" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_DeletePatients_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DeletePatientsResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_UpdateTracData_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateTracData" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_UpdateTracData_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateTracDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_LoadUserInfos_InputMessage">
+    <wsdl:part name="parameters" element="tns:LoadUserInfos" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_LoadUserInfos_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LoadUserInfosResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_LoadWareinfos_InputMessage">
+    <wsdl:part name="parameters" element="tns:LoadWareinfos" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_LoadWareinfos_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LoadWareinfosResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_LoadEndsocopeNames_InputMessage">
+    <wsdl:part name="parameters" element="tns:LoadEndsocopeNames" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_LoadEndsocopeNames_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LoadEndsocopeNamesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_EndoscopeIsQuality_InputMessage">
+    <wsdl:part name="parameters" element="tns:EndoscopeIsQuality" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_EndoscopeIsQuality_OutputMessage">
+    <wsdl:part name="parameters" element="tns:EndoscopeIsQualityResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_DeleteWare_InputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteWare" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_DeleteWare_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteWareResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_InsertWare_InputMessage">
+    <wsdl:part name="parameters" element="tns:InsertWare" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_InsertWare_OutputMessage">
+    <wsdl:part name="parameters" element="tns:InsertWareResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_GetPrePatient_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetPrePatient" />
+  </wsdl:message>
+  <wsdl:message name="IMallProxy_GetPrePatient_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetPrePatientResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IMallProxy">
+    <wsdl:operation name="ChechDinInSec">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/ChechDinInSec" message="tns:IMallProxy_ChechDinInSec_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/ChechDinInSecResponse" message="tns:IMallProxy_ChechDinInSec_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserEndoscopeMsgBySIM">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/GetUserEndoscopeMsgBySIM" message="tns:IMallProxy_GetUserEndoscopeMsgBySIM_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/GetUserEndoscopeMsgBySIMResponse" message="tns:IMallProxy_GetUserEndoscopeMsgBySIM_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RecordEveryCleanStep">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/RecordEveryCleanStep" message="tns:IMallProxy_RecordEveryCleanStep_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/RecordEveryCleanStepResponse" message="tns:IMallProxy_RecordEveryCleanStep_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ResetEndoscopeMsg">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/ResetEndoscopeMsg" message="tns:IMallProxy_ResetEndoscopeMsg_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/ResetEndoscopeMsgResponse" message="tns:IMallProxy_ResetEndoscopeMsg_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLatestCleanMsgByEndoscopeSN">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/GetLatestCleanMsgByEndoscopeSN" message="tns:IMallProxy_GetLatestCleanMsgByEndoscopeSN_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/GetLatestCleanMsgByEndoscopeSNResponse" message="tns:IMallProxy_GetLatestCleanMsgByEndoscopeSN_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SureRecordBySN">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/SureRecordBySN" message="tns:IMallProxy_SureRecordBySN_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/SureRecordBySNResponse" message="tns:IMallProxy_SureRecordBySN_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckOneCol">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/CheckOneCol" message="tns:IMallProxy_CheckOneCol_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/CheckOneColResponse" message="tns:IMallProxy_CheckOneCol_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CleanQulified">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/CleanQulified" message="tns:IMallProxy_CleanQulified_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/CleanQulifiedResponse" message="tns:IMallProxy_CleanQulified_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SetAutoCleanNo">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/SetAutoCleanNo" message="tns:IMallProxy_SetAutoCleanNo_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/SetAutoCleanNoResponse" message="tns:IMallProxy_SetAutoCleanNo_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ModifyUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/ModifyUser" message="tns:IMallProxy_ModifyUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/ModifyUserResponse" message="tns:IMallProxy_ModifyUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ModifyEndoscope">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/ModifyEndoscope" message="tns:IMallProxy_ModifyEndoscope_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/ModifyEndoscopeResponse" message="tns:IMallProxy_ModifyEndoscope_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteEndoscope">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/DeleteEndoscope" message="tns:IMallProxy_DeleteEndoscope_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/DeleteEndoscopeResponse" message="tns:IMallProxy_DeleteEndoscope_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/DeleteUser" message="tns:IMallProxy_DeleteUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/DeleteUserResponse" message="tns:IMallProxy_DeleteUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LoadEndoscopeMsg">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/LoadEndoscopeMsg" message="tns:IMallProxy_LoadEndoscopeMsg_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/LoadEndoscopeMsgResponse" message="tns:IMallProxy_LoadEndoscopeMsg_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LoadUserMsg">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/LoadUserMsg" message="tns:IMallProxy_LoadUserMsg_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/LoadUserMsgResponse" message="tns:IMallProxy_LoadUserMsg_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchTrace">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/SearchTrace" message="tns:IMallProxy_SearchTrace_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/SearchTraceResponse" message="tns:IMallProxy_SearchTrace_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchFirstWash">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/SearchFirstWash" message="tns:IMallProxy_SearchFirstWash_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/SearchFirstWashResponse" message="tns:IMallProxy_SearchFirstWash_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchSecondWash">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/SearchSecondWash" message="tns:IMallProxy_SearchSecondWash_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/SearchSecondWashResponse" message="tns:IMallProxy_SearchSecondWash_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSearchResultByName">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/GetSearchResultByName" message="tns:IMallProxy_GetSearchResultByName_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/GetSearchResultByNameResponse" message="tns:IMallProxy_GetSearchResultByName_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LoginUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/LoginUser" message="tns:IMallProxy_LoginUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/LoginUserResponse" message="tns:IMallProxy_LoginUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LoadPatients">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/LoadPatients" message="tns:IMallProxy_LoadPatients_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/LoadPatientsResponse" message="tns:IMallProxy_LoadPatients_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RegisterPatient">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/RegisterPatient" message="tns:IMallProxy_RegisterPatient_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/RegisterPatientResponse" message="tns:IMallProxy_RegisterPatient_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeletePatients">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/DeletePatients" message="tns:IMallProxy_DeletePatients_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/DeletePatientsResponse" message="tns:IMallProxy_DeletePatients_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTracData">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/UpdateTracData" message="tns:IMallProxy_UpdateTracData_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/UpdateTracDataResponse" message="tns:IMallProxy_UpdateTracData_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LoadUserInfos">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/LoadUserInfos" message="tns:IMallProxy_LoadUserInfos_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/LoadUserInfosResponse" message="tns:IMallProxy_LoadUserInfos_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LoadWareinfos">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/LoadWareinfos" message="tns:IMallProxy_LoadWareinfos_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/LoadWareinfosResponse" message="tns:IMallProxy_LoadWareinfos_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LoadEndsocopeNames">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/LoadEndsocopeNames" message="tns:IMallProxy_LoadEndsocopeNames_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/LoadEndsocopeNamesResponse" message="tns:IMallProxy_LoadEndsocopeNames_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="EndoscopeIsQuality">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/EndoscopeIsQuality" message="tns:IMallProxy_EndoscopeIsQuality_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/EndoscopeIsQualityResponse" message="tns:IMallProxy_EndoscopeIsQuality_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteWare">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/DeleteWare" message="tns:IMallProxy_DeleteWare_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/DeleteWareResponse" message="tns:IMallProxy_DeleteWare_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="InsertWare">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/InsertWare" message="tns:IMallProxy_InsertWare_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/InsertWareResponse" message="tns:IMallProxy_InsertWare_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPrePatient">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMallProxy/GetPrePatient" message="tns:IMallProxy_GetPrePatient_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMallProxy/GetPrePatientResponse" message="tns:IMallProxy_GetPrePatient_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="WSHttpBinding_IMallProxy" type="tns:IMallProxy">
+    <wsp:PolicyReference URI="#WSHttpBinding_IMallProxy_policy" />
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ChechDinInSec">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/ChechDinInSec" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserEndoscopeMsgBySIM">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/GetUserEndoscopeMsgBySIM" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecordEveryCleanStep">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/RecordEveryCleanStep" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResetEndoscopeMsg">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/ResetEndoscopeMsg" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLatestCleanMsgByEndoscopeSN">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/GetLatestCleanMsgByEndoscopeSN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SureRecordBySN">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/SureRecordBySN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckOneCol">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/CheckOneCol" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CleanQulified">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/CleanQulified" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetAutoCleanNo">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/SetAutoCleanNo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyUser">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/ModifyUser" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyEndoscope">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/ModifyEndoscope" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteEndoscope">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/DeleteEndoscope" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUser">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/DeleteUser" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoadEndoscopeMsg">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/LoadEndoscopeMsg" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoadUserMsg">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/LoadUserMsg" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchTrace">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/SearchTrace" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchFirstWash">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/SearchFirstWash" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchSecondWash">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/SearchSecondWash" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSearchResultByName">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/GetSearchResultByName" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginUser">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/LoginUser" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoadPatients">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/LoadPatients" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegisterPatient">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/RegisterPatient" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePatients">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/DeletePatients" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTracData">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/UpdateTracData" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoadUserInfos">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/LoadUserInfos" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoadWareinfos">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/LoadWareinfos" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoadEndsocopeNames">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/LoadEndsocopeNames" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="EndoscopeIsQuality">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/EndoscopeIsQuality" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteWare">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/DeleteWare" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InsertWare">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/InsertWare" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPrePatient">
+      <soap12:operation soapAction="http://tempuri.org/IMallProxy/GetPrePatient" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="MallProxy">
+    <wsdl:port name="WSHttpBinding_IMallProxy" binding="tns:WSHttpBinding_IMallProxy">
+      <soap12:address location="http://localhost:8887/Service" />
+      <wsa10:EndpointReference>
+        <wsa10:Address>http://localhost:8887/Service</wsa10:Address>
+      </wsa10:EndpointReference>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

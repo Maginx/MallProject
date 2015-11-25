@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <appSettings>
+    <add key="server" value=""/>
+    <add key="database" value="endoscopeArm"/>
+    <add key="user" value="sa"/>
+    <add key="pass" value="s@123456"/>
+  </appSettings>
+</configuration>

@@ -1,0 +1,435 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Data.SqlClient;
+using System.IO;
+using System.Windows.Forms;
+
+namespace ProxyClient
+{
+    public partial class UpdateEndoscope
+    {
+        #region 私有对象
+
+        private SqlConnection _connection = null;
+
+        private SqlCommand _command = null;
+
+        private List<Patient> _patients = null;
+        #endregion
+
+        #region 日志
+        /// <summary>
+        /// 日志
+        /// </summary>
+        /// <param name="ex">异常对象</param>
+        private void Log(Exception ex)
+        {
+            using (StreamWriter writer = new StreamWriter(Global.LogPath))
+            {
+                writer.WriteLine(string.Format("错误信息{0}", ex.Message));
+                writer.WriteLine(string.Format("错误应用程序或者对象名{0}", ex.Source));
+                writer.WriteLine(string.Format("错误堆栈信息", ex.StackTrace));
+            }
+        }
+        #endregion
+
+        #region 更新内镜信息
+        /// <summary>
+        /// 更新内镜信息
+        /// </summary>
+        /// <returns>更新结果</returns>
+        private bool UpdateEndoscopeInfo(string patientId)
+        {
+            bool result = false;
+            string selectSql = string.Format("select recordId from endoscopeRecord where (endoscopeSN='{0}' or endoscopeSIM='{1}') and  (len(ltrim(rtrim(wareNo)))=0 or wareNo is null) order by recordId desc", this.cmbEndoscope.Text.Trim(), this.cmbEndoscope.Text.Trim());
+            try
+            {
+                using (this._connection = new SqlConnection(Global.ConnectionStr))
+                {
+                    this._connection.Open();
+                    _command = new SqlCommand();
+                    _command.CommandText = selectSql;
+                    _command.Connection = this._connection;
+                    var o = _command.ExecuteScalar();
+                    if (o == null)
+                    {
+                        return result;
+                    }
+                    selectSql = string.Format("update endoscopeRecord set wareNo='{0}',doctorName='{1}',patientNo='{2}',nurseNo='{3}' where recordId='{4}'", this.cmbWareNos.Text.Trim(), this.cmbDoctor.Text.Trim(), string.Format("{0}[{1}]", this.txtPatientName.Text.Trim(), this.txtPatientSN.Text.Trim()), this.cmbNurses.Text.Trim(), o.ToString());
+                    _command.CommandText = selectSql;
+                    var num = _command.ExecuteNonQuery();
+                    if (num > 0)
+                    {
+                        selectSql = string.Format("update patientRecord set examined='1' where patientId='{0}'", patientId);
+                        _command.CommandText = selectSql;
+                        num = _command.ExecuteNonQuery();
+                        if (num > 0) result = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+            }
+            return result;
+        }
+        #endregion
+
+        #region 加载病人列表
+        /// <summary>
+        /// 加载病人列表
+        /// </summary>
+        /// <returns>病人列表</returns>
+        private void LoadPatientList()
+        {
+            string selectSql = string.Format("select * from patientRecord where examined is null");
+            try
+            {
+                using (this._connection = new SqlConnection(Global.ConnectionStr))
+                {
+                    this._connection.Open();
+                    _command = new SqlCommand();
+                    _command.CommandText = selectSql;
+                    _command.Connection = this._connection;
+                    var reader = _command.ExecuteReader();
+                    if (reader == null)
+                    {
+                        return;
+                    }
+                    this._patients = this.SqlReaderPatient(reader);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+            }
+        }
+        #endregion
+
+        #region  加载护士和医生信息
+        /// <summary>
+        /// 加载医生护士信息
+        /// </summary>
+        private void LoadDoctsNursList()
+        {
+            try
+            {
+                using (this._connection = new SqlConnection(Global.ConnectionStr))
+                {
+                    this._connection.Open();
+                    _command = new SqlCommand();
+                    _command.CommandText = string.Format("select * from userInfo where userRole='医生' ");
+                    _command.Connection = this._connection;
+                    var reader = _command.ExecuteReader();
+                    if (reader == null)
+                    {
+                        return;
+                    }
+                    var temp = this.SqlReaderDocOrNurs(reader);
+                    this.BingingToCombobox(this.cmbDoctor, temp);
+                    reader.Close();
+
+                    this._command.CommandText = string.Format("select * from userInfo where userRole='护士' ");
+                    reader = this._command.ExecuteReader();
+                    if (reader == null)
+                    {
+                        return;
+                    }
+                    temp = this.SqlReaderDocOrNurs(reader);
+                    this.BingingToCombobox(this.cmbNurses, temp);
+                    reader.Close();
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+            }
+        }
+        #endregion
+
+        #region 加载检查室信息
+        private void LoadWareInfos()
+        {
+            try
+            {
+                using (this._connection = new SqlConnection(Global.ConnectionStr))
+                {
+                    this._connection.Open();
+                    _command = new SqlCommand();
+                    _command.CommandText = string.Format("select * from wareInfo ");
+                    _command.Connection = this._connection;
+                    var reader = _command.ExecuteReader();
+                    if (reader == null)
+                    {
+                        return;
+                    }
+                    var temp = this.SqlReaderWares(reader);
+                    this.BingingToCombobox(this.cmbWareNos, temp);
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+            }
+        }
+        #endregion
+
+        #region 加载镜子信息
+        private void LoadEndoscopeInfo()
+        {
+            try
+            {
+                using (this._connection = new SqlConnection(Global.ConnectionStr))
+                {
+                    this._connection.Open();
+                    _command = new SqlCommand();
+                    _command.CommandText = string.Format("select endoscopeSN from endoscopeInfo ");
+                    _command.Connection = this._connection;
+                    var reader = _command.ExecuteReader();
+                    if (reader == null)
+                    {
+                        return;
+                    }
+                    var temp = this.SqlReaderEndoscope(reader);
+                    this.BingingToCombobox(this.cmbEndoscope, temp);
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+            }
+        }
+        #endregion
+
+        #region 删除病人信息
+        private bool DeletePatient(string sn)
+        {
+            bool result = false;
+            try
+            {
+                using (this._connection = new SqlConnection(Global.ConnectionStr))
+                {
+                    this._connection.Open();
+                    _command = new SqlCommand();
+                    _command.CommandText = string.Format("update patientRecord set examined='1' where patientSN='{0}'", sn);
+                    _command.Connection = this._connection;
+                    var num = _command.ExecuteNonQuery();
+                    if (num == 0)
+                    {
+                        return result;
+                    }
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+            }
+            return result;
+        }
+        #endregion
+
+        #region  读取病人信息
+        /// <summary>
+        /// 读取病人信息
+        /// </summary>
+        /// <param name="reader">reader对象</param>
+        /// <returns>病人列表</returns>
+        private List<Patient> SqlReaderPatient(SqlDataReader reader)
+        {
+            List<Patient> patients = null;
+            if (reader == null) return null;
+            patients = new List<Patient>();
+            while (reader.Read())
+            {
+                var patient = new Patient();
+                patient.PatientId = this.SafeReader(reader["patientId"]);
+                patient.PatientSN = this.SafeReader(reader["patientSN"]);
+                patient.PatientSex = this.SafeReader(reader["sex"]);
+                patient.PatientName = this.SafeReader(reader["patientName"]);
+                patient.PatientPhoneNo = this.SafeReader(reader["patientPhoneNo"]);
+                patient.PatientAddr = this.SafeReader(reader["patientAddress"]);
+                patient.Remark = this.SafeReader(reader["remark"]);
+                patients.Add(patient);
+            }
+            return patients;
+        }
+        #endregion
+
+        #region 读取医生名护士名
+        /// <summary>
+        /// 读取医生或护士名
+        /// </summary>
+        /// <param name="reader">读取对象</param>
+        /// <returns>护士名列表或者医生名列表</returns>
+        private List<string> SqlReaderDocOrNurs(SqlDataReader reader)
+        {
+            List<string> docts = null;
+            if (reader == null) return null;
+            docts = new List<string>();
+            while (reader.Read())
+            {
+                var obj = this.SafeReader(reader["userName"]);
+                docts.Add(obj);
+            }
+            return docts;
+        }
+        #endregion
+
+        #region 读取检查室
+        /// <summary>
+        /// 读取检查室
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        private List<string> SqlReaderWares(SqlDataReader reader)
+        {
+            List<string> wares = null;
+            if (reader == null) return null;
+            wares = new List<string>();
+            while (reader.Read())
+            {
+                var obj = this.SafeReader(reader["wareName"]);
+                wares.Add(obj);
+            }
+            return wares;
+        }
+        #endregion
+
+
+        #region 读取内镜
+        /// <summary>
+        /// 读取内镜
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        private List<string> SqlReaderEndoscope(SqlDataReader reader)
+        {
+            List<string> wares = null;
+            if (reader == null) return null;
+            wares = new List<string>();
+            while (reader.Read())
+            {
+                var obj = this.SafeReader(reader["endoscopeSN"]);
+                wares.Add(obj);
+            }
+            return wares;
+        }
+        #endregion
+
+        #region  绑定数据到界面
+        /// <summary>
+        /// 绑定链表到界面
+        /// </summary>
+        /// <param name="patients">列表集合</param>
+        private void BingingToList(List<Patient> patients)
+        {
+            if (!this.IsValid<Patient>(patients)) return;
+            string template = "({0}).{1}——[{2}]";
+            if (this.lsbPatient.Items == null)
+            {
+                return;
+            }
+            this.lsbPatient.Items.Clear();
+            var i = 1;
+            patients.ForEach(p =>
+            {
+                this.lsbPatient.Items.Add(string.Format(template, i++, p.PatientName, p.PatientSN));
+            });
+        }
+
+        private void BingingToCombobox(ComboBox cmb, List<string> docts)
+        {
+            if (!this.IsValid<string>(docts)) return;
+            try
+            {
+                docts.ForEach(d =>
+                {
+                    cmb.Items.Add(d);
+                });
+                if (cmb.Items != null && cmb.Items.Count > 0)
+                {
+                    cmb.Text = cmb.Items[0].ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+            }
+        }
+        #endregion
+
+        /// <summary>
+        /// 安全读取
+        /// </summary>
+        /// <param name="obj">reader对象</param>
+        /// <returns>读取结果</returns>
+        private string SafeReader(object obj)
+        {
+            string result = string.Empty;
+
+            if (obj == null)
+            {
+                return result;
+            }
+
+            if (Convert.IsDBNull(obj))
+            {
+                return result;
+            }
+
+            try
+            {
+                result = obj.ToString();
+            }
+            catch { }
+
+            return result;
+        }
+
+
+        /// <summary>
+        /// 验证是否集合是否合法
+        /// </summary>
+        /// <typeparam name="T">集合复合类型</typeparam>
+        /// <param name="enums">集合对象</param>
+        /// <returns>验证结果，合法=true；不合法=false</returns>
+        public bool IsValid<T>(IEnumerable<T> enums)
+        {
+            bool result = false;
+            if (enums == null || enums.Count() == 0)
+            {
+                return result;
+            }
+            else
+            {
+                result = true;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 根据SN号获取ID
+        /// </summary>
+        /// <param name="sn"></param>
+        /// <returns></returns>
+        private string GetPatientIdBySN(string sn)
+        {
+            string id = string.Empty;
+            this._patients.ForEach(p =>
+            {
+                if (p.PatientSN == sn)
+                {
+                    id = p.PatientId;
+                }
+            });
+            return id;
+        }
+    }
+}

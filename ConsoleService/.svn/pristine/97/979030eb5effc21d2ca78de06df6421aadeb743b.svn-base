@@ -1,0 +1,295 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.ServiceModel;
+using MallHost.Service;
+
+namespace MallHostService
+{
+    #region 清洗步骤枚举
+    /// <summary>
+    /// 清洗步骤
+    /// </summary>
+    public enum Step
+    {
+        /// <summary>
+        /// 记录时间
+        /// </summary>
+        RecordTime,
+
+        /// <summary>
+        /// 刷洗开始
+        /// </summary>
+        ManualWashBeginStep,
+
+        /// <summary>
+        /// 刷洗结束
+        /// </summary>
+        ManualWashEndStep,
+
+        /// <summary>
+        /// 初洗开始
+        /// </summary>
+        FirstWashBeginStep,
+
+        /// <summary>
+        /// 初洗结束
+        /// </summary>
+        FirstWashEndStep,
+
+        /// <summary>
+        /// 酶洗开始
+        /// </summary>
+        EnzymeWashBeginStep,
+
+        /// <summary>
+        /// 酶洗结束
+        /// </summary>
+        EnzymeWashEndStep,
+
+        /// <summary>
+        /// 清洗开始
+        /// </summary>
+        CleanOutWashBeginStep,
+
+        /// <summary>
+        /// 清洗结束
+        /// </summary>
+        CleanOutWashEndStep,
+
+        /// <summary>
+        /// 二次浸泡开始
+        /// </summary>
+        DipInWashSecBeginStep,
+
+        /// <summary>
+        /// 二次浸泡结束
+        /// </summary>
+        DipInWashSecEndStep,
+
+        /// <summary>
+        /// 浸泡开始
+        /// </summary>
+        DipInWashBeginStep,
+
+        /// <summary>
+        /// 浸泡结束
+        /// </summary>
+        DipInWashEndStep,
+
+        /// <summary>
+        /// 末洗开始
+        /// </summary>
+        LastWashBeginStep,
+
+        /// <summary>
+        /// 末洗结束
+        /// </summary>
+        LastWashEndStep,
+
+        /// <summary>
+        /// 二次末洗开始
+        /// </summary>
+        LastWashSecBeginStep,
+
+        /// <summary>
+        /// 二次末洗结束
+        /// </summary>
+        LastWashSecEndStep
+    }
+    #endregion
+    /// <summary>
+    /// 服务代理接口
+    /// </summary>
+    [ServiceContract]
+    internal interface IMallProxy
+    {
+        /// <summary>
+        /// 根据内镜编号 判断是否有二次消毒
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <returns>是否存在</returns>
+        [OperationContract]
+        bool ChechDinInSec(string endoscopeSN);
+
+        /// <summary>
+        /// 根据SIM卡号获取信息
+        /// </summary>
+        /// <param name="sim">sim卡号</param>
+        /// <returns>相关信息</returns>
+        [OperationContract]
+        string[] GetUserEndoscopeMsgBySIM(string sim);
+
+        /// <summary>
+        /// 记录逐步清洗
+        /// </summary>
+        /// <param name="step">步骤</param>
+        /// <param name="beginTime">开始时间</param>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <returns>
+        /// 记录是否成功
+        /// </returns>
+        [OperationContract]
+        bool RecordEveryCleanStep(MallHostService.Step step, DateTime beginTime, string endoscopeSN);
+
+        /// <summary>
+        /// 重置内镜信息
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <param name="endoscopeSIM">内镜SIM卡号</param>
+        /// <param name="washerNo">清洗工编号</param>
+        /// <param name="washerRealName">清洗工名称</param>
+        /// <param name="cleanType">清洗类型</param>
+        /// <param name="disinfection">The disinfection.</param>
+        /// <param name="autoClean">The automatic clean.</param>
+        /// <returns>
+        /// 重置是否成功
+        /// </returns>
+        [OperationContract]
+        bool ResetEndoscopeMsg(string endoscopeSN, string endoscopeSIM, string washerNo, string washerRealName, string cleanType, string disinfection = "1", string autoClean = "手洗");
+
+        /// <summary>
+        /// 获取一条内镜信息在endoscopeCleanTemp表中
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <returns>返回内镜信息</returns>
+        [OperationContract]
+        EndoscopeTemp GetLatestCleanMsgByEndoscopeSN(string endoscopeSN);
+
+        /// <summary>
+        /// 确认清洗信息，并入库
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <param name="totalTime">总清洗时间</param>
+        /// <param name="checkTime">检查时间</param>
+        /// <param name="checkNo">检查员工编号</param>
+        /// <param name="checkRealName">检查员工姓名</param>
+        /// <returns>
+        /// 确认结果
+        /// </returns>
+        [OperationContract]
+        bool SureRecordBySN(string endoscopeSN, string totalTime, string checkTime, string checkNo = "", string checkRealName = "");
+
+        /// <summary>
+        /// 是否存在某某一特定数据
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <param name="col">列名</param>
+        /// <param name="table">表名</param>
+        /// <returns>
+        /// 查找结果，true 存在
+        /// </returns>
+        [OperationContract]
+        bool CheckOneCol(string endoscopeSN, string col, string table = "endoscopeCleanTemp");
+
+        /// <summary>
+        /// 清洗合格
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <param name="qulified">合格</param>
+        /// <returns>结果</returns>
+        [OperationContract]
+        bool CleanQulified(string endoscopeSN, string qulified);
+
+        /// <summary>
+        /// 设置自动清洗机号
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <param name="cleanNo">清洗编号</param>
+        /// <returns>设置结果</returns>
+        [OperationContract]
+        bool SetAutoCleanNo(string endoscopeSN, string cleanNo);
+
+        /// <summary>
+        /// 修改用户
+        /// </summary>
+        /// <param name="userInfo">用户对象</param>
+        /// <returns>
+        /// 修改结果
+        /// </returns>
+        [OperationContract]
+        bool ModifyUser(UserInfo userInfo);
+
+        /// <summary>
+        /// 修改内镜
+        /// </summary>
+        /// <param name="endoscopeInfo">内镜对象</param>
+        /// <returns>
+        /// 修改结果
+        /// </returns>
+        [OperationContract]
+        bool ModifyEndoscope(EndoscopeInfo endoscopeInfo);
+
+        /// <summary>
+        /// 删除内镜
+        /// </summary>
+        /// <param name="condition">条件</param>
+        /// <returns>删除结果</returns>
+        [OperationContract]
+        bool DeleteEndoscope(string condition);
+
+        /// <summary>
+        /// 删除用户
+        /// </summary>
+        /// <param name="condition">条件</param>
+        /// <returns>删除结果</returns>
+        [OperationContract]
+        bool DeleteUser(string condition);
+
+        /// <summary>
+        /// 加载内镜信息
+        /// </summary>
+        /// <returns>内镜列表</returns>
+        [OperationContract]
+        List<EndoscopeInfo> LoadEndoscopeMsg();
+
+        /// <summary>
+        /// 加载用户信息
+        /// </summary>
+        /// <returns>用户列表</returns>
+        [OperationContract]
+        List<UserInfo> LoadUserMsg();
+
+        /// <summary>
+        /// 查询追溯
+        /// </summary>
+        /// <param name="sqlStr">sql语句</param>
+        /// <returns>查询结果集</returns>
+        [OperationContract]
+        string SearchTrace(string sqlStr);
+
+        /// <summary>
+        /// 一次清洗查询
+        /// </summary>
+        /// <param name="begin">开始时间</param>
+        /// <param name="end">结束时间</param>
+        /// <returns>
+        /// 查询结果
+        /// </returns>
+        [OperationContract]
+        string SearchFirstWash(string begin, string end);
+
+        /// <summary>
+        /// 二次清洗查询
+        /// </summary>
+        /// <param name="begin">开始时间</param>
+        /// <param name="end">结束时间</param>
+        /// <returns>
+        /// 查询结果
+        /// </returns>
+        [OperationContract]
+        string SearchSecondWash(string begin, string end);
+
+        /// <summary>
+        /// 根据内容查询
+        /// </summary>
+        /// <param name="condition">查询条件</param>
+        /// <param name="value">条件对应值</param>
+        /// <returns>
+        /// 查询结果
+        /// </returns>
+        [OperationContract]
+        string GetSearchResultByName(string condition, string value);
+    }
+}

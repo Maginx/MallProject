@@ -1,0 +1,653 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{555F0E3A-173E-417F-9815-BF5776D8CABC}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ProxyClient</RootNamespace>
+    <AssemblyName>Proxy</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <PublishUrl>C:\Users\Otter\Desktop\3\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <TargetCulture>zh-CN</TargetCulture>
+    <ProductName>迈尔内镜清洗工作站追溯系统</ProductName>
+    <PublisherName>Jayne</PublisherName>
+    <AutorunEnabled>true</AutorunEnabled>
+    <ApplicationRevision>5</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <CreateDesktopShortcut>true</CreateDesktopShortcut>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>1.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>ProxyClient.Program</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup />
+  <PropertyGroup />
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>7CFB07C69EFFE9CEB7B360815058AD49FE496087</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>ProxyClient_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>true</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <TargetZone>Custom</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWin32Manifest>true</NoWin32Manifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ComponentFactory.Krypton.Toolkit, Version=4.4.0.0, Culture=neutral, PublicKeyToken=a87e673e9ecb6e8e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Dll\ComponentFactory.Krypton.Toolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Data.v13.2, Version=13.2.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.Printing.v13.2.Core, Version=13.2.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.RichEdit.v13.2.Core, Version=13.2.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.Utils.v13.2, Version=13.2.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.XtraBars.v13.2, Version=13.2.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.XtraEditors.v13.2, Version=13.2.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.XtraPrinting.v13.2, Version=13.2.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraTreeList.v13.2, Version=13.2.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=12.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.ReportViewer.WinForms, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Services.Client" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Channels" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AcceptSocket.cs" />
+    <Compile Include="CommonCom.cs" />
+    <Compile Include="Controls\CleanTempMsg.core.cs">
+      <DependentUpon>CleanTempMsg.cs</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\DataTrace.Core.cs">
+      <SubType>Form</SubType>
+      <DependentUpon>DataTrace.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\MainForm.Core.cs">
+      <SubType>Form</SubType>
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PrintOptions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\PrintOptions.designer.cs">
+      <DependentUpon>PrintOptions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Des.cs" />
+    <Compile Include="GSetting.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PrintDgv.cs" />
+    <Compile Include="Service References\DataService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceDynamicReflect.cs" />
+    <Compile Include="Controls\About.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\About.Designer.cs">
+      <DependentUpon>About.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AddNewItem.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\AddNewItem.designer.cs">
+      <DependentUpon>AddNewItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\BasicSetting.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\BasicSetting.designer.cs">
+      <DependentUpon>BasicSetting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CleanTime.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\CleanTime.Designer.cs">
+      <DependentUpon>CleanTime.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ColumnSet.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\ColumnSet.Designer.cs">
+      <DependentUpon>ColumnSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\DataTrace.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\DataTrace.Designer.cs">
+      <DependentUpon>DataTrace.cs</DependentUpon>
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="Controls\EndoscopeCleanState.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\EndoscopeCleanState.Designer.cs">
+      <DependentUpon>EndoscopeCleanState.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EndoscopeManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\EndoscopeManager.Designer.cs">
+      <DependentUpon>EndoscopeManager.cs</DependentUpon>
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="Controls\EndoscopeState.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\EndoscopeState.Designer.cs">
+      <DependentUpon>EndoscopeState.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EnterLicense.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\EnterLicense.Designer.cs">
+      <DependentUpon>EnterLicense.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Login.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\Login.Designer.cs">
+      <DependentUpon>Login.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\MainForm.designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PatientRegister.Core.cs">
+      <DependentUpon>PatientRegister.cs</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\PatientRegister.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\PatientRegister.Designer.cs">
+      <DependentUpon>PatientRegister.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PortSet.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\PortSet.designer.cs">
+      <DependentUpon>PortSet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CleanTempMsg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\CleanTempMsg.designer.cs">
+      <DependentUpon>CleanTempMsg.cs</DependentUpon>
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="Controls\TempRecord.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\TempRecord.Designer.cs">
+      <DependentUpon>TempRecord.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\UpdateEndoscope.core.cs">
+      <DependentUpon>UpdateEndoscope.cs</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\UpdateEndoscope.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\UpdateEndoscope.Designer.cs">
+      <DependentUpon>UpdateEndoscope.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\UserManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\UserManager.Designer.cs">
+      <DependentUpon>UserManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\WareSetting.Core.cs">
+      <DependentUpon>WareSetting.cs</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\WareSetting.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\WareSetting.Designer.cs">
+      <DependentUpon>WareSetting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DataServiceBusi.cs" />
+    <Compile Include="DealXml.cs" />
+    <Compile Include="ExportExcel.cs" />
+    <Compile Include="Global.cs" />
+    <Compile Include="MonitorData.cs" />
+    <Compile Include="PortMapping.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SendSocket.cs" />
+    <Compile Include="SocketDataProcessValid.cs" />
+    <Compile Include="Steps\Cleanout.cs" />
+    <Compile Include="Steps\DipIn.cs" />
+    <Compile Include="Steps\EnzymeWash.cs" />
+    <Compile Include="Steps\FirstWash.cs" />
+    <Compile Include="Steps\LastWash.cs" />
+    <Compile Include="Steps\OtherAutoMachine.cs" />
+    <Compile Include="FormHelper.cs" />
+    <Compile Include="Steps\Wash.cs" />
+    <Compile Include="WCFClientInspector.cs" />
+    <EmbeddedResource Include="Controls\About.resx">
+      <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\AddNewItem.resx">
+      <DependentUpon>AddNewItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\BasicSetting.resx">
+      <DependentUpon>BasicSetting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CleanTime.resx">
+      <DependentUpon>CleanTime.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ColumnSet.resx">
+      <DependentUpon>ColumnSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\DataTrace.resx">
+      <DependentUpon>DataTrace.cs</DependentUpon>
+      <ExcludeFromStyleCop>False</ExcludeFromStyleCop>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\EndoscopeCleanState.resx">
+      <DependentUpon>EndoscopeCleanState.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\EndoscopeManager.resx">
+      <DependentUpon>EndoscopeManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\EndoscopeState.resx">
+      <DependentUpon>EndoscopeState.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\EnterLicense.resx">
+      <DependentUpon>EnterLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\Login.resx">
+      <DependentUpon>Login.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PatientRegister.resx">
+      <DependentUpon>PatientRegister.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PortSet.resx">
+      <DependentUpon>PortSet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PrintOptions.resx">
+      <DependentUpon>PrintOptions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CleanTempMsg.resx">
+      <DependentUpon>CleanTempMsg.cs</DependentUpon>
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TempRecord.resx">
+      <DependentUpon>TempRecord.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\UpdateEndoscope.resx">
+      <DependentUpon>UpdateEndoscope.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\UserManager.resx">
+      <DependentUpon>UserManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\WareSetting.resx">
+      <DependentUpon>WareSetting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="app.config" />
+    <None Include="Properties\app.manifest" />
+    <None Include="Properties\DataSources\ClassLibrary.EndoscopeInfo.datasource" />
+    <None Include="Properties\DataSources\ClassLibrary.EndoscopeTemp.datasource" />
+    <None Include="Properties\DataSources\ClassLibrary.Patient.datasource" />
+    <None Include="Properties\DataSources\ClassLibrary.UserInfo.datasource" />
+    <None Include="Properties\DataSources\System.Data.DataTable.datasource" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <None Include="Service References\DataService\Arrays.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\DataService\ClassLibrary.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\DataService\MallHost.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\DataService\service.wsdl" />
+    <None Include="Service References\DataService\service5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\DataService\service51.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\221.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arrow-right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\BasicSetting.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\browserAddress.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cross_48.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\deleteAll.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\dfca1b51724affb32598609a40c85d74.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\imagesSet.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Mall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\modules_system.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\monitor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\network-workgroup.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pc Icon.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pp13.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\remote_admin_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\save.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\search.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\symbol-check.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\system_config_boot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\write.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wrong.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\340.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\washer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\washer2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\13828.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EkbTips.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="1.ico" />
+    <Content Include="ColumnSet.xml" />
+    <Content Include="Dll\ComponentFactory.Krypton.Toolkit.dll" />
+    <Content Include="Dll\DotNetSpeech.dll" />
+    <None Include="Service References\DataService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\DataService\configuration.svcinfo" />
+    <None Include="Service References\DataService\configuration91.svcinfo" />
+    <None Include="Resources\alert.png" />
+    <None Include="Resources\019.png" />
+    <None Include="Resources\connect.png" />
+    <None Include="Resources\dataBackUp.png" />
+    <None Include="Resources\20130514031751400_easyicon_net_32.png" />
+    <None Include="Resources\cleanState.png" />
+    <None Include="Resources\waitSure.png" />
+    <None Include="Resources\bottom.png" />
+    <None Include="Resources\top.png" />
+    <None Include="Resources\2013051210224445_easyicon_net_16.png" />
+    <None Include="Resources\20130512102237769_easyicon_net_16.png" />
+    <None Include="Resources\reback.png" />
+    <None Include="Resources\save1.png" />
+    <None Include="Resources\20130512100343943_easyicon_net_32.png" />
+    <None Include="Resources\20130512100347446_easyicon_net_32.png" />
+    <None Include="Resources\20130512100332922_easyicon_net_32.png" />
+    <None Include="Resources\20130512100339513_easyicon_net_32.png" />
+    <None Include="Resources\1&amp;2.png" />
+    <None Include="Resources\20130512104158324_easyicon_net_24.png" />
+    <None Include="Resources\20130512104108487_easyicon_net_24.png" />
+    <None Include="Resources\firs.png" />
+    <None Include="Resources\sec.png" />
+    <None Include="Resources\2.png" />
+    <None Include="Resources\chocieType1.png" />
+    <None Include="Resources\search2.png" />
+    <None Include="Resources\search1.png" />
+    <None Include="Resources\all.png" />
+    <None Include="Resources\trace.png" />
+    <None Include="Resources\clean.png" />
+    <None Include="Resources\clean&amp;trace.png" />
+    <None Include="Resources\monthReport.png" />
+    <None Include="Resources\weekReport.png" />
+    <None Include="Resources\dayReport.png" />
+    <None Include="Resources\column.png" />
+    <None Include="Resources\report.png" />
+    <None Include="Resources\20130511111708727_easyicon_net_32.ico" />
+    <None Include="Resources\excel.png" />
+    <None Include="Resources\setColumn.png" />
+    <None Include="Resources\dataBase.png" />
+    <None Include="Resources\Find.png" />
+    <None Include="Resources\92-testtube.png" />
+    <None Include="Resources\20130509085603722_easyicon_net_24.png" />
+    <None Include="Resources\1000222000_50.jpg" />
+    <None Include="Resources\endo1.jpg" />
+    <None Include="Resources\modifyEndo %282%29.png" />
+    <None Include="Resources\modifyEndo %281%29.png" />
+    <None Include="Resources\modifyUser.png" />
+    <None Include="Resources\endo.jpg" />
+    <None Include="Resources\users.png" />
+    <None Include="Resources\user.png" />
+    <None Include="Resources\deleteUser.png" />
+    <None Include="Resources\addUser.png" />
+    <None Include="Resources\Checkmark.png" />
+    <None Include="Resources\User2.png" />
+    <None Include="Resources\port.png" />
+    <None Include="Resources\ip_class.png" />
+    <None Include="Resources\20130509100150209_easyicon_net_32.ico" />
+    <None Include="Resources\tempr.png" />
+    <None Include="Resources\state.png" />
+    <None Include="Resources\info.png" />
+    <None Include="Resources\address.png" />
+    <None Include="Resources\chocieType.png" />
+    <None Include="Resources\timeSet.png" />
+    <None Include="Resources\setPort1.png" />
+    <None Include="Resources\sign out.png" />
+    <None Include="Resources\quit.png" />
+    <None Include="Resources\exit.png" />
+    <None Include="Resources\system.png" />
+    <None Include="Resources\setPort .png" />
+    <None Include="Resources\Cleantime.png" />
+    <None Include="Resources\IP.png" />
+    <None Include="Resources\setPort.png" />
+    <None Include="Resources\清除1.ico" />
+    <None Include="Resources\内镜清洗详细信息1.ico" />
+    <None Include="Resources\内景清洗临时记录.ico" />
+    <None Include="Resources\内镜清洗状态.ico" />
+    <None Include="Resources\保存 %282%29.ico" />
+    <None Include="Resources\清除.ico" />
+    <None Include="Resources\document.png" />
+    <None Include="Resources\monitor %282%29.png" />
+    <None Include="Resources\software.png" />
+    <None Include="Resources\no.png" />
+    <None Include="Resources\ok .png" />
+    <None Include="Resources\wash2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 Client Profile %28x86 和 x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="SpeechLib">
+      <Guid>{C866CA3A-32F7-11D2-9602-00C04F8EE628}</Guid>
+      <VersionMajor>5</VersionMajor>
+      <VersionMinor>4</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\DataService\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MallProject\ClassLibrary\ClassLibrary.csproj">
+      <Project>{ED49EBA9-7DF8-48DE-BBE3-087DBE608528}</Project>
+      <Name>ClassLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

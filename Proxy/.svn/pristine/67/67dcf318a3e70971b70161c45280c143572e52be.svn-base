@@ -1,0 +1,180 @@
+﻿using System.ComponentModel;
+using ProxyClient.Controls;
+
+namespace ProxyClient
+{
+    /// <summary>
+    /// 检测数据类
+    /// </summary>
+    internal class MonitorData : INotifyPropertyChanged
+    {
+        /// <summary>
+        /// The serial data
+        /// </summary>
+        private string serialData;
+
+        /// <summary>
+        /// The accept data
+        /// </summary>
+        private string acceptData;
+
+        #region 构造方法
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MonitorData"/> class.
+        /// </summary>
+        public MonitorData()
+        {
+            this.acceptData = "0";
+            this.PortNO = string.Empty;
+            this.WorkState = string.Empty;
+            this.SIM = string.Empty;
+        }
+        #endregion
+
+        #region 事件处理程序
+        /// <summary>
+        /// 在更改属性值时发生。
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Occurs when [serial data prorperty changed].
+        /// </summary>
+        public event PropertyChangedEventHandler SerialDataProrpertyChanged;
+        #endregion
+
+        #region 公有对象
+        /// <summary>
+        /// 接收Socket数据
+        /// </summary>
+        public string AccepData
+        {
+            get
+            {
+                return this.acceptData;
+            }
+
+            set
+            {
+                this.acceptData = value;
+
+                // 过滤Socket数据并验证
+                if (this.VerifySocketData(value))
+                {
+                    this.PortNO = this.acceptData.Substring(4, 2);
+                    this.WorkState = this.acceptData.Substring(6, 2);
+                    this.SIM = this.acceptData.Substring(8, 10);
+                }
+
+                this.NotifyPropertyChanged("AccepData");
+            }
+        }
+
+        /// <summary>
+        /// 接收串口数据（已不用）
+        /// </summary>
+        public string SerialData
+        {
+            get
+            {
+                return this.serialData;
+            }
+
+            set
+            {
+                this.serialData = value;
+                this.NotifySerialPropertyChanged("SerialData");
+            }
+        }
+
+        /// <summary>
+        /// 端口号
+        /// </summary>
+        public string PortNO { get; set; }
+
+        /// <summary>
+        /// 工作状态
+        /// </summary>
+        public string WorkState { get; set; }
+
+        /// <summary>
+        /// 内镜SIM卡号
+        /// </summary>
+        public string SIM { get; set; }
+        #endregion
+
+        #region Notify Property
+        /// <summary>
+        /// Notifies the property changed.
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            if (this.PropertyChanged != null)
+            {
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        /// <summary>
+        /// Notifies the serial property changed.
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        private void NotifySerialPropertyChanged(string propertyName)
+        {
+            if (this.SerialDataProrpertyChanged != null)
+            {
+                this.SerialDataProrpertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
+
+        /// <summary>
+        /// 验证Socket 接收数据
+        /// </summary>
+        /// <param name="data">数据内容</param>
+        /// <returns>
+        /// true:数据合法；false：数据非法
+        /// </returns>
+        private bool VerifySocketData(string data)
+        {
+            bool isVerify = true;
+
+            // can总线确认内镜清洗完成
+            if (data.StartsWith("EEEEEEFF"))
+            {
+                string card = data.Substring(8, 10);
+                card = GSetting.DataServ.GetUserEndoscopeMsgBySIM(card)[1];
+                // 确认内镜信息
+                CleanTempMsg proxy = GSetting.GetFormInstance<CleanTempMsg>();
+                proxy.GetEndoscopeAndSureCleanMsg(card);
+                //cleanState.GlobalSetting_RemoveWaitQueueEvent(card);
+                //GSetting.WaitSureList.Remove(card);
+                //GSetting.GetFromInstance<CleanTempMsg>().SureCleanMsg(card);
+                //SureClean
+                return false;
+            }
+
+            if (data.Length < 32)
+            {
+                isVerify = false;
+            }
+
+            // 验证数据头
+            if (!data.StartsWith("EEEE"))
+            {
+                GSetting.GetFormInstance<CleanTempMsg>().ProxyGroupPanel.ValuesSecondary.Description = "数据头错误";
+                isVerify = false;
+            }
+
+            // 验证数据尾
+            if (!data.EndsWith("EDED"))
+            {
+                GSetting.GetFormInstance<CleanTempMsg>().ProxyGroupPanel.ValuesSecondary.Description = "数据尾错误";
+                isVerify = false;
+            }
+
+            return isVerify;
+        }
+    }
+}

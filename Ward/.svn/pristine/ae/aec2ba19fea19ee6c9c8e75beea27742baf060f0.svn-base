@@ -1,0 +1,40 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Configuration;
+
+namespace ProxyClient
+{
+    class Global
+    {
+        public static string DataBase = string.Empty;
+
+        public static string Server = string.Empty;
+
+        public static string User = string.Empty;
+
+        public static string Pass = string.Empty;
+
+        public static readonly string LogPath = string.Empty;
+
+        public static string ConnectionStr = "Data Source={0};Initial Catalog={1};Persist Security Info=True;User ID={2};Password={3}";
+
+        static Global()
+        {
+            Server = ConfigurationManager.AppSettings["server"];
+            DataBase = ConfigurationManager.AppSettings["database"];
+            User = ConfigurationManager.AppSettings["user"];
+            Pass = ConfigurationManager.AppSettings["pass"];
+            LogPath = "log.txt";
+            if (Server.Length > 0)
+            {
+                ConnectionStr = string.Format(ConnectionStr, Server, DataBase, User, Pass);
+            }
+            else
+            {
+                ConnectionStr = "Data Source=(local);Initial Catalog=EndoscopeArm;Integrated Security=True";
+            }
+        }
+    }
+}

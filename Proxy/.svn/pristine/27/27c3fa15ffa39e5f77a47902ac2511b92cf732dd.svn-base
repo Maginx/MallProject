@@ -1,0 +1,56 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+
+namespace ProxyClient.Controls
+{
+    public partial class Login : Form
+    {
+        public Login()
+        {
+            InitializeComponent();
+        }
+
+        private void btnLogin_Click(object sender, EventArgs e)
+        {
+            var tmpStr = GSetting.DataServ.LoginUser(this.txtuserName.Text.Trim(), this.txtPassword.Text.Trim());
+
+            if (string.IsNullOrEmpty(tmpStr))
+            {
+                MessageBox.Show("用户登录错误，请核对账户名和密码");
+                return;
+            }
+
+            Global.LoginedUser = tmpStr.Split('|').FirstOrDefault();
+            int role = 0;
+            int.TryParse(tmpStr.Split('|').LastOrDefault(), out role);
+            Global.LoginedUserRole = (ClassLibrary.UserRole)role;
+
+            switch (Global.LoginedUserRole)
+            {
+                case ClassLibrary.UserRole.Washer:
+                    break;
+                case ClassLibrary.UserRole.Nurse:
+                    var re = new PatientRegister(this);
+                    re.ShowDialog();
+                    break;
+                case ClassLibrary.UserRole.Dcotor:
+                    var ue = new UpdateEndoscope(this);
+                    ue.ShowDialog();
+                    break;
+                default:
+                    Form f = GSetting.GetFromInstance<MainForm>("MainForm");
+                    f.ShowDialog();
+                    break;
+            }
+
+            this.Hide();
+        }
+    }
+}

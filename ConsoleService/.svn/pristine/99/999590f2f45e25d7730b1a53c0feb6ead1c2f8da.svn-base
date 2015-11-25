@@ -1,0 +1,176 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
+
+namespace MallHostService
+{
+    /// <summary>
+    /// 内镜清洗临时对象
+    /// </summary>
+    [DataContract]
+    public class EndoscopeCleanTemp
+    {
+        /// <summary>
+        /// 清洗状态 0手动清洗；1 自动清洗；
+        /// </summary>
+        [DataMember]
+        public string AutoCleanNo { get; set; }
+
+        /// <summary>
+        /// 清洗日期
+        /// </summary>
+        [DataMember]
+        public string WashDate { get; set; }
+
+        /// <summary>
+        /// 内镜编号
+        /// </summary>
+        [DataMember]
+        public string EndoscopeSN { get; set; }
+
+        /// <summary>
+        /// 内镜磁卡号
+        /// </summary>
+        [DataMember]
+        public string EndoscopeSIM { get; set; }
+
+        /// <summary>
+        /// 清洗工编号
+        /// </summary>
+        [DataMember]
+        public string WasherNo { get; set; }
+
+        /// <summary>
+        /// 清洗工名
+        /// </summary>
+        [DataMember]
+        public string WasherRealName { get; set; }
+
+        /// <summary>
+        /// 记录时间
+        /// </summary>
+        public string RecordTime { get; set; }
+        
+        /// <summary>
+        /// 清洗耗时
+        /// </summary>
+        [DataMember]
+        public string TotalTime { get; set; }
+
+        /// <summary>
+        /// 刷洗开始
+        /// </summary>
+        [DataMember]
+        public string BrushWashBegin { get; set; }
+
+        /// <summary>
+        /// 刷洗结束
+        /// </summary>
+        [DataMember]
+        public string BrushWashEnd { get; set; }
+
+        /// <summary>
+        /// 初洗开始
+        /// </summary>
+        [DataMember]
+        public string FirstWashBegin { get; set; }
+
+        /// <summary>
+        /// 初洗结束
+        /// </summary>
+        [DataMember]
+        public string FirstWashEnd { get; set; }
+
+        /// <summary>
+        /// 酶洗开始
+        /// </summary>
+        [DataMember]
+        public string EnzymeWashBegin { get; set; }
+
+        /// <summary>
+        /// 酶洗结束
+        /// </summary>
+        [DataMember]
+        public string EnzymeWashEnd { get; set; }
+
+        /// <summary>
+        /// 清洗开始
+        /// </summary>
+        [DataMember]
+        public string CleanOutBegin { get; set; }
+
+        /// <summary>
+        /// 清洗结束
+        /// </summary>
+        [DataMember]
+        public string CleanOutEnd { get; set; }
+
+        /// <summary>
+        /// 浸泡消毒开始
+        /// </summary>
+        [DataMember]
+        public string DipInBegin { get; set; }
+
+        /// <summary>
+        /// 浸泡消毒结束
+        /// </summary>
+        [DataMember]
+        public string DipInEnd { get; set; }
+
+        /// <summary>
+        /// 末洗开始
+        /// </summary>
+        [DataMember]
+        public string LastWashBegin { get; set; }
+
+        /// <summary>
+        /// 末洗结束
+        /// </summary>
+        [DataMember]
+        public string LastWashEnd { get; set; }
+
+        /// <summary>
+        /// 二次清洗开始
+        /// </summary>
+        [DataMember]
+        public string DipInSecBegin { get; set; }
+
+        /// <summary>
+        /// 二次清洗结束
+        /// </summary>
+        [DataMember]
+        public string DipInSecEnd { get; set; }
+
+        /// <summary>
+        /// 质量
+        /// </summary>
+        [DataMember]
+        public string Quality { get; set; }
+
+        /// <summary>
+        /// 浓度合格
+        /// </summary>
+        [DataMember]
+        public string Disinfection { get; set; }
+
+        /// <summary>
+        /// 二次末洗开始
+        /// </summary>
+        [DataMember]
+        public string LastWashSecBegin { get; set; }
+
+        /// <summary>
+        /// 二次末洗结束
+        /// </summary>
+        [DataMember]
+        public string LastWashSecEnd { get; set; }
+
+        /// <summary>
+        /// 清洗类型
+        /// </summary>
+        [DataMember]
+        public string CleanType { get; set; }
+    }
+}

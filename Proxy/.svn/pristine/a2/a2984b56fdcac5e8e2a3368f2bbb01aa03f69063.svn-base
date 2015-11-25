@@ -1,0 +1,510 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.Xml.Linq;
+using ComponentFactory.Krypton.Toolkit;
+
+namespace ProxyClient.Controls
+{
+    /// <summary>
+    /// 数据追溯
+    /// </summary>
+    internal sealed partial class DataTrace : KryptonForm
+    {
+        #region 私有对象
+        /// <summary>
+        /// 错误数据数
+        /// </summary>
+        private int wrongData = 0;
+
+        /// <summary>
+        /// 临时存储
+        /// </summary>
+        private StringBuilder tempContent = new StringBuilder();
+        #endregion
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataTrace"/> class.
+        /// </summary>
+        public DataTrace()
+        {
+            this.InitializeComponent();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the ToolStripFirst control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void ToolStripFirst_Click(object sender, EventArgs e)
+        {
+            this.groupBoxTrace.Values.Description = "一次清洗";
+            this.radioBtnFirst.Checked = true;
+            this.toolStripFirst.Checked = true;
+            this.toolStripSec.Checked = false;
+
+            // XML内容解析
+            if (this.tempContent.Length > 0)
+            {
+                // 设置DataGridView
+                this.SetDataGridViewColums(1);
+
+                // 获取XML转Table
+                this.GetTable(this.tempContent.ToString(), 1);
+
+                // 设定显示内容（追溯数据或者清洗数据）
+                this.ChoiceShowData();
+            }
+        }
+
+        /// <summary>
+        /// Handles the Click event of the ToolStripSec control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+        private void ToolStripSec_Click(object sender, EventArgs e)
+        {
+            this.groupBoxTrace.Values.Description = "二次清洗";
+            this.radioBtnSec.Checked = true;
+            this.toolStripFirst.Checked = false;
+            this.toolStripSec.Checked = true;
+
+            if (this.tempContent.Length > 0)
+            {
+                // 设置DataGridView
+                this.SetDataGridViewColums(2);
+
+                // XML转Table
+                this.GetTable(this.tempContent.ToString(), 2);
+
+                // 选择显示内容（追溯数据或者清洗数据）
+                this.ChoiceShowData();
+            }
+        }
+
+        /// <summary>
+        /// Handles the Load event of the DataTrace control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void DataTrace_Load(object sender, EventArgs e)
+        {
+            if (toolStripFirst.Checked)
+            {
+                this.groupBoxTrace.Values.Description = "一次清洗";
+            }
+
+            if (toolStripSec.Checked)
+            {
+                this.groupBoxTrace.Values.Description = "二次清洗";
+            }
+        }
+
+        /// <summary>
+        /// Handles the CheckedChanged event of the RadioBtnSec control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void RadioBtnSec_CheckedChanged(object sender, EventArgs e)
+        {
+            this.groupBoxTrace.Values.Description = "二次清洗";
+            this.toolStripFirst.Checked = false;
+            this.toolStripSec.Checked = true;
+        }
+
+        /// <summary>
+        /// Handles the CheckedChanged event of the RadionBtnFirst control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void RadionBtnFirst_CheckedChanged(object sender, EventArgs e)
+        {
+            this.groupBoxTrace.Values.Description = "一次清洗";
+            this.toolStripFirst.Checked = true;
+            this.toolStripSec.Checked = false;
+        }
+
+        /// <summary>
+        /// Handles the TextChanged event of the TxtSeachContent control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void TxtSeachContent_TextChanged(object sender, EventArgs e)
+        {
+            if (this.txtSeachContent.Text.Trim().Length > 0)
+            {
+                this.groupBoxSearchInfo.Enabled = false;
+            }
+            else
+            {
+                this.groupBoxSearchInfo.Enabled = true;
+            }
+        }
+
+        /// <summary>
+        /// 查询本月
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void ToolStripMenuItem3_Click(object sender, EventArgs e)
+        {
+            string begin = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToShortDateString() + " 00:00:00";
+            string end = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).ToShortDateString() + " 23:59:59";
+            this.Search(begin, end);
+        }
+
+        /// <summary>
+        /// 查询操作
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void BtnSearch_Click(object sender, EventArgs e)
+        {
+            DateTime begin = beginTime.Value;
+            DateTime end = endTime.Value;
+
+            // 搜索
+            if (txtSeachContent.Text.Trim().Length == 0)
+            {
+                this.Search(begin.ToShortDateString() + " 00:00:00", end.ToShortDateString() + " 23:59:59");
+            }
+            else
+            {
+                string temp = string.Empty;
+                string value = txtSeachContent.Text.Trim();
+
+                if (!FormHelper.ProcessSqlStr(value))
+                {
+                    MessageBox.Show("含有非法字符");
+                    return;
+                }
+
+                if (cmbCondition.Text.Trim().Equals("病人名"))
+                {
+                    temp = "patientNo";
+                    value = string.Format(" like '{0}' ", "%|" + value);
+                }
+
+                if (cmbCondition.Text.Trim().Equals("病人号"))
+                {
+                    temp = "patientNo";
+                    value = string.Format(" like '{0}' ", value + "|%");
+                }
+
+                if (cmbCondition.Text.Trim().Equals("镜号"))
+                {
+                    temp = "a.endoscopeSn";
+                    value = string.Format(" ='{0}' ", value);
+                }
+
+                if (!string.IsNullOrEmpty(temp))
+                {
+                    this.tempContent.Clear();
+                    this.tempContent.Append("<root>");
+
+                    try
+                    {
+                        this.tempContent.Append(GSetting.DataServ.GetSearchResultByName(temp, value));
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    this.tempContent.Append("</root>");
+
+                    // 加载一次清洗
+                    this.ToolStripFirst_Click(null, null);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 查询设置
+        /// </summary>
+        /// <param name="begin">开始时间</param>
+        /// <param name="end">结束时间</param>
+        private void Search(string begin, string end)
+        {
+            try
+            {
+                this.tempContent.Clear();
+                this.tempContent.Append("<root>");
+                this.tempContent.Append(GSetting.DataServBusi.GetSearchSecondWash(begin, end));
+                this.tempContent.Append(GSetting.DataServBusi.GetSearchFirstWash(begin, end));
+                this.tempContent.Append("</root>");
+
+                if (this.radioBtnSec.Checked)
+                {
+                    this.ToolStripSec_Click(null, null);
+                }
+                else
+                {
+                    this.ToolStripFirst_Click(null, null);
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        /// <summary>
+        /// DataView提示信息
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void DataGridViewTrace_Click(object sender, EventArgs e)
+        {
+            if (this.dataGridViewTrace.SelectedRows.Count > 0)
+            {
+                this.groupBoxTrace.Values.Description = "已经选中" + this.dataGridViewTrace.SelectedRows.Count + "行";
+            }
+        }
+
+        /// <summary>
+        /// 清洗记录
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void ToolStripCleanOnly_Click(object sender, EventArgs e)
+        {
+            this.toolStripCleanOnly.Checked = true;
+            this.toolStripCleanAndTrace.Checked = false;
+            this.toolStripTraceOnly.Checked = false;
+            this.ChoiceShowData();
+        }
+
+        /// <summary>
+        /// 追溯济洛路
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void ToolStripTraceOnly_Click(object sender, EventArgs e)
+        {
+            this.toolStripCleanOnly.Checked = false;
+            this.toolStripCleanAndTrace.Checked = false;
+            this.toolStripTraceOnly.Checked = true;
+            this.ChoiceShowData();
+        }
+
+        /// <summary>
+        /// 清洗记录以及追溯记录
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void ToolStripCleanAndTrace_Click(object sender, EventArgs e)
+        {
+            this.toolStripCleanOnly.Checked = false;
+            this.toolStripCleanAndTrace.Checked = true;
+            this.toolStripTraceOnly.Checked = false;
+        }
+
+        /// <summary>
+        /// 导出Excel
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void ToolStripButton1_Click(object sender, EventArgs e)
+        {
+            string fileName = Application.StartupPath + "/ExportExcel.xls";
+
+            if (!File.Exists(fileName))
+            {
+                File.Create(fileName);
+            }
+
+            var table = new DataTable();
+
+            foreach (DataGridViewTextBoxColumn c in this.dataGridViewTrace.Columns)
+            {
+                if (c.Visible == true)
+                {
+                    DataColumn col = new DataColumn();
+                    col.ColumnName = c.HeaderText;
+                    table.Columns.Add(col);
+                }
+            }
+
+            foreach (DataGridViewRow row in this.dataGridViewTrace.Rows)
+            {
+                DataRow tempRow = table.NewRow();
+
+                for (int i = 0, j = 0; i < row.Cells.Count; i++)
+                {
+                    if (row.Cells[i].Visible == false)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        tempRow[j++] = row.Cells[i].Value;
+                    }
+                }
+
+                table.Rows.Add(tempRow);
+            }
+
+            table.TableName = this.groupBoxTrace.Values.Description;
+            SaveFileDialog saveFile = new SaveFileDialog();
+            saveFile.Filter = ".(xls)|*.xls";
+
+            if (DialogResult.OK == saveFile.ShowDialog())
+            {
+                string t = saveFile.FileName;
+
+                if (ExportExcel.SaveDataTableToExcel(table, t))
+                {
+                    KryptonMessageBox.Show("Excel导出成功！");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 查询当天
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void ToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            this.Search(DateTime.Now.ToShortDateString() + " 00:00:00", DateTime.Now.ToShortDateString() + " 23:59:59");
+        }
+
+        /// <summary>
+        /// 查询本周
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void ToolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+            this.Search(DateTime.Now.Subtract(new TimeSpan(7, 0, 0, 0, 0)).ToShortDateString() + " 00:00:00", DateTime.Now.ToShortDateString() + " 23:59:59");
+        }
+
+        /// <summary>
+        /// Handles the 1 event of the toolStripButton1_Click control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void toolStripButton1_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                PrintDGV.Print_DataGridView(this.groupBoxTrace.Values.Description.Trim(), this.dataGridViewTrace);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("打印预览出错");
+            }
+        }
+
+        private void cmbGvdRowHeight_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.dataGridViewTrace.Rows.Count == 0)
+            {
+                return;
+            }
+
+            int result = 0;
+
+            if (!int.TryParse(this.cmbGvdRowHeight.Text.Trim(), out result))
+            {
+                return;
+            }
+
+            foreach (DataGridViewRow r in this.dataGridViewTrace.Rows)
+            {
+                r.Height = result;
+            }
+        }
+
+        /// <summary>
+        /// Handles the RowPostPaint event of the dataGridViewTrace control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="DataGridViewRowPostPaintEventArgs"/> instance containing the event data.</param>
+        private void dataGridViewTrace_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        {
+            Rectangle rectangle = new Rectangle(e.RowBounds.Location.X,
+            e.RowBounds.Location.Y,
+            this.dataGridViewTrace.RowHeadersWidth - 4,
+            e.RowBounds.Height);
+
+            TextRenderer.DrawText(e.Graphics, (e.RowIndex + 1).ToString(),
+                 this.dataGridViewTrace.RowHeadersDefaultCellStyle.Font,
+                rectangle,
+                 this.dataGridViewTrace.RowHeadersDefaultCellStyle.ForeColor,
+                TextFormatFlags.VerticalCenter | TextFormatFlags.Right);
+        }
+
+        private void txtSeachContent_Leave(object sender, EventArgs e)
+        {
+            KryptonTextBox txt = sender as KryptonTextBox;
+            if (txt == null)
+            {
+                return;
+            }
+
+            txt.StateActive.Border.Color1 = Color.Silver;
+        }
+
+        private void txtSeachContent_Enter(object sender, EventArgs e)
+        {
+            KryptonTextBox txt = sender as KryptonTextBox;
+            if (txt == null)
+            {
+                return;
+            }
+
+            txt.StateActive.Border.Color1 = Color.LimeGreen;
+        }
+
+        private void cmbCondition_Enter(object sender, EventArgs e)
+        {
+            KryptonComboBox txt = sender as KryptonComboBox;
+            if (txt == null)
+            {
+                return;
+            }
+
+            txt.StateActive.ComboBox.Border.Color1 = Color.LimeGreen;
+        }
+
+        private void cmbCondition_Leave(object sender, EventArgs e)
+        {
+            KryptonComboBox txt = sender as KryptonComboBox;
+            if (txt == null)
+            {
+                return;
+            }
+
+            txt.StateActive.ComboBox.Border.Color1 = Color.Silver;
+        }
+
+        private void beginTime_Leave(object sender, EventArgs e)
+        {
+            KryptonDateTimePicker txt = sender as KryptonDateTimePicker;
+            if (txt == null)
+            {
+                return;
+            }
+
+            txt.StateActive.Border.Color1 = Color.Silver;
+        }
+
+        private void beginTime_Enter(object sender, EventArgs e)
+        {
+            KryptonDateTimePicker txt = sender as KryptonDateTimePicker;
+            if (txt == null)
+            {
+                return;
+            }
+
+            txt.StateActive.Border.Color1 = Color.LimeGreen;
+        }
+    }
+}

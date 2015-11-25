@@ -1,0 +1,402 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading;
+using System.Windows.Forms;
+using System.Xml.Linq;
+using ComponentFactory.Krypton.Toolkit;
+using ProxyClient.Controls;
+
+namespace ProxyClient
+{
+    /// <summary>
+    /// 全局设置
+    /// </summary>
+    internal sealed partial class GSetting
+    {
+        #region 私有对象
+        /// <summary>
+        /// 接收Socket
+        /// </summary>
+        private static AcceptSocket acceptSocket;
+
+        /// <summary>
+        /// 发送Socket
+        /// </summary>
+        private static SendSocket sendSocket;
+        #endregion
+
+        #region 构造方法
+        /// <summary>
+        /// Initializes the <see cref="GSetting"/> class.
+        /// </summary>
+        static GSetting()
+        {
+            AutoClean = "1";
+            UserName = "admin";
+            PassWord = "mall";
+            MData = new MonitorData();
+            EndoscStates = new Dictionary<string, EndoscopeState>();
+            WaitSureList = new List<string>();
+            LogFilePath = Path.Combine(Application.StartupPath, "error.mp");
+            acceptSocket = new AcceptSocket();
+            sendSocket = new SendSocket();
+            DataServBusi = new DataServiceBusi();
+            ContentForms = new Dictionary<string, Form>();
+            PortMapDict = new Dictionary<string, PortMapping>();
+            StepTime = GetCleanTimeStandar();
+            WashObj = new ProxyClient.Steps.Wash();
+            DataServ = new DataService.MallProxyClient();
+        }
+        #endregion
+
+        #region Delegate 对象
+        /// <summary>
+        /// 移除确认链表对象
+        /// </summary>
+        public static Action<string> RemoveListEvent;
+
+        /// <summary>
+        /// 显示清洗信息对象
+        /// </summary>
+        public static Action<string> ShowStateEvnet;
+
+        /// <summary>
+        /// 添加确认链表对象
+        /// </summary>
+        public static Action<EndoscopeState> AddListEvent;
+
+        /// <summary>
+        /// 清理状态信息对象
+        /// </summary>
+        public static Action<EndoscopeState> CleanPanelEvent;
+        #endregion
+
+        #region 公有对象
+        /// <summary>
+        /// WCF客户端
+        /// </summary>
+        public static DataService.MallProxyClient DataServ { get; private set; }
+
+        /// <summary>
+        /// 数据服务逻辑处理
+        /// </summary>
+        public static DataServiceBusi DataServBusi { get; private set; }
+
+        /// <summary>
+        /// 错误日志
+        /// </summary>
+        public static string LogFilePath { get; private set; }
+
+        /// <summary>
+        /// 清洗方式 1-手洗；2-机洗
+        /// </summary>
+        public static string AutoClean { get; set; }
+
+        /// <summary>
+        /// WCF 协议头用户名
+        /// </summary>
+        public static string UserName { get; private set; }
+
+        /// <summary>
+        /// WCF 协议头密码
+        /// </summary>
+        public static string PassWord { get; private set; }
+
+        /// <summary>
+        /// 清洗时间
+        /// </summary>
+        public static Dictionary<string, string> StepTime { get; set; }
+
+        /// <summary>
+        /// 所有内镜槽端口(初始化加载)
+        /// </summary>
+        public static Dictionary<string, PortMapping> PortMapDict { get; set; }
+
+        /// <summary>
+        /// 内镜状态信息
+        /// </summary>
+        public static Dictionary<string, EndoscopeState> EndoscStates { get; set; }
+
+        /// <summary>
+        /// 等待确认列表
+        /// </summary>
+        public static List<string> WaitSureList { get; set; }
+
+        /// <summary>
+        /// 检测接收Socket 数据
+        /// </summary>
+        public static MonitorData MData { get; set; }
+
+        /// <summary>
+        /// 窗体控件管理
+        /// </summary>
+        public static Dictionary<string, Form> ContentForms { get; set; }
+
+        /// <summary>
+        /// The wash
+        /// </summary>
+        public static ProxyClient.Steps.Wash WashObj { get; private set; }
+        #endregion
+
+        #region Delegate Object 实现
+        /// <summary>
+        /// 移除等待确认的队列
+        /// </summary>
+        /// <param name="endosocpeSN">内镜编号</param>
+        public static void RemoveList(string endosocpeSN)
+        {
+            if (RemoveListEvent != null)
+            {
+                RemoveListEvent(endosocpeSN);
+            }
+        }
+
+        /// <summary>
+        /// 将UserControl（EndoscopeState）显示到EndoscopeCleanState上
+        /// </summary>
+        /// <param name="endoscopeSN">The endoscope sn.</param>
+        public static void ShowState(string endoscopeSN)
+        {
+            if (ShowStateEvnet == null)
+            {
+                GSetting.EndoscStates.Add(endoscopeSN, new EndoscopeState(endoscopeSN));
+            }
+
+            ShowStateEvnet(endoscopeSN);
+        }
+
+        /// <summary>
+        /// 添加清洗完成的内镜到等待确认清洗信息的队列
+        /// </summary>
+        /// <param name="endoscopeSN">The endoscope sn.</param>
+        public static void AddList(EndoscopeState endoscopeSN)
+        {
+            if (AddListEvent != null)
+            {
+                AddListEvent(endoscopeSN);
+            }
+        }
+
+        /// <summary>
+        /// 将清洗完成的内镜从状态检测上去除
+        /// </summary>
+        /// <param name="state">The state.</param>
+        public static void RemoveCleanedEndoscope(EndoscopeState state)
+        {
+            if (CleanPanelEvent != null)
+            {
+                CleanPanelEvent(state);
+            }
+        }
+        #endregion
+
+        #region 公有方法
+        /// <summary>
+        /// 初始化数据
+        /// </summary>
+        public static void InitialbasicData()
+        {
+            if (!VerifyLicense())
+            {
+                KryptonMessageBox.Show("您还没有注册软件，请联系客服");
+                Environment.Exit(0);
+            }
+
+            // 初始化端口映射
+            LoadPortMessage();
+
+            // 初始化基本事件 
+            var proxy = GetFormInstance<CleanTempMsg>();
+            //proxy.InitialProxyEvent();
+
+            var e = GetFormInstance<EndoscopeCleanState>();
+            e.InitialEndoscopeCLeanState();
+
+            InitialMdata();
+
+            // 测试连接服务器
+            ContactServer();
+
+            // 开启线程
+            var accepThread = new Thread(new ThreadStart(BeginSocketThread));
+        
+            // 启动后台线程
+            accepThread.Start();
+        }
+
+        public static void InitialMdata()
+        {
+
+            MData = new MonitorData();
+
+            // 添加属性改变事件
+            MData.PropertyChanged += AcceptDataInstance_PropertyChanged;
+
+        }
+
+        /// <summary>
+        /// 获取窗体实例\
+        /// </summary>
+        /// <typeparam name="T">类型</typeparam>
+        /// <param name="className">类名</param>
+        /// <returns>对象</returns>
+        public static T GetFormInstance<T>(string className = null) where T : Form
+        {
+            if (string.IsNullOrEmpty(className))
+            {
+                className = typeof(T).ToString();
+            }
+
+            if (!GSetting.ContentForms.Keys.Contains(className))
+            {
+                Form tempForm = Activator.CreateInstance(typeof(T)) as KryptonForm;
+                GSetting.ContentForms.Add(className, tempForm);
+                return (T)GSetting.ContentForms[className];
+            }
+            else
+            {
+                return (T)GSetting.ContentForms[className];
+            }
+        }
+
+        /// <summary>
+        /// 测试连接服务器
+        /// </summary>
+        public static void ContactServer()
+        {
+            try
+            {
+                var myRequest = WebRequest.Create(DealXml.ReadSysConfig("appSettings", "wcfService"));
+                var myResponse = myRequest.GetResponse();
+                DataServ = ServiceDynamicReflect<DataService.MallProxyClient>.GetInstance(DealXml.ReadSysConfig("appSettings", "wcfService"));
+
+                // 加载拦截器
+                DataServ.Endpoint.Behaviors.Add(new MyEndPointBehavior());
+                myResponse.Close();
+                MainForm m = GetFormInstance<MainForm>();
+                m.mainHeader.ValuesPrimary.Description = "已经连接到服务器";
+            }
+            catch (Exception ex)
+            {
+                MainForm m = GetFormInstance<MainForm>(FormClient.MainFormText) as MainForm;
+                m.mainHeader.ValuesPrimary.Description = "未能连接到服务器";
+                ComponentFactory.Krypton.Toolkit.KryptonMessageBox.Show("服务地址出现错误，连接服务失败，请重新检查");
+                Global.Log(ex);
+            }
+        }
+        #endregion
+
+        #region 私有方法
+        /// <summary>
+        /// Handles the PropertyChanged event of the AcceptDataInstance control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
+        private static void AcceptDataInstance_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var data = new MonitorData()
+            {
+                SIM = MData.SIM,
+                WorkState = MData.WorkState,
+                PortNO = MData.PortNO
+            };
+
+            // 处理Socket接收的数据
+            SocketDataProcessValid.DataProcess(data);
+        }
+
+        /// <summary>
+        /// 开始线程
+        /// </summary>
+        private static void BeginSocketThread()
+        {
+            //AcceptSocket.BegintSocket();
+            AcceptSocket.BeginCom();
+        }
+
+        /// <summary>
+        /// 初始化端口信息
+        /// </summary>
+        private static void LoadPortMessage()
+        {
+            IList<XElement> elements = DealXml.GetNodes("portMapping", "port");
+            if (elements != null)
+            {
+                foreach (XElement e in elements)
+                {
+                    if (!PortMapDict.Keys.Contains(e.Attribute("portCode").Value.Trim()))
+                    {
+                        PortMapping remark = new PortMapping()
+                        {
+                            MarkText = e.Attribute("remark").Value.Trim(),
+                            PortNo = e.Attribute("portCode").Value.Trim(),
+                            StepName = e.Attribute("stepName").Value.Trim()
+                        };
+                        PortMapDict.Add(e.Attribute("portCode").Value.Trim(), remark);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 检测注册码
+        /// </summary>
+        /// <returns>是否已注册</returns>
+        private static bool VerifyLicense()
+        {
+            // 磁盘编号
+            string temp = FormHelper.DiskNo();
+
+            if (temp.Trim() == DealXml.ReadSysConfig("appSettings", "license"))
+            {
+                return true;
+            }
+
+            var license = new EnterLicense();
+            var result = license.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 获取清洗时间
+        /// </summary>
+        /// <returns>
+        /// 清洗时间集合
+        /// </returns>
+        private static Dictionary<string, string> GetCleanTimeStandar()
+        {
+            var stepTime = new Dictionary<string, string>();
+
+            try
+            {
+
+                foreach (var element in DealXml.GetNodes("stepTime", "step"))
+                {
+                    if (stepTime.Keys.Contains(element.Attribute("stepName").ToString()))
+                    {
+                        continue;
+                    }
+
+                    stepTime.Add(element.Attribute("stepName").Value.ToString(), element.Attribute("time").Value.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+
+            return stepTime;
+        }
+        #endregion
+    }
+}

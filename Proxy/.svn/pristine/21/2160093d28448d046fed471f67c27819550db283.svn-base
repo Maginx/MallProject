@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="460db1b2-75d3-4a21-ada9-de9b1194896b" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>true</GenerateAsynchronousMethods>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>false</ReferenceAllAssemblies>
+    <ReferencedAssemblies>
+      <ReferencedAssembly AssemblyName="ClassLibrary" />
+    </ReferencedAssemblies>
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost:8887/Service/mex" Protocol="mex" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="service.wsdl" MetadataType="Wsdl" ID="2674f719-5167-4eb3-ac10-58f71451c0e5" SourceId="1" SourceUrl="http://localhost:8887/Service/mex" />
+    <MetadataFile FileName="service5.xsd" MetadataType="Schema" ID="7a8f7d3f-79bd-4033-8113-069c65f40771" SourceId="1" SourceUrl="http://localhost:8887/Service/mex" />
+    <MetadataFile FileName="service51.xsd" MetadataType="Schema" ID="06913dcd-f728-4a2c-a45d-8c4067fdfd10" SourceId="1" SourceUrl="http://localhost:8887/Service/mex" />
+    <MetadataFile FileName="Arrays.xsd" MetadataType="Schema" ID="5dfd64b3-490a-4163-a9bb-e2794c905f32" SourceId="1" SourceUrl="http://localhost:8887/Service/mex" />
+    <MetadataFile FileName="MallHost.xsd" MetadataType="Schema" ID="ebbc8384-7a7b-480b-8f67-23e9539de2d5" SourceId="1" SourceUrl="http://localhost:8887/Service/mex" />
+    <MetadataFile FileName="ClassLibrary.xsd" MetadataType="Schema" ID="2079515b-d219-418f-9b95-9dfce42643ab" SourceId="1" SourceUrl="http://localhost:8887/Service/mex" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

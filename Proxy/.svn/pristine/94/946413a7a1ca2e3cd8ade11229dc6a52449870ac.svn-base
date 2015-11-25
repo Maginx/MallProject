@@ -1,0 +1,238 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using ComponentFactory.Krypton.Toolkit;
+using ClassLibrary;
+
+namespace ProxyClient.Controls
+{
+    /// <summary>
+    /// 用户管理
+    /// </summary>
+    public partial class UserManager : KryptonForm
+    {
+        public UserManager()
+        {
+            InitializeComponent();
+            this.cmbUserRole.SelectedIndex = 0;
+            this.cmbUserType.SelectedIndex = 0;
+        }
+
+        private void dataGridviewUser_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        {
+            Rectangle rectangle = new Rectangle(e.RowBounds.Location.X,
+            e.RowBounds.Location.Y,
+            dataGridviewUser.RowHeadersWidth - 4,
+            e.RowBounds.Height);
+
+            TextRenderer.DrawText(e.Graphics, (e.RowIndex + 1).ToString(),
+                dataGridviewUser.RowHeadersDefaultCellStyle.Font,
+                rectangle,
+                dataGridviewUser.RowHeadersDefaultCellStyle.ForeColor,
+                TextFormatFlags.VerticalCenter | TextFormatFlags.Right);
+        }
+
+        private void UserManager_Load(object sender, EventArgs e)
+        {
+            this.dataGridviewUser.Rows.Clear();
+            DataServiceBusi.GetUserDelegate().BeginInvoke(new AsyncCallback(GetUserAsynResult), DataServiceBusi.GetUserDelegate());
+        }
+
+        void GetUserAsynResult(IAsyncResult e)
+        {
+            var msg = (DataServiceBusi.LoadUserMsgAsyn)e.AsyncState;
+            List<UserInfo> userInfos = msg.EndInvoke(e);
+            this.dataGridviewUser.Invoke(new Action<List<UserInfo>>(BindingMsgToForm), userInfos);
+        }
+
+        /// <summary>
+        /// 绑定信息到Form
+        /// </summary>
+        /// <param name="userInfos">The user infos.</param>
+        private void BindingMsgToForm(List<UserInfo> userInfos)
+        {
+            if (userInfos != null)
+            {
+                foreach (UserInfo e in userInfos)
+                {
+                    int index = this.dataGridviewUser.Rows.Add();
+                    dataGridviewUser.Rows[index].Cells[0].Value = e.UserSn;
+                    dataGridviewUser.Rows[index].Cells[1].Value = e.UserSim;
+                    dataGridviewUser.Rows[index].Cells[2].Value = e.UserPass;
+                    dataGridviewUser.Rows[index].Cells[3].Value = e.UserName;
+                    dataGridviewUser.Rows[index].Cells[4].Value = AttributeExtend.GetEnumDescription<UserRole>(e.UserRole.ToSafeString());
+                    dataGridviewUser.Rows[index].Cells[5].Value = AttributeExtend.GetEnumDescription<UserType>(e.UserType.ToSafeString());
+                    dataGridviewUser.Rows[index].Cells[6].Value = e.Remark;
+                    dataGridviewUser.Rows[index].Cells[7].Value = e.UserTime;
+                }
+                dataGridviewUser.Sort(dataGridviewUser.Columns[7], ListSortDirection.Descending);
+            }
+        }
+
+        private void dataGridviewUser_Click(object sender, EventArgs e)
+        {
+            if (this.dataGridviewUser.SelectedRows.Count > 0)
+            {
+                DataGridViewRow row = this.dataGridviewUser.SelectedRows[0];
+                this.txtUserSn.Text = row.Cells[0].Value.ToSafeString();
+                this.txtUserSIM.Text = row.Cells[1].Value.ToSafeString();
+                this.txtUserPass.Text = row.Cells[2].Value.ToSafeString();
+                this.txtUserRealname.Text = row.Cells[3].Value.ToSafeString();
+                this.cmbUserRole.Text = row.Cells[4].Value.ToSafeString();
+                this.cmbUserType.SelectedItem = row.Cells[5].Value.ToSafeString();
+                this.txtRemark.Text = row.Cells[6].Value.ToSafeString();
+                this.txtTime.Text = row.Cells[7].Value.ToSafeString();
+                this.grouBoxUser.Values.Description = "已经选中" + this.dataGridviewUser.SelectedRows.Count + "行";
+            }
+        }
+
+        private void btnAddUser_Click(object sender, EventArgs e)
+        {
+            if (VerifyUser())
+            {
+                UserInfo userInfo = new UserInfo
+                {
+                    UserSn = txtUserSn.Text.Trim(),
+                    UserSim = txtUserSIM.Text.Trim(),
+                    UserTime = DateTime.Now,
+                    UserName = txtUserRealname.Text.Trim(),
+                    UserPass = txtUserPass.Text.Trim(),
+                    UserRole = AttributeExtend.GetEnumValue<UserRole>(cmbUserRole.SelectedItem.ToSafeString()),
+                    UserType = AttributeExtend.GetEnumValue<UserType>(cmbUserType.SelectedItem.ToSafeString()),
+                    Remark = txtRemark.Text.Trim()
+                };
+
+                try
+                {
+
+              
+                if (GSetting.DataServBusi.SaveUser(userInfo))
+                {
+                    GSetting.WashObj.ShowStatusTips(this.txtUserSn.Text + "保存成功！", Color.Empty);
+                    UserManager_Load(null, null);
+                }
+                else
+                {
+                    GSetting.WashObj.ShowStatusTips(this.txtUserSn.Text + "保存失败！", Color.Empty);
+                }
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("保存失败");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 验证用户
+        /// </summary>
+        /// <returns></returns>
+        bool VerifyUser()
+        {
+            string temp = string.Empty;
+            bool result = true;
+
+            try
+            {
+                if (!FormHelper.VerifyCommonText(txtUserSn.Text.Trim()) && FormHelper.ProcessSqlStr(txtUserSn.Text.Trim()))
+                {
+                    result = false;
+                    temp += "用户编号含有非法字符；";
+                    this.txtUserSn.Text = string.Empty;
+                }
+                if (!FormHelper.VerifyCommonText(txtUserPass.Text.Trim()) && FormHelper.ProcessSqlStr(txtUserPass.Text.Trim()))
+                {
+                    result = false;
+                    temp += "用户密码含有非法字符；";
+                    this.txtUserPass.Text = string.Empty;
+                }
+                if (!FormHelper.VerifyCommonText(txtUserRealname.Text.Trim()) && FormHelper.ProcessSqlStr(txtUserRealname.Text.Trim()))
+                {
+                    result = false;
+                    temp += "用户姓名含有非法字符；";
+                    this.txtUserRealname.Text = string.Empty;
+                }
+                if (!FormHelper.VerifySimNo(txtUserSIM.Text.Trim()) && FormHelper.ProcessSqlStr(txtUserSIM.Text.Trim()))
+                {
+                    result = false;
+                    temp += "用户SIM卡号含有非法字符";
+                    this.txtUserSIM.Text = string.Empty;
+                }
+                if (temp.Trim().Length > 0)
+                {
+                    GSetting.WashObj.ShowStatusTips(temp, Color.Red);
+                }
+            }
+            catch (Exception)
+            {
+            }
+            return result;
+        }
+
+        private void btnDeleteUser_Click(object sender, EventArgs e)
+        {
+            DialogResult result = KryptonMessageBox.Show(this, "确定要删除用户信息吗？", "警告", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (DialogResult.Yes == result)
+            {
+                if (FormHelper.VerifyCommonText(txtUserSn.Text.Trim()))
+                {
+                    if (GSetting.DataServBusi.Delete(new UserInfo() { UserSn = txtUserSn.Text.Trim() }))
+                    {
+                        GSetting.WashObj.ShowStatusTips(this.txtUserSn.Text + "删除成功！", Color.Empty);
+                        UserManager_Load(null, null);
+                    }
+                    else
+                    {
+                        GSetting.WashObj.ShowStatusTips(this.txtUserSn.Text + "删除失败！", Color.Red);
+                    }
+                }
+            }
+        }
+
+        private void txtUserSn_Leave(object sender, EventArgs e)
+        {
+            KryptonTextBox txt = sender as KryptonTextBox;
+            if (txt == null)
+            {
+                return;
+            }
+            txt.StateActive.Border.Color1 = Color.Silver;
+        }
+
+        private void txtUserSn_Enter(object sender, EventArgs e)
+        {
+            KryptonTextBox txt = sender as KryptonTextBox;
+            if (txt == null)
+            {
+                return;
+            }
+            txt.StateActive.Border.Color1 = Color.LimeGreen;
+        }
+
+        private void cmbUserRole_Leave(object sender, EventArgs e)
+        {
+            KryptonComboBox txt = sender as KryptonComboBox;
+            if (txt == null)
+            {
+                return;
+            }
+            txt.StateActive.ComboBox.Border.Color1 = Color.Silver;
+
+        }
+
+        private void cmbUserRole_Enter(object sender, EventArgs e)
+        {
+            KryptonComboBox txt = sender as KryptonComboBox;
+            if (txt == null)
+            {
+                return;
+            }
+            txt.StateActive.ComboBox.Border.Color1 = Color.LimeGreen;
+        }
+    }
+}

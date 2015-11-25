@@ -1,0 +1,288 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Windows.Forms;
+using System.Xml;
+using ComponentFactory.Krypton.Toolkit;
+using ProxyClient.Controls;
+using System.IO.Ports;
+
+namespace ProxyClient
+{
+    /// <summary>
+    /// 服务端字符串，接收ARM数据
+    /// </summary>
+    internal class AcceptSocket
+    {
+        private static char[] hexDigits = {
+        '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+        #region  私有字段
+        /// <summary>
+        /// 用于表示客户端发送的信息长度
+        /// </summary>
+        private static int recv;
+
+        /// <summary>
+        /// 用于缓存客户端所发送的信息,通过socket传递的信息必须为字节数组
+        /// </summary>
+        private static byte[] data = new byte[1024];
+
+        /// <summary>
+        /// 本机预使用的IP和端口
+        /// </summary>
+        private static IPEndPoint ipend;
+
+        /// <summary>
+        /// 本机服务端Socket
+        /// </summary>
+        private static Socket serverSocket;
+
+        /// <summary>
+        /// 接收数据Socket
+        /// </summary>
+        private static Socket acceptSocket;
+        #endregion
+
+        #region 公有方法
+        /// <summary>
+        /// 开启监听Socket
+        /// </summary>
+        public static void BegintSocket()
+        {
+            try
+            {
+                IPHostEntry iphostinfo = Dns.GetHostEntry(Dns.GetHostName());
+                ipend = new IPEndPoint(
+                    IPAddress.Parse(DealXml.ReadSysConfig("appSettings", "selfAddress")),
+                    Convert.ToInt32(DealXml.ReadSysConfig("appSettings", "selfPort")));
+
+                while (true)
+                {
+                    serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+                    // 绑定
+                    serverSocket.Bind(ipend);
+
+                    // 监听
+                    serverSocket.Listen(10);
+                    acceptSocket = serverSocket.Accept();
+
+                    while (true)
+                    {
+                        // 用死循环来不断的从客户端获取信息
+                        data = new byte[16];
+                        try
+                        {
+                            recv = acceptSocket.Receive(data, 16, SocketFlags.None);
+                        }
+                        catch (SocketException ex)
+                        {
+                            acceptSocket.Shutdown(SocketShutdown.Receive);
+                            acceptSocket = serverSocket.Accept();
+                            FormHelper.SocketLog(ex.ErrorCode + "-" + ex.Message);
+                        }
+
+                        var temp = new StringBuilder();
+
+                        for (int i = 0; i < recv; i++)
+                        {
+                            temp.Append(GetNum((byte)(data[i] / 16)) + GetNum((byte)(data[i] % 16)));
+                        }
+
+                        try
+                        {
+                            // ARM开机自连接
+                            if (temp.Length == 16)
+                            {
+                                // 检测发送字符串
+                                if (SocketDataProcessValid.SocketConnection(temp.ToSafeString()))
+                                {
+                                    GSetting.WashObj.ShowStatusTips("工作站连接成功！", Color.Green);
+                                    FormHelper.VoiceSpeech("工作站连接成功");
+                                }
+                                else
+                                {
+                                    GSetting.WashObj.ShowStatusTips("工作站连接失败，请重启工作站后，再重启程序！", Color.Red);
+                                    FormHelper.VoiceSpeech("工作站连接失败");
+                                }
+                            }
+                            else if (temp.Length == 0)
+                            {
+                                GSetting.WashObj.ShowStatusTips("工作站已经断开", Color.Red);
+                                FormHelper.VoiceSpeech("工作站已经断开");
+                                acceptSocket.Close();
+                            }
+                            else
+                            {
+                                // 获取数据
+                                GSetting.MData.AccepData = temp.ToSafeString();
+                            }
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // 异常日志
+                FormHelper.SocketLog(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 开始监听COM
+        /// </summary>
+        public static void BeginCom()
+        {
+            var name = SerialPort.GetPortNames().FirstOrDefault();
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                KryptonMessageBox.Show("没有可以使用的COM端口");
+                return;
+            }
+
+            var serial = new SerialPort();
+            serial.PortName = name;
+            serial.BaudRate = 9600;
+            serial.DataBits = 8;
+            serial.Parity = Parity.None;
+            serial.StopBits = StopBits.One;
+            serial.DataReceived += serial_DataReceived;
+
+            try
+            {
+                serial.Open();
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+                KryptonMessageBox.Show(string.Format("{0}打开失败", name));
+            }
+
+            var tmp = GSetting.PortMapDict.Keys.ToList();
+
+            byte[] bytes =
+            {
+                0xbb, 0xbb, 0xbb,0x01
+            };
+
+            while (true)
+            {
+                tmp.ForEach(t =>
+                {
+                    bytes[3] = (Convert.ToByte(t, 16));
+                    serial.Write(bytes.ToArray(), 0, 4);
+                    System.Threading.Thread.Sleep(300);
+                });
+            }
+
+        }
+
+        static void serial_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            byte[] buffer = new byte[16];
+
+            var serial = sender as SerialPort;
+
+            if (serial == null)
+            {
+                KryptonMessageBox.Show("串口对象为NULL");
+                return;
+            }
+
+            var result = serial.Read(buffer, 0, 16);
+
+            if (result == 0)
+            {
+                return;
+            }
+
+            var tmp = ToHexString(buffer);
+
+            if (tmp.Length == 16)
+            {
+                GSetting.WashObj.ShowStatusTips("工作站连接成功！", Color.Green);
+                FormHelper.VoiceSpeech("工作站连接成功");
+            }
+            else if (tmp.Length == 0)
+            {
+                GSetting.WashObj.ShowStatusTips("工作站已经断开", Color.Red);
+                FormHelper.VoiceSpeech("工作站已经断开");
+                acceptSocket.Close();
+            }
+            else
+            {
+                // 获取数据
+                GSetting.MData.AccepData = tmp;
+            }
+        }
+
+        /// <summary>
+        /// 十进制转换为十六进制
+        /// </summary>
+        /// <param name="bytes">The bytes.</param>
+        /// <returns>十六进制</returns>
+        private static string ToHexString(byte[] bytes)
+        {
+            char[] chars = new char[bytes.Length * 2];
+
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                int b = bytes[i];
+                chars[i * 2] = hexDigits[b >> 4];
+                chars[i * 2 + 1] = hexDigits[b & 0xF];
+            }
+
+            return new string(chars);
+        }
+        #endregion
+
+        #region  私有方法
+        /// <summary>
+        /// Gets the number.
+        /// </summary>
+        /// <param name="num">The number.</param>
+        /// <returns>数字转字符</returns>
+        private static string GetNum(byte num)
+        {
+            if (num >= 10)
+            {
+                switch (num % 10)
+                {
+                    case 0:
+                        return "A";
+                    case 1:
+                        return "B";
+                    case 2:
+                        return "C";
+                    case 3:
+                        return "D";
+                    case 4:
+                        return "E";
+                    case 5:
+                        return "F";
+                    default:
+                        {
+                            Console.WriteLine("数据出错");
+                            return "-1";
+                        }
+                }
+            }
+            else
+            {
+                return num.ToString();
+            }
+        }
+        #endregion
+    }
+}

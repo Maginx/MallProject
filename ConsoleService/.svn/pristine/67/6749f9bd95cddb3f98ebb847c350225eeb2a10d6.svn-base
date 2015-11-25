@@ -1,0 +1,124 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace MallHost
+{
+    /// <summary>
+    /// 工具类
+    /// </summary>
+    static class Tool
+    {
+        /// <summary>
+        /// Determines whether the specified objs is valid.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objs">The objs.</param>
+        /// <returns>有效true，无效false</returns>
+        public static bool IsValid<T>(this T[] objs)
+        {
+            if (objs != null && objs.Length > 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Fors the each.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objs">The objs.</param>
+        /// <param name="action">The action.</param>
+        public static void ForEach<T>(this T[] objs, Action<T> action)
+        {
+            if (!objs.IsValid())
+            {
+                return;
+            }
+
+            foreach (var o in objs)
+            {
+                action(o);
+            }
+        }
+
+        /// <summary>
+        /// Gets the SQL parameter.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="db">The database.</param>
+        /// <param name="paraName">Name of the parameter.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="dbtype">The dbtype.</param>
+        /// <returns></returns>
+        public static System.Data.SqlClient.SqlParameter GetSqlParameter<T>(this MallHost.Data.IDataBase db, string paraName, T value, System.Data.DbType dbtype)
+        {
+            var para = new System.Data.SqlClient.SqlParameter(paraName, value);
+            para.DbType = dbtype;
+            return para;
+        }
+
+        /// <summary>
+        /// Gets the SQL parameter.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="db">The database.</param>
+        /// <param name="paraName">Name of the parameter.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="dbtype">The dbtype.</param>
+        /// <returns></returns>
+        public static System.Data.SqlClient.SqlParameter GetSqlParameter<T>(this MallHost.Data.IDataBase db, string paraName, T value, System.Data.SqlDbType dbtype)
+        {
+            var para = new System.Data.SqlClient.SqlParameter(paraName, value);
+            para.SqlDbType = dbtype;
+            return para;
+        }
+
+        /// <summary>
+        /// Gets the SQL parameter.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="db">The database.</param>
+        /// <param name="paraName">Name of the parameter.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        public static System.Data.SqlClient.SqlParameter GetSqlParameter<T>(this MallHost.Data.IDataBase db, string paraName, T value)
+        {
+            var para = new System.Data.SqlClient.SqlParameter(paraName, value);
+            return para;
+        }
+
+        /// <summary>
+        /// Safes the read.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="reader">The reader.</param>
+        /// <param name="rowName">Name of the row.</param>
+        /// <returns></returns>
+        public static T SafeRead<T>(this System.Data.SqlClient.SqlDataReader reader, string rowName)
+        {
+            if (reader == null)
+            {
+                throw new ArgumentNullException("reader is null");
+            }
+
+            try
+            {
+                if (reader[rowName] == DBNull.Value)
+                {
+                    return default(T);
+                }
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex.Message);
+                return default(T);
+            }
+
+            return (T)reader[rowName];
+        }
+    }
+}

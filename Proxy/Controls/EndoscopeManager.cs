@@ -1,0 +1,315 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using ClassLibrary;
+using ComponentFactory.Krypton.Toolkit;
+
+namespace ProxyClient.Controls
+{
+    /// <summary>
+    /// 管理用户
+    /// </summary>
+    internal sealed partial class EndoscopeManager : KryptonForm
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EndoscopeManager"/> class.
+        /// </summary>
+        public EndoscopeManager()
+        {
+            this.InitializeComponent();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the btnSaveEndo control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void BtnSaveEndo_Click(object sender, EventArgs e)
+        {
+            // 验证输入内容
+            if (this.Verify())
+            {
+                var endoscopeInfo = new EndoscopeInfo
+                {
+                    EndoscopeSn = txtEndoscopeSn.Text,
+                    EndoscopeSim = txtEndoscopeSIM.Text,
+                    EndoscopeSeal = txtEndoscopeSeal.Text,
+                    EndoscopeServYear = (int)cmbEndoYear.Value,
+                    EndoscopeType = cmbEndoscopeType.Text,
+                    EndoscopeName = txtEndoscopeTypeName.Text,
+                    EndoscopeUseTime = DateTime.Now,
+                    Remark = txtRemark.Text.Trim()
+                };
+
+                // 保存内镜信息
+                if (GSetting.DataServBusi.SaveEndoscope(endoscopeInfo))
+                {
+                    GSetting.WashObj.ShowStatusTips(this.txtEndoscopeSn.Text + "保存成功！", Color.Green);
+                    this.EndoscopeManager_Load(null, null);
+                }
+                else
+                {
+                    GSetting.WashObj.ShowStatusTips(this.txtEndoscopeSn.Text + "保存失败！", Color.Red);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 验证输入内容
+        /// </summary>
+        /// <returns>验证结果</returns>
+        private bool Verify()
+        {
+            bool result = true;
+            var temp = new StringBuilder();
+
+            try
+            {
+                if (!FormHelper.VerifySimNo(txtEndoscopeSIM.Text.Trim()) && FormHelper.ProcessSqlStr(txtEndoscopeSIM.Text.Trim()))
+                {
+                    temp.Append("内镜SIM卡号含有非法字符；");
+                    this.txtEndoscopeSIM.Text = string.Empty;
+                    result = false;
+                }
+
+                if (!FormHelper.VerifyCommonText(txtEndoscopeSn.Text) && FormHelper.ProcessSqlStr(txtEndoscopeSn.Text.Trim()))
+                {
+                    temp.Append("内镜编号含有非法字符；");
+                    this.txtEndoscopeSn.Text = string.Empty;
+                    result = false;
+                }
+
+                if (!FormHelper.VerifyCommonText(txtRemark.Text) && FormHelper.ProcessSqlStr(txtRemark.Text.Trim()))
+                {
+                    temp.Append("备注含有非法字符；");
+                    this.txtRemark.Text = string.Empty;
+                    result = false;
+                }
+
+                if (!FormHelper.VerifyCommonText(txtEndoscopeSeal.Text) && FormHelper.ProcessSqlStr(txtEndoscopeSeal.Text.Trim()))
+                {
+                    temp.Append("内镜钢印号含有非法字符；");
+                    this.txtEndoscopeSeal.Text = string.Empty;
+                    result = false;
+                }
+
+                if (temp.Length > 0)
+                {
+                    new ProxyClient.Steps.Wash().ShowStatusTips(temp.ToSafeString(), Color.Red);
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Handles the Click event of the btnDeleteEndo control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void BtnDeleteEndo_Click(object sender, EventArgs e)
+        {
+            DialogResult result = KryptonMessageBox.Show(this, "确定要删除内镜信息吗？", "警告", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (result != DialogResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                if (!FormHelper.VerifyCommonText(txtEndoscopeSIM.Text.Trim()))
+                {
+                    return;
+                }
+
+                if (GSetting.DataServBusi.Delete(new EndoscopeInfo() { EndoscopeSn = txtEndoscopeSn.Text.Trim() }))
+                {
+                    GSetting.WashObj.ShowStatusTips(this.txtEndoscopeSn.Text + "删除成功！", Color.Empty);
+                    this.EndoscopeManager_Load(null, null);
+                }
+                else
+                {
+                    GSetting.WashObj.ShowStatusTips(this.txtEndoscopeSn.Text + "删除失败！", Color.Red);
+                }
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+        }
+
+        /// <summary>
+        /// Handles the Load event of the EndoscopeManager control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void EndoscopeManager_Load(object sender, EventArgs e)
+        {
+            this.dataGridviewEndoscope.Rows.Clear();
+
+            // 初始化数据
+            DataServiceBusi.GetEndoscopeDelegate().BeginInvoke(new AsyncCallback(this.GetEndoscopeAsynResult), DataServiceBusi.GetEndoscopeDelegate());
+        }
+
+        /// <summary>
+        /// Gets the endoscope asynchronous result.
+        /// </summary>
+        /// <param name="e">The decimal.</param>
+        private void GetEndoscopeAsynResult(IAsyncResult e)
+        {
+            try
+            {
+                var msg = (Func<List<EndoscopeInfo>>)e.AsyncState;
+                List<EndoscopeInfo> endoscopeInfos = msg.EndInvoke(e);
+                this.dataGridviewEndoscope.Invoke(new Action<List<EndoscopeInfo>>(this.BindingMsgToForm), endoscopeInfos);
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+        }
+
+        /// <summary>
+        /// 绑定信息到Form
+        /// </summary>
+        /// <param name="endoscopeInfos">内镜信息</param>
+        private void BindingMsgToForm(List<ClassLibrary.EndoscopeInfo> endoscopeInfos)
+        {
+            if (endoscopeInfos == null)
+            {
+                return;
+            }
+            foreach (EndoscopeInfo e in endoscopeInfos)
+            {
+                int index = this.dataGridviewEndoscope.Rows.Add();
+                dataGridviewEndoscope.Rows[index].Cells[0].Value = e.EndoscopeSn;
+                dataGridviewEndoscope.Rows[index].Cells[1].Value = e.EndoscopeSim;
+                dataGridviewEndoscope.Rows[index].Cells[2].Value = e.EndoscopeSeal;
+                dataGridviewEndoscope.Rows[index].Cells[3].Value = e.EndoscopeType;
+                dataGridviewEndoscope.Rows[index].Cells[4].Value = e.EndoscopeName;
+                dataGridviewEndoscope.Rows[index].Cells[5].Value = e.EndoscopeServYear;
+                dataGridviewEndoscope.Rows[index].Cells[6].Value = e.Remark;
+                dataGridviewEndoscope.Rows[index].Cells[7].Value = e.EndoscopeUseTime;
+            }
+
+            dataGridviewEndoscope.Sort(dataGridviewEndoscope.Columns[7], ListSortDirection.Descending);
+        }
+
+        /// <summary>
+        /// Handles the RowPostPaint event of the dataGridviewEndoscope control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="DataGridViewRowPostPaintEventArgs"/> instance containing the event data.</param>
+        private void DataGridviewEndoscope_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        {
+            Rectangle rectangle = new Rectangle(
+                e.RowBounds.Location.X,
+                e.RowBounds.Location.Y,
+                dataGridviewEndoscope.RowHeadersWidth - 4,
+                e.RowBounds.Height);
+
+            TextRenderer.DrawText(
+                e.Graphics,
+                (e.RowIndex + 1).ToString(),
+                dataGridviewEndoscope.RowHeadersDefaultCellStyle.Font,
+                rectangle,
+                dataGridviewEndoscope.RowHeadersDefaultCellStyle.ForeColor,
+                TextFormatFlags.VerticalCenter | TextFormatFlags.Right);
+        }
+
+        /// <summary>
+        /// Handles the Click event of the dataGridviewEndoscope control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void DataGridviewEndoscope_Click(object sender, EventArgs e)
+        {
+            if (this.dataGridviewEndoscope.SelectedRows.Count == 0)
+            {
+                return;
+            }
+
+            DataGridViewRow row = this.dataGridviewEndoscope.SelectedRows[0];
+            this.txtEndoscopeSn.Text = row.Cells[0].Value.ToSafeString();
+            this.txtEndoscopeSIM.Text = row.Cells[1].Value.ToSafeString();
+            this.txtEndoscopeSeal.Text = row.Cells[2].Value.ToSafeString();
+            this.cmbEndoscopeType.SelectedIndex = this.cmbEndoscopeType.Items.IndexOf(row.Cells[3].Value.ToString().Trim());
+            this.txtEndoscopeTypeName.Text = row.Cells[4].Value.ToSafeString();
+            this.cmbEndoYear.Value = Convert.ToInt16(row.Cells[5].Value);
+            this.txtRemark.Text = row.Cells[6].Value.ToSafeString();
+            this.txtEndoscopeTime.Text = row.Cells[7].Value.ToSafeString();
+            this.grouBoxEndoscope.Values.Description = "已经选中" + this.dataGridviewEndoscope.SelectedRows.Count + "行";
+        }
+
+        #region 样式设置
+        private void txtEndoscopeSn_Leave(object sender, EventArgs e)
+        {
+            KryptonTextBox txt = sender as KryptonTextBox;
+            if (txt == null)
+            {
+                return;
+            }
+            txt.StateActive.Border.Color1 = Color.Silver;
+        }
+
+        private void txtEndoscopeSn_Enter(object sender, EventArgs e)
+        {
+            KryptonTextBox txt = sender as KryptonTextBox;
+            if (txt == null)
+            {
+                return;
+            }
+            txt.StateActive.Border.Color1 = Color.LimeGreen;
+        }
+
+        private void cmbEndoscopeType_Leave(object sender, EventArgs e)
+        {
+            KryptonComboBox txt = sender as KryptonComboBox;
+            if (txt == null)
+            {
+                return;
+            }
+            txt.StateActive.ComboBox.Border.Color1 = Color.Silver;
+        }
+
+        private void cmbEndoscopeType_Enter(object sender, EventArgs e)
+        {
+            KryptonComboBox txt = sender as KryptonComboBox;
+            if (txt == null)
+            {
+                return;
+            }
+            txt.StateActive.ComboBox.Border.Color1 = Color.LimeGreen;
+        }
+
+        private void cmbEndoYear_Enter(object sender, EventArgs e)
+        {
+            KryptonNumericUpDown txt = sender as KryptonNumericUpDown;
+            if (txt == null)
+            {
+                return;
+            }
+            txt.StateActive.Border.Color1 = Color.LimeGreen;
+        }
+
+        private void cmbEndoYear_Leave(object sender, EventArgs e)
+        {
+            KryptonNumericUpDown txt = sender as KryptonNumericUpDown;
+            if (txt == null)
+            {
+                return;
+            }
+            txt.StateActive.Border.Color1 = Color.Silver;
+        }
+        #endregion
+    }
+}

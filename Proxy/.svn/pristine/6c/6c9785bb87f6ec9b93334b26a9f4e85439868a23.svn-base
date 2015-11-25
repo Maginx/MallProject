@@ -1,0 +1,503 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
+using System.Xml;
+using System.IO;
+using System.Windows.Forms;
+using ProxyClient.Controls;
+using System.Drawing;
+using System.Text.RegularExpressions;
+using System.Management;
+using SpeechLib;
+using ClassLibrary;
+using System.Threading;
+
+namespace ProxyClient
+{
+    /// <summary>
+    /// Form窗体名
+    /// </summary>
+    public static class FormClient
+    {
+        #region 公有对象
+        /// <summary>
+        /// 控件命名空间
+        /// </summary>
+        public static string CleanTempMsg;
+
+        /// <summary>
+        /// 控件命名
+        /// </summary>
+        public static string PortSet;
+
+        /// <summary>
+        /// 控件命名
+        /// </summary>
+        public static string CleanTime;
+
+        /// <summary>
+        /// 控件命名
+        /// </summary>
+        public static string EndoscopeCleanState;
+
+        /// <summary>
+        /// 控件命名
+        /// </summary>
+        public static string BasicSetting;
+
+        /// <summary>
+        /// 控件命名
+        /// </summary>
+        public static string UserManager;
+
+        /// <summary>
+        /// 控件命名
+        /// </summary>
+        public static string EndoscopeManager;
+
+        /// <summary>
+        /// 控件命名
+        /// </summary>
+        public static string DataTrace;
+
+        /// <summary>
+        /// 控件命名
+        /// </summary>
+        public static string EnterLicense;
+
+        /// <summary>
+        /// 主程序
+        /// </summary>
+        public static string MainFormText { get; private set; }
+
+        /// <summary>
+        /// 临时记录面板
+        /// </summary>
+        public static string TempRecord { get; private set; }
+        #endregion
+
+        #region 构造方法
+        static FormClient()
+        {
+            CleanTempMsg = "CleanTempMsg";
+            PortSet = "PortSet";
+            CleanTime = "CleanTime";
+            EndoscopeCleanState = "EndoscopeCleanState";
+            BasicSetting = "BasicSetting";
+            UserManager = "UserManager";
+            EndoscopeManager = "EndoscopeManager";
+            DataTrace = "DataTrace";
+            EnterLicense = "EnterLicense";
+            MainFormText = "MainForm";
+            TempRecord = "TempRecord";
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// Form帮助处理
+    /// </summary>
+    public static class FormHelper
+    {
+        #region 私有对象
+        /// <summary>
+        /// SIM卡号Regex
+        /// </summary>
+        private static Regex simNo;
+
+        /// <summary>
+        /// 普通号码验证
+        /// </summary>
+        private static Regex commonText;
+
+        private static object lockObj = new object();
+        /// <summary>
+        /// 声音标志位
+        /// </summary>
+        private static SpeechVoiceSpeakFlags spFlags;
+
+        /// <summary>
+        /// 声音对象
+        /// </summary>
+        private static SpVoice voice;
+
+        /// <summary>
+        /// 主窗口
+        /// </summary>
+        private static MainForm mainForm;
+
+        /// <summary>
+        /// 代理窗口
+        /// </summary>
+        private static TempRecord tempRecord;
+
+        /// <summary>
+        /// 字体设置
+        /// </summary>
+        private static Font font = new Font("宋体", 11, FontStyle.Bold);
+
+        /// <summary>
+        /// 文件写对象
+        /// </summary>
+        private static StreamWriter writer = null;
+
+        /// <summary>
+        /// 日志路径
+        /// </summary>
+        private static string SocketLogPath;
+        #endregion
+
+        #region  公有对象
+        /// <summary>
+        /// 声音标志位
+        /// </summary>
+        public static bool voiceFlag = true;
+
+        /// <summary>
+        /// 打印富文档
+        /// </summary>
+        /// <param name="text">信息</param>
+        /// <param name="color">字体颜色</param>
+        public delegate void PrintRichText(string text, Color color);
+
+        /// <summary>
+        /// 打印文档
+        /// </summary>
+        /// <param name="text">信息</param>
+        /// <param name="colr">字体颜色</param>
+        public delegate void PrintText(string text, Color colr);
+
+        /// <summary>
+        /// 显示最近清洗步骤
+        /// </summary>
+        /// <param name="state">TextBox对象</param>
+        /// <param name="str">信息</param>
+        public delegate void ShowCleanStepHandler(Label state, string str);
+
+        /// <summary>
+        /// 富文本显示
+        /// </summary>
+        public static PrintRichText RichTextBoxMethod = new PrintRichText(AppendRichText);
+
+        /// <summary>
+        /// 文本显示
+        /// </summary>
+        public static PrintText TextBoxMethod = new PrintText(AppendText);
+
+        /// <summary>
+        /// 显示清洗步骤事件
+        /// </summary>
+        public static ShowCleanStepHandler ShowCleanStepEvent = new ShowCleanStepHandler(ShowCleanStep);
+
+        #endregion
+
+        #region 构造方法
+        static FormHelper()
+        {
+            simNo = new Regex(@"\d{10,12}");
+            commonText = new Regex(@"\w{0,100}");
+            spFlags = SpeechVoiceSpeakFlags.SVSFlagsAsync;
+            voice = new SpVoice();
+            mainForm = GSetting.GetFormInstance<MainForm>();
+            tempRecord = GSetting.GetFormInstance<TempRecord>();
+            SocketLogPath = Path.Combine(Application.StartupPath, "log.mp");
+        }
+        #endregion
+
+        #region 公有方法
+        /// <summary>
+        /// 发声
+        /// </summary>
+        /// <param name="voiceText">发声内容</param>
+        public static void VoiceSpeech(string voiceText)
+        {
+            if (voiceFlag)
+            {
+                try
+                {
+                    voice.Speak(string.Empty, SpeechVoiceSpeakFlags.SVSFPurgeBeforeSpeak);
+                    voice.Speak(voiceText, spFlags);
+                }
+                catch
+                {
+                    //MessageBox.Show(ex.Message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 显示清洗步骤
+        /// </summary>
+        /// <param name="state">状态</param>
+        /// <param name="step">步骤</param>
+        public static void ShowCleanStep(Label state, string step)
+        {
+            state.Text = step;
+        }
+
+        /// <summary>
+        /// 打印提示信息
+        /// </summary>
+        /// <param name="msg">The MSG.</param>
+        /// <param name="color">The color.</param>
+        public static void AppendText(string msg, Color color)
+        {
+            try
+            {
+                mainForm.labTips.Font = font;
+                mainForm.labTips.ForeColor = color;
+                mainForm.labTips.Text = msg;
+            }
+            catch (Exception ex)
+            {
+                FormHelper.RecordLogMsg(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 加载到富文档
+        /// </summary>
+        /// <param name="text">内容</param>
+        /// <param name="color">颜色</param>
+        public static void AppendRichText(string text, Color color)
+        {
+            RichTextBox box = tempRecord.richTxtTempRecord;
+            box.SelectionStart = box.TextLength;
+            box.SelectionLength = 0;
+            box.SelectionFont = font;
+            box.SelectionColor = color;
+            box.AppendText(DateTime.Now.ToString());
+            box.AppendText("    [");
+            box.AppendText(text);
+            box.AppendText("]");
+            box.AppendText("\r\n");
+            box.SelectionColor = box.ForeColor;
+            box.SelectionStart = box.TextLength;
+            box.ScrollToCaret();
+        }
+
+        /// <summary>
+        /// 记录日志
+        /// </summary>
+        /// <param name="msg">日志内容</param>
+        public static void RecordLogMsg(string msg)
+        {
+            using (writer = new StreamWriter(GSetting.LogFilePath, true))
+            {
+                string tempM = DateTime.Now.ToString() + "  " + msg;
+                writer.WriteLine(tempM);
+            }
+        }
+
+        /// <summary>
+        /// 验证SIM卡号
+        /// </summary>
+        /// <param name="no">SIM卡号</param>
+        /// <returns>验证结果</returns>
+        public static bool VerifySimNo(string no)
+        {
+            bool result = false;
+            if (simNo.IsMatch(no))
+            {
+                result = true;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 验证普通文本
+        /// </summary>
+        /// <param name="text">文本内容</param>
+        /// <returns>
+        /// 验证结果
+        /// </returns>
+        public static bool VerifyCommonText(string text)
+        {
+            bool result = false;
+            if (commonText.IsMatch(text))
+            {
+                result = true;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 加密硬盘号
+        /// </summary>
+        public static string DiskNo()
+        {
+            string temp = Des.ConstKey;
+            try
+            {
+                ManagementClass mc = new ManagementClass("Win32_NetworkAdapterConfiguration");
+                ManagementObject disk = new ManagementObject("win32_logicaldisk.deviceid=\"c:\"");
+                disk.Get();
+                return Des.EncryptDES(Des.EncryptDES(disk.GetPropertyValue("VolumeSerialNumber").ToString(), temp), temp);
+            }
+            catch { }
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// 套字节日志
+        /// </summary>
+        /// <returns></returns>
+        public static void SocketLog(string msg)
+        {
+            if (!File.Exists(SocketLogPath))
+            {
+                File.Create(SocketLogPath);
+            }
+
+            bool result=false;
+            Monitor.TryEnter(lockObj, 1000, ref result);
+
+            if (!result)
+            {
+                Monitor.Exit(lockObj);
+                return;
+            }
+
+            try
+            {
+                using (FileStream stream = File.OpenWrite(SocketLogPath))
+                {
+                    using (StreamWriter writer = new StreamWriter(stream))
+                    {
+                        writer.WriteLine("[SocketError-" + DateTime.Now.ToString() + " : " + msg + "]");
+                        writer.Flush();
+                    }
+                }
+            }
+            finally
+            {
+                Monitor.Exit(lockObj);
+            }
+        }
+
+        /// <summary>
+        /// Processes the SQL string.
+        /// </summary>
+        /// <param name="Str">The string.</param>
+        /// <returns>verify</returns>
+        public static bool ProcessSqlStr(string Str)
+        {
+            string SqlStr;
+            SqlStr = "'|and|exec|insert|select|delete|update|count|*|chr|mid|master|truncate|char|declare";
+            bool ReturnValue = true;
+            try
+            {
+                if (Str != "")
+                {
+                    string[] anySqlStr = SqlStr.Split('|');
+                    foreach (string ss in anySqlStr)
+                    {
+                        if (Str.IndexOf(ss) >= 0)
+                        {
+                            ReturnValue = false;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                ReturnValue = false;
+            }
+            return ReturnValue;
+        }
+
+        /// <summary>
+        /// 链表验证
+        /// </summary>
+        /// <typeparam name="T">类型</typeparam>
+        /// <param name="list">链表对象</param>
+        /// <returns>true:链表可用；false：链表不可用</returns>
+        public static bool IsValid<T>(this List<T> list)
+        {
+            if (list == null || list.Count == 0)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Determines whether the specified ts is valid.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ts">The ts.</param>
+        /// <returns></returns>
+        public static bool IsValid<T>(this T[] ts)
+        {
+            if (ts == null || ts.Length == 0)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Automatics the safe string.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns></returns>
+        public static string ToSafeString(this object obj)
+        {
+            if (obj == null)
+            {
+                return string.Empty;
+            }
+
+            return obj.ToString().Trim();
+        }
+
+        /// <summary>
+        /// Gets the name of the attribute.
+        /// </summary>
+        /// <typeparam name="T1">The type of the 1.</typeparam>
+        /// <param name="t">The attribute.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">this object is null</exception>
+        public static string GetAttributeName<T1>(this T1 t)
+        {
+
+            if (t == null)
+            {
+                throw new ArgumentNullException("this object is null");
+            }
+
+            Type type1 = typeof(T1);
+            var memeber = type1.GetMember(t.ToSafeString()).FirstOrDefault();
+
+
+            if (memeber.Name == t.ToSafeString())
+            {
+                EnumDescriptionAttribute attr = Attribute.GetCustomAttribute(memeber, typeof(EnumDescriptionAttribute)) as EnumDescriptionAttribute;
+                if (attr == null)
+                {
+                    return string.Empty;
+                }
+                return attr.Description;
+            }
+            return string.Empty;
+        }
+
+        public static string GetValue(this XElement element)
+        {
+            if (element == null)
+            {
+                return string.Empty;
+            }
+
+            if (element.Value == null)
+            {
+                return string.Empty;
+            }
+
+            return element.Value;
+        }
+        #endregion
+    }
+}

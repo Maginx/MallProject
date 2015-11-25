@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<root>
+  <内镜编号 key="true" table="endoscopeRecord" col="endoscopeSN" type="0">内镜编号</内镜编号>
+  <内镜SIM卡号 key="true" table="endoscopeRecord" col="endoscopeSIM" type="0">内镜SIM卡号</内镜SIM卡号>
+  <清洗日期 key="true" table="endoscopeRecord" col="washDate" type="0">清洗日期</清洗日期>
+  <清洗工编号 key="true" table="endoscopeRecord" col="washerNo" type="0">清洗工编号</清洗工编号>
+  <清洗工名 key="true" table="endoscopeRecord" col="washerRealName" type="0">清洗工名</清洗工名>
+  <自动清洗机编号 key="true" table="endoscopeRecord" col="autoCleanNo" type="0">自动清洗机编号</自动清洗机编号>
+  <检查病室号 key="true" table="endoscopeRecord" col="wareNo" type="0">检查病室号</检查病室号>
+  <病人名 key="true"  table="endoscopeRecord" col="patientNo" type="0">病人名</病人名>
+  <前病人名 key="true"  table="endoscopeRecord" col="prePatientNo" type="0">前病人名</前病人名>
+  <医生名 key="true" table="endoscopeRecord" col="doctorName" type="0">医生名</医生名>
+  <护士名 key="true" table="endoscopeRecord" col="nurseNo" type="0">护士名</护士名>
+  <总时间 key="true" table="endoscopeRecord" col="washTotalTime" type="0">总时间</总时间>
+  <开始时间 key="true" table="endoscopeRecord" col="washBeginTime" type="0">开始时间</开始时间>
+  <结束时间 key="true" table="endoscopeRecord" col="washEndTime" type="0">结束时间</结束时间>
+  <清洗是否合格 key="true" table="endoscopeRecord" col="qualified" type="0">清洗是否合格</清洗是否合格>
+  <刷洗开始 key="true" table="endoscopeRecord" col="brushWashBegin" type="1">刷洗开始</刷洗开始>
+  <刷洗结束 key="true" table="endoscopeRecord" col="brushWashEnd" type="1">刷洗结束</刷洗结束>
+  <刷洗时间 key="true" table="endoscopeRecord" col="brushWashTime" type="1">刷洗时间</刷洗时间>
+  <初洗开始 key="true" table="endoscopeRecord" col="firstWashBegin" type="1">初洗开始</初洗开始>
+  <初洗结束 key="true" table="endoscopeRecord" col="firstWashEnd" type="1">初洗结束</初洗结束>
+  <初洗时间 key="true" table="endoscopeRecord" col="firstWashTime" type="1">初洗时间</初洗时间>
+  <酶洗开始 key="true" table="endoscopeRecord" col="enzymeWashBegin" type="1">酶洗开始</酶洗开始>
+  <酶洗结束 key="true" table="endoscopeRecord" col="enzymeWashEnd" type="1">酶洗结束</酶洗结束>
+  <酶洗时间 key="true" table="endoscopeRecord" col="enzymeWashTime" type="1">酶洗时间</酶洗时间>
+  <清洗开始 key="true" table="endoscopeRecord" col="cleanOutWashBegin" type="1">清洗开始</清洗开始>
+  <清洗结束 key="true" table="endoscopeRecord" col="cleanOutWashEnd" type="1">清洗结束</清洗结束>
+  <清洗时间 key="true" table="endoscopeRecord" col="cleanOutWashTime" type="1">清洗时间</清洗时间>
+  <消毒开始 key="true" table="endoscopeRecord" col="dipInWashBegin" type="1">消毒开始</消毒开始>
+  <消毒结束 key="true" table="endoscopeRecord" col="dipInWashEnd" type="1">消毒结束</消毒结束>
+  <消毒时间 key="true" table="endoscopeRecord" col="dipInWashTime" type="1">消毒时间</消毒时间>
+  <末洗开始 key="true" table="endoscopeRecord" col="lastWashBegin" type="1">末洗开始</末洗开始>
+  <末洗结束 key="true" table="endoscopeRecord" col="lastWashEnd" type="1">末洗结束</末洗结束>
+  <末洗时间 key="true" table="endoscopeRecord" col="lastWashTime" type="1">末洗时间</末洗时间>
+  <二次消毒开始 key="true" table="endoscopeRecord" col="dipInWashSecBegin" type="2">二次消毒开始</二次消毒开始>
+  <二次消毒结束 key="true" table="endoscopeRecord" col="dipInWashSecEnd" type="2">二次消毒结束</二次消毒结束>
+  <二次消毒时间 key="true" table="endoscopeRecord" col="dipInWashSecTime" type="2">二次消毒时间</二次消毒时间>
+  <二次末洗开始 key="true" table="endoscopeRecord" col="lastWashSecBegin" type="2">二次末洗开始</二次末洗开始>
+  <二次末洗结束 key="true" table="endoscopeRecord" col="lastWashSecEnd" type="2">二次末洗结束</二次末洗结束>
+  <二次末洗时间 key="true" table="endoscopeRecord" col="lastWashSecTime" type="2">二次末洗时间</二次末洗时间>
+
+</root>

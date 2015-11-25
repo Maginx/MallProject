@@ -1,0 +1,317 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using ProxyClient.Controls;
+
+namespace ProxyClient.Steps
+{
+    /// <summary>
+    /// 自动清洗机模拟
+    /// </summary>
+    internal sealed class OtherAutoMachine : Wash
+    {
+        #region 私有字段
+        /// <summary>
+        /// 清洗类型
+        /// </summary>
+        private string cleanType = "1";
+
+        /// <summary>
+        /// 开始时间
+        /// </summary>
+        private DateTime startDateTime = DateTime.Now;
+        #endregion
+
+        /// <summary>
+        /// 数据处理
+        /// </summary>
+        /// <param name="data">数据值</param>
+        public override void DatagramProcess(MonitorData data)
+        {
+            base.DatagramProcess(data);
+
+            if (string.Equals(this.WorkState, "FF"))
+            {
+                this.SIMIdentify(this.Sim);
+            }
+
+            // 开始
+            if (string.Equals(this.WorkState, "01"))
+            {
+                startDateTime = DateTime.Now;
+
+                if (!string.IsNullOrEmpty(this.WasherNo))
+                {
+                    FormHelper.VoiceSpeech(this.EndoscopeSN + "自动清洗机开始二次清洗");
+                    this.ShowCleanStep("机洗二次清洗开始", Color.Empty);
+                }
+                else
+                {
+                    FormHelper.VoiceSpeech(this.EndoscopeSN + "自动清洗机开始清洗");
+                    this.ShowCleanStep("机洗清洗开始", Color.Empty);
+                }
+            }
+
+            // 结束
+            if (string.Equals(this.WorkState, "02"))
+            {
+                // 一次清洗
+                if (cleanType == "1")
+                {
+                    GSetting.DataServ.SetAutoCleanNo(this.EndoscopeSN, data.PortNO);
+                    this.PrintTempRecordMsg(this.EndoscopeSN + "自动清洗机清洗结束", Color.Empty);
+                    FormHelper.VoiceSpeech(this.EndoscopeSN + "自动清洗机清洗结束，请稍后确认清洗信息");
+                    this.SimulateAutoMachine(startDateTime, DateTime.Now);
+                }
+                else
+                {
+                    // 重置内镜信息,并且开始
+                    bool isRest = GSetting.DataServ.ResetEndoscopeMsg(this.EndoscopeSN, this.EndoscopeSIM, this.WasherNo, this.WasherName, "2", "1", data.PortNO);
+
+                    this.PrintTempRecordMsg(this.EndoscopeSN + "自动清洗机二次清洗结束", Color.Empty);
+                    this.SimulateAutoMachineSec(startDateTime, DateTime.Now);
+                    FormHelper.VoiceSpeech(this.EndoscopeSN + "自动清洗机二次清洗结束，请稍后确认清洗信息");
+                }
+
+                GSetting.WashObj.ShowCleanStep("机洗清洗结束", Color.Empty);
+
+                // 移除状态监视器中的内镜状态 并将待确认的内镜入确认队列
+                if (GSetting.EndoscStates.Keys.Contains(this.EndoscopeSN))
+                {
+                    EndoscopeState state = GSetting.EndoscStates[this.EndoscopeSN];
+
+                    // 验证结果
+                    state.EndoscopeCleanStandarData = this.VerifyCleanDataAuto();
+
+                    if (string.IsNullOrEmpty(state.EndoscopeCleanStandarData.ToString()))
+                    {
+                        // 合格
+                        GSetting.DataServBusi.SetQulified(this.EndoscopeSN, "1");
+                    }
+                    else
+                    {
+                        // 不合格
+                        GSetting.DataServBusi.SetQulified(this.EndoscopeSN, "0");
+                    }
+
+                    // 从状态面板上去除清洗完成的EndoscopeState
+                    GSetting.RemoveCleanedEndoscope(state);
+
+                    if (!GSetting.WaitSureList.Contains(this.EndoscopeSN))
+                    {
+                        // 加入链表
+                        GSetting.WaitSureList.Add(this.EndoscopeSN);
+
+                        // 入队列
+                        GSetting.AddList(state);
+                    }
+
+                    GSetting.EndoscStates.Remove(this.EndoscopeSN);
+                }
+
+                cleanType = "1";
+                this.CleanAllStr();
+            }
+        }
+
+        /// <summary>
+        /// 验证SIM卡号
+        /// </summary>
+        /// <param name="sim">sim卡号</param>
+        private void SIMIdentify(string sim)
+        {
+            // 获取打卡信息sResult[0]=endoscope或者user
+            var sResult = GSetting.DataServ.GetUserEndoscopeMsgBySIM(sim);
+
+            if (!sResult.IsValid())
+            {
+                return;
+            }
+
+            var result = sResult.FirstOrDefault();
+
+            if (string.IsNullOrEmpty(result))
+            {
+                return;
+            }
+
+            if (string.Equals(result, "user"))
+            {
+                this.WasherNo = sResult[1];
+                this.WasherName = sResult[2];
+                FormHelper.VoiceSpeech("请打内镜卡");
+                this.ShowCleanStep("机洗员工打卡完成", Color.Empty);
+                this.ShowStatusTips("员工编号：" + this.WasherNo + "； 员工名称：" + this.WasherName, Color.Green);
+            }
+            else if (string.Equals(result, "endoscope"))
+            {
+                this.EndoscopeSN = sResult[1];
+                this.EndoscopeSIM = sim;
+                this.ShowStatusTips("内镜编号：" + this.EndoscopeSN + "；内镜卡号：" + this.EndoscopeSIM, Color.Empty);
+
+                if (!string.IsNullOrEmpty(this.WasherNo))
+                {
+                    cleanType = "2";
+
+                    if (!GSetting.EndoscStates.Keys.Contains(this.EndoscopeSN))
+                    {
+                        GSetting.EndoscStates.Add(this.EndoscopeSN, new EndoscopeState(this.EndoscopeSN));
+                        GSetting.EndoscStates[this.EndoscopeSN].cleanType = 2;
+                        GSetting.EndoscStates[this.EndoscopeSN].txtWasherSN.Text = this.WasherNo;
+                        GSetting.EndoscStates[this.EndoscopeSN].txtWasherSIM.Text = this.WasherName;
+                        GSetting.EndoscStates[this.EndoscopeSN].txtEndoscopeID.Text = this.EndoscopeSN;
+                        GSetting.EndoscStates[this.EndoscopeSN].txtEndoscopeSIM.Text = this.EndoscopeSIM;
+                        GSetting.EndoscStates[this.EndoscopeSN].txtEndoscopeState.Text = "内镜清洗正常";
+                        GSetting.EndoscStates[this.EndoscopeSN].txtCleanStep.Text = "机洗二次清洗打卡完成";
+                        GSetting.ShowState(this.EndoscopeSN);
+                    }
+
+                    this.ShowCleanStep("机洗内镜打卡完成", Color.Empty);
+                    FormHelper.VoiceSpeech(this.EndoscopeSN + "自动清洗机二次清洗已打卡");
+                    this.PrintTempRecordMsg(this.EndoscopeSN + "机洗二次清洗已打卡", Color.Empty);
+                }
+                else
+                {
+                    FormHelper.VoiceSpeech("机洗已打卡");
+                }
+            }
+            else
+            {
+                this.EndoscopeSIM = string.Empty;
+                this.EndoscopeSN = string.Empty;
+                FormHelper.VoiceSpeech("无效数据卡号");
+                this.ShowStatusTips("无效数据卡号：" + sim, Color.Red);
+            }
+        }
+
+        /// <summary>
+        /// Simulates the automatic machine.
+        /// </summary>
+        /// <param name="startDateTime">The start date time.</param>
+        /// <param name="endDateTime">The end date time.</param>
+        private void SimulateAutoMachine(DateTime startDateTime, DateTime endDateTime)
+        {
+            try
+            {
+                DateTime nowDateTime = startDateTime;
+                TimeSpan span = endDateTime - startDateTime;
+                int totlSec = 0;
+
+                if (span.Minutes > 0)
+                {
+                    totlSec = span.Minutes * 60;
+                }
+
+                double intervalTime = (totlSec + span.Seconds) / 7;
+
+                if (intervalTime >= 0 && intervalTime <= 1)
+                {
+                    intervalTime = 1;
+                }
+
+                // 全自动1状态-酶洗开始
+                GSetting.DataServ.RecordEveryCleanStep(DataService.Step.EnzymeWashBeginStep, nowDateTime, this.EndoscopeSN);
+
+                // 酶洗2分钟
+                nowDateTime = nowDateTime.AddSeconds(Convert.ToInt32(GSetting.StepTime["EnzymeWashAuto"]));
+                GSetting.EndoscStates[this.EndoscopeSN].EzymeWashTime = Convert.ToInt32(GSetting.StepTime["EnzymeWashAuto"]);
+
+                // 全自动1状态-酶洗完成
+                GSetting.DataServ.RecordEveryCleanStep(DataService.Step.EnzymeWashEndStep, nowDateTime, this.EndoscopeSN);
+
+                // 全自动1状态-次洗
+                GSetting.DataServ.RecordEveryCleanStep(DataService.Step.CleanOutWashBeginStep, nowDateTime, this.EndoscopeSN);
+
+                // 次洗2分钟
+                nowDateTime = nowDateTime.AddSeconds(Convert.ToInt32(GSetting.StepTime["CleanoutAuto"]));
+                GSetting.EndoscStates[this.EndoscopeSN].CleanOutTime = Convert.ToInt32(GSetting.StepTime["EnzymeWashAuto"]);
+
+                // 全自动1状态-次洗完成
+                GSetting.DataServ.RecordEveryCleanStep(DataService.Step.CleanOutWashEndStep, nowDateTime, this.EndoscopeSN);
+
+                // 全自动1状态-消毒液浸泡开始
+                GSetting.DataServ.RecordEveryCleanStep(DataService.Step.DipInWashBeginStep, nowDateTime, this.EndoscopeSN);
+                nowDateTime = nowDateTime.AddSeconds(Convert.ToInt32(GSetting.StepTime["DipInAuto"]));
+                GSetting.EndoscStates[this.EndoscopeSN].DipInTime = Convert.ToInt32(GSetting.StepTime["DipInAuto"]);
+
+                // 全自动1状态-消毒液浸泡结束
+                GSetting.DataServ.RecordEveryCleanStep(DataService.Step.DipInWashEndStep, nowDateTime, this.EndoscopeSN);
+
+                // 全自动1状态-末洗开始
+                GSetting.DataServ.RecordEveryCleanStep(DataService.Step.LastWashBeginStep, nowDateTime, this.EndoscopeSN);
+                nowDateTime = nowDateTime.AddSeconds(Convert.ToInt32(GSetting.StepTime["LastWashAuto"]));
+                GSetting.EndoscStates[this.EndoscopeSN].LastWashTime = Convert.ToInt32(GSetting.StepTime["LastWashAuto"]);
+
+                // 全自动1状态-末洗结束
+                GSetting.DataServ.RecordEveryCleanStep(DataService.Step.LastWashEndStep, nowDateTime, this.EndoscopeSN);
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        /// <summary>
+        /// 模拟机洗（二次）
+        /// </summary>
+        /// <param name="startDateTime">开始时间</param>
+        /// <param name="endDateTime">结束时间</param>
+        private void SimulateAutoMachineSec(DateTime startDateTime, DateTime endDateTime)
+        {
+            try
+            {
+                DateTime nowDateTime = startDateTime;
+                TimeSpan span = endDateTime - startDateTime;
+                int totlSec = 0;
+
+                if (span.Minutes > 0)
+                {
+                    totlSec = span.Minutes * 60;
+                }
+
+                double intervalTime = (totlSec + span.Seconds) / 7;
+
+                if (intervalTime >= 0 && intervalTime <= 1)
+                {
+                    intervalTime = 1;
+                }
+
+                GSetting.DataServ.RecordEveryCleanStep(DataService.Step.RecordTime, DateTime.Now, this.EndoscopeSN);
+
+                // 全自动1状态-消毒液浸泡开始
+                GSetting.DataServ.RecordEveryCleanStep(DataService.Step.DipInWashSecBeginStep, nowDateTime, this.EndoscopeSN);
+                nowDateTime = nowDateTime.AddSeconds(Convert.ToInt32(GSetting.StepTime["DipInSecAuto"]));
+                GSetting.EndoscStates[this.EndoscopeSN].DipInSecTime = Convert.ToInt32(GSetting.StepTime["DipInSecAuto"]);
+
+                // 全自动1状态-消毒液浸泡结束
+                GSetting.DataServ.RecordEveryCleanStep(DataService.Step.DipInWashSecEndStep, nowDateTime, this.EndoscopeSN);
+
+                // 全自动1状态-末洗开始
+                GSetting.DataServ.RecordEveryCleanStep(DataService.Step.LastWashSecBeginStep, nowDateTime, this.EndoscopeSN);
+                nowDateTime = nowDateTime.AddSeconds(Convert.ToInt32(GSetting.StepTime["LastWashSecAuto"]));
+                GSetting.EndoscStates[this.EndoscopeSN].LastSecWashTime = Convert.ToInt32(GSetting.StepTime["LastWashSecAuto"]);
+
+                // 全自动1状态-末洗结束
+                GSetting.DataServ.RecordEveryCleanStep(DataService.Step.LastWashSecEndStep, nowDateTime, this.EndoscopeSN);
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        /// <summary>
+        /// 时间延长
+        /// </summary>
+        /// <param name="timespan">延长时长</param>
+        private void TimeDelay(int timespan)
+        {
+            DateTime dtStart = DateTime.Now;
+
+            while ((DateTime.Now - dtStart).Seconds < timespan)
+            {
+                System.Windows.Forms.Application.DoEvents();
+            }
+        }
+    }
+}

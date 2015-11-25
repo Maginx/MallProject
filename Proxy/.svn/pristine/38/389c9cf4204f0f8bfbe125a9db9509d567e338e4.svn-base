@@ -1,0 +1,465 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using ClassLibrary;
+using ProxyClient.Controls;
+
+namespace ProxyClient
+{
+    /// <summary>
+    /// 业务处理
+    /// </summary>
+    internal sealed partial class DataServiceBusi
+    {
+        /// <summary>
+        /// 加载内镜信息
+        /// </summary>
+        private static LoadEndoscopeMsgAsyn loadEndoscopeMsg;
+
+        /// <summary>
+        /// 加载用户信息
+        /// </summary>
+        private static LoadUserMsgAsyn loadUserMsg;
+
+        /// <summary>
+        /// 异步获取用户信息
+        /// </summary>
+        /// <returns>返回用户列表</returns>
+        public delegate List<UserInfo> LoadUserMsgAsyn();
+
+        /// <summary>
+        /// 异步获取内镜信息
+        /// </summary>
+        /// <returns>返回内镜列表</returns>
+        public delegate List<EndoscopeInfo> LoadEndoscopeMsgAsyn();
+
+        /// <summary>
+        /// 显示最近一条内镜的清洗信息
+        /// </summary>
+        /// <param name="endoscopeCleanTemp">内镜清洗信息</param>
+        public delegate void ShowCleanLatestMessageEventHandler(EndoscopeTemp endoscopeCleanTemp);
+
+        /// <summary>
+        /// 确定清洗信息，并入库
+        /// </summary>
+        /// <param name="r">if set to <c>true</c> [argument].</param>
+        public delegate void SureCleanReacordEventHandler(bool r);
+
+        /// <summary>
+        /// 显示内镜清洗信息到Proxy界面
+        /// </summary>
+        public event ShowCleanLatestMessageEventHandler ShowCleanLatestMessage;
+
+        /// <summary>
+        /// 用于显示确认清洗信息的事件
+        /// </summary>
+        public event SureCleanReacordEventHandler SureCleanRecordToProxy;
+
+        /// <summary>
+        /// 获取用户信息方法
+        /// </summary>
+        /// <returns>用户信息委托对象</returns>
+        public static LoadUserMsgAsyn GetUserDelegate()
+        {
+            if (loadUserMsg == null)
+            {
+                loadUserMsg = new LoadUserMsgAsyn(GSetting.DataServBusi.LoadUsers);
+            }
+
+            return loadUserMsg;
+        }
+
+        /// <summary>
+        /// 获取内镜信息方法
+        /// </summary>
+        /// <returns>
+        /// 内镜信息委托对象
+        /// </returns>
+        public static LoadEndoscopeMsgAsyn GetEndoscopeDelegate()
+        {
+            if (loadEndoscopeMsg == null)
+            {
+                loadEndoscopeMsg = new LoadEndoscopeMsgAsyn(GSetting.DataServBusi.LoadEndosocpes);
+            }
+
+            return loadEndoscopeMsg;
+        }
+
+        /// <summary>
+        /// 显示清洗信息到界面
+        /// </summary>
+        /// <param name="endoscopeClean">The endoscope clean.</param>
+        public void ShowMessageToForm(EndoscopeTemp endoscopeClean)
+        {
+            this.ShowCleanLatestMessage(endoscopeClean);
+        }
+
+        /// <summary>
+        /// 确认清洗信息
+        /// </summary>
+        /// <param name="result">if set to <c>true</c> [result].</param>
+        public void SureCleanRecordToForm(bool result)
+        {
+            this.SureCleanRecordToProxy(result);
+        }
+
+        /// <summary>
+        /// 提取指定内镜的清洗信息（异步调用）
+        /// </summary>
+        /// <param name="endoscopeSN">The endoscope sn.</param>
+        public void GetLatestEndoscopeCleanRecordAsyn(string endoscopeSN)
+        {
+            EndoscopeTemp t = GSetting.DataServBusi.GetLatestEndoscopeCleanRecord(endoscopeSN);
+
+            try
+            {
+                GSetting.DataServ.GetLatestCleanMsgByEndoscopeSNAsync(endoscopeSN);
+                GSetting.DataServ.GetLatestCleanMsgByEndoscopeSNCompleted += this.DataService_GetLatestCleanMsgByEndoscopeSNCompleted;
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+        }
+
+        /// <summary>
+        /// 确定清洗信息，并入库（异步调用）
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <param name="totalTime">The total time.</param>
+        /// <param name="checkNo">The check no.</param>
+        /// <param name="checkRealName">Name of the check real.</param>
+        public void SureCleanRecordAsyn(string endoscopeSN, string totalTime, string checkNo, string checkRealName)
+        {
+            try
+            {
+                GSetting.DataServ.SureRecordBySNAsync(endoscopeSN, totalTime, DateTime.Now.ToString(), checkNo, checkRealName);
+                GSetting.DataServ.SureRecordBySNCompleted += this.DataService_SureCleanRecordByEndoscopeSNCompleted;
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+        }
+
+        /// <summary>
+        /// 根据SIM卡号获取对应编号
+        /// </summary>
+        /// <param name="sim">SIM卡号</param>
+        /// <returns>根据Sim卡号获取信息</returns>
+        public List<string> GetEndoscopeOrUsers(string sim)
+        {
+            try
+            {
+                return GSetting.DataServ.GetUserEndoscopeMsgBySIM(sim);
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 获取内镜信息
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <returns>最近的内镜信息</returns>
+        public EndoscopeTemp GetLatestEndoscopeCleanRecord(string endoscopeSN)
+        {
+            try
+            {
+                return GSetting.DataServ.GetLatestCleanMsgByEndoscopeSN(endoscopeSN);
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 确定清洗信息并入库
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <param name="totalTime">总时间</param>
+        /// <param name="checkNo">检查工编号</param>
+        /// <param name="checkRealName">检查工姓名</param>
+        /// <returns>入库是否成功</returns>
+        public bool SureCleanRecord(string endoscopeSN, string totalTime, string checkNo, string checkRealName)
+        {
+            try
+            {
+                return GSetting.DataServ.SureRecordBySN(endoscopeSN, totalTime, DateTime.Now.ToString(), checkNo, checkRealName);
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 设置合格
+        /// </summary>
+        /// <param name="endoscopeSn">内镜编号</param>
+        /// <param name="qualified">合格</param>
+        public void SetQulified(string endoscopeSn, string qualified)
+        {
+            try
+            {
+                GSetting.DataServ.CleanQulifiedAsync(endoscopeSn, qualified);
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+        }
+
+        /// <summary>
+        /// 保存用户信息
+        /// </summary>
+        /// <param name="userInfo">用户对象</param>
+        /// <returns>
+        /// 保存是否成功
+        /// </returns>
+        public bool SaveUser(ClassLibrary.UserInfo userInfo)
+        {
+            bool result = false;
+
+            try
+            {
+                if (GSetting.DataServ.ModifyUser(userInfo))
+                {
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 保存内镜信息
+        /// </summary>
+        /// <param name="endoscopeInfo">内镜编号</param>
+        /// <returns>
+        /// 是否保存成功
+        /// </returns>
+        public bool SaveEndoscope(EndoscopeInfo endoscopeInfo)
+        {
+            bool result = false;
+
+            try
+            {
+                if (GSetting.DataServ.ModifyEndoscope(endoscopeInfo))
+                {
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 删除用户信息
+        /// </summary>
+        /// <param name="userInfo">用户对象</param>
+        /// <returns>
+        /// 删除结果
+        /// </returns>
+        public bool Delete(UserInfo userInfo)
+        {
+            bool result = false;
+
+            try
+            {
+                if (GSetting.DataServ.DeleteUser(userInfo.UserSn))
+                {
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 删除内镜
+        /// </summary>
+        /// <param name="endoscopeInfo">内镜对象</param>
+        /// <returns>
+        /// 删除结果
+        /// </returns>
+        public bool Delete(EndoscopeInfo endoscopeInfo)
+        {
+            bool result = false;
+
+            try
+            {
+                if (GSetting.DataServ.DeleteEndoscope(endoscopeInfo.EndoscopeSn))
+                {
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 加载用户信息
+        /// </summary>
+        /// <returns>
+        /// 返回用户列表
+        /// </returns>
+        public List<UserInfo> LoadUsers()
+        {
+            List<UserInfo> userInfos = null;
+
+            try
+            {
+                userInfos = GSetting.DataServ.LoadUserMsg();
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+
+            return userInfos;
+        }
+
+        /// <summary>
+        /// 加载内镜信息
+        /// </summary>
+        /// <returns>
+        /// 返回内镜列表
+        /// </returns>
+        public List<EndoscopeInfo> LoadEndosocpes()
+        {
+            List<EndoscopeInfo> endoscopeInfos = null;
+
+            try
+            {
+                endoscopeInfos = GSetting.DataServ.LoadEndoscopeMsg().ToList();
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+
+            return endoscopeInfos;
+        }
+
+        /// <summary>
+        /// 获取查询追溯结果集
+        /// </summary>
+        /// <param name="sql">SQL</param>
+        /// <returns>
+        /// XML结果集
+        /// </returns>
+        public string GetSearchResult(string sql)
+        {
+            try
+            {
+                return GSetting.DataServ.SearchTrace(sql);
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// 获取查询一次清洗结果集
+        /// </summary>
+        /// <param name="beginTime">开始时间</param>
+        /// <param name="endTime">结束时间</param>
+        /// <returns>
+        /// 结果集
+        /// </returns>
+        public string GetSearchFirstWash(string beginTime, string endTime)
+        {
+            try
+            {
+                return GSetting.DataServ.SearchFirstWash(beginTime, endTime);
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 获取查询二次清洗结果集
+        /// </summary>
+        /// <param name="beginTime">开始时间</param>
+        /// <param name="endTime">结束时间</param>
+        /// <returns>
+        /// 结果集
+        /// </returns>
+        public string GetSearchSecondWash(string beginTime, string endTime)
+        {
+            try
+            {
+                return GSetting.DataServ.SearchSecondWash(beginTime, endTime);
+            }
+            catch (Exception ex)
+            {
+                Global.Log(ex);
+            }
+
+            return null;
+        }
+
+        #region 私有方法
+        /// <summary>
+        /// Handles the GetLatestCleanMsgByEndoscopeSNCompleted event of the DataService control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="DataService.GetLatestCleanMsgByEndoscopeSNCompletedEventArgs"/> instance containing the event data.</param>
+        private void DataService_GetLatestCleanMsgByEndoscopeSNCompleted(object sender, DataService.GetLatestCleanMsgByEndoscopeSNCompletedEventArgs e)
+        {
+            GSetting.DataServ.GetLatestCleanMsgByEndoscopeSNCompleted -= this.DataService_GetLatestCleanMsgByEndoscopeSNCompleted;
+
+            // 显示最新的清洗信息
+            this.ShowMessageToForm(e.Result);
+        }
+
+        /// <summary>
+        /// Handles the SureCleanRecordByEndoscopeSNCompleted event of the DataService control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="DataService.SureRecordBySNCompletedEventArgs"/> instance containing the event data.</param>
+        private void DataService_SureCleanRecordByEndoscopeSNCompleted(object sender, DataService.SureRecordBySNCompletedEventArgs e)
+        {
+            GSetting.DataServ.SureRecordBySNCompleted -= this.DataService_SureCleanRecordByEndoscopeSNCompleted;
+
+            // 确认清洗信息记录是否完成，返回给Proxy界面
+            this.SureCleanRecordToForm(e.Result);
+        }
+        #endregion
+    }
+}

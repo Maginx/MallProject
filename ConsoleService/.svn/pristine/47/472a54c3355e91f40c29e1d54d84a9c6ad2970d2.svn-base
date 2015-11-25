@@ -1,0 +1,267 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using MallHost;
+using MallHost.Service;
+
+namespace MallHostService
+{
+    /// <summary>
+    /// 代理处理类
+    /// </summary>
+    internal sealed class MallProxy : IMallProxy
+    {
+        /// <summary>
+        /// 二次浸泡消毒是否记录
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <returns>
+        /// 是否存在
+        /// </returns>
+        public bool ChechDinInSec(string endoscopeSN)
+        {
+            return Global.DBProcess.CheckIsExit(endoscopeSN, "endoscopeTemp", "dipInWashSecBegin");
+        }
+
+        /// <summary>
+        /// 记录逐步清洗
+        /// </summary>
+        /// <param name="step">步骤</param>
+        /// <param name="time">开始时间</param>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <returns>
+        /// 记录是否成功
+        /// </returns>
+        public bool RecordEveryCleanStep(Step step, DateTime time, string endoscopeSN)
+        {
+            return Global.DBProcess.RecordStep(step, endoscopeSN, time);
+        }
+
+        /// <summary>
+        /// 根据SIM卡号获取信息
+        /// </summary>
+        /// <param name="sim">sim卡号</param>
+        /// <returns>
+        /// 相关信息
+        /// </returns>
+        public string[] GetUserEndoscopeMsgBySIM(string sim)
+        {
+            return Global.DBProcess.GetUserEndoscopeMsg(sim);
+        }
+
+        /// <summary>
+        /// 重置内镜信息
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <param name="endoscopeSIM">内镜SIM卡号</param>
+        /// <param name="washerNo">清洗工编号</param>
+        /// <param name="washerRealName">清洗工名称</param>
+        /// <param name="cleanType">清洗类型</param>
+        /// <param name="disinfection">The disinfection.</param>
+        /// <param name="autoClean">The automatic clean.</param>
+        /// <returns>
+        /// 重置是否成功
+        /// </returns>
+        public bool ResetEndoscopeMsg(string endoscopeSN, string endoscopeSIM, string washerNo, string washerRealName, string cleanType, string disinfection = "1", string autoClean = "手洗")
+        {
+            // 重置内镜信息
+            bool result = Global.DBProcess.ResetEndoscope(endoscopeSN, endoscopeSIM, washerNo, washerRealName, cleanType, DateTime.Now.ToShortDateString(), disinfection, autoClean);
+            return result;
+        }
+
+        /// <summary>
+        /// 获取一条内镜信息在endoscopeCleanTemp表中
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <returns>
+        /// 返回内镜信息
+        /// </returns>
+        public EndoscopeTemp GetLatestCleanMsgByEndoscopeSN(string endoscopeSN)
+        {
+            return Global.DBProcess.GetLatestCleanMSG(endoscopeSN);
+        }
+
+        /// <summary>
+        /// 确认清洗信息，并入库
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <param name="totalTime">总清洗时间</param>
+        /// <param name="checkTime">检查时间</param>
+        /// <param name="checkNo">检查员工编号</param>
+        /// <param name="checkRealName">检查员工姓名</param>
+        /// <returns>
+        /// 确认结果
+        /// </returns>
+        public bool SureRecordBySN(string endoscopeSN, string totalTime, string checkTime, string checkNo = "", string checkRealName = "")
+        {
+            return Global.DBProcess.SureCleanRecord(endoscopeSN, totalTime, checkTime, checkNo, checkRealName);
+        }
+
+        /// <summary>
+        /// 是否存在某某一特定数据
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <param name="col">列名</param>
+        /// <param name="table">表名</param>
+        /// <returns>
+        /// 查找结果，true 存在
+        /// </returns>
+        public bool CheckOneCol(string endoscopeSN, string col, string table = "")
+        {
+            if (table.Length <= 0)
+            {
+                table = Global.EndoscopeTemp;
+            }
+
+            return Global.DBProcess.CheckIsExit(endoscopeSN, table, col);
+        }
+
+        /// <summary>
+        /// 设置清洗标准（合格或不合格）
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <param name="qulified">合格</param>
+        /// <returns>
+        /// 设置结果
+        /// </returns>
+        public bool CleanQulified(string endoscopeSN, string qulified)
+        {
+            return Global.DBProcess.SetQulified(endoscopeSN, qulified);
+        }
+
+        /// <summary>
+        /// 设置自动清洗机编号
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <param name="cleanNo">清洗编号</param>
+        /// <returns>
+        /// 设置结果
+        /// </returns>
+        public bool SetAutoCleanNo(string endoscopeSN, string cleanNo)
+        {
+            return Global.DBProcess.SetAutoCleanNo(endoscopeSN, cleanNo);
+        }
+
+        /// <summary>
+        /// 修改用户
+        /// </summary>
+        /// <param name="userInfo">用户对象</param>
+        /// <returns>
+        /// 修改结果
+        /// </returns>
+        public bool ModifyUser(UserInfo userInfo)
+        {
+            return Global.DBProcess.ModifyUser(Global.UserInfo, userInfo);
+        }
+
+        /// <summary>
+        /// 修改内镜
+        /// </summary>
+        /// <param name="endoscopeInfo">内镜对象</param>
+        /// <returns>
+        /// 修改结果
+        /// </returns>
+        public bool ModifyEndoscope(EndoscopeInfo endoscopeInfo)
+        {
+            return Global.DBProcess.ModifyEndoscope(Global.EndoscopeInfo, endoscopeInfo);
+        }
+
+        /// <summary>
+        /// 删除内镜
+        /// </summary>
+        /// <param name="condition">条件</param>
+        /// <returns>
+        /// 删除结果
+        /// </returns>
+        public bool DeleteEndoscope(string condition)
+        {
+            return Global.DBProcess.DeleteEndoscope(condition);
+        }
+
+        /// <summary>
+        /// 删除用户
+        /// </summary>
+        /// <param name="condition">条件</param>
+        /// <returns>
+        /// 删除结果
+        /// </returns>
+        public bool DeleteUser(string condition)
+        {
+            return Global.DBProcess.DeleteUser(condition);
+        }
+
+        /// <summary>
+        /// 加载内镜
+        /// </summary>
+        /// <returns>
+        /// 内镜列表
+        /// </returns>
+        public List<EndoscopeInfo> LoadEndoscopeMsg()
+        {
+            return Global.DBProcess.LoadEndoscopes();
+        }
+
+        /// <summary>
+        /// 加载用户
+        /// </summary>
+        /// <returns>
+        /// 用户列表
+        /// </returns>
+        List<UserInfo> IMallProxy.LoadUserMsg()
+        {
+            return Global.DBProcess.LoadUsers();
+        }
+
+        /// <summary>
+        /// 查询追溯
+        /// </summary>
+        /// <param name="sqlStr">sql语句</param>
+        /// <returns>
+        /// 查询结果集
+        /// </returns>
+        public string SearchTrace(string sqlStr)
+        {
+            return Global.DBProcess.SearchResult(sqlStr);
+        }
+
+        /// <summary>
+        /// 一次清洗结果查询
+        /// </summary>
+        /// <param name="begin">开始时间</param>
+        /// <param name="end">结束时间</param>
+        /// <returns>
+        /// 查询结果集合
+        /// </returns>
+        public string SearchFirstWash(string begin, string end)
+        {
+            return Global.DBProcess.SearchFirstWash(begin, end);
+        }
+
+        /// <summary>
+        /// 二次清洗结果查询
+        /// </summary>
+        /// <param name="begin">开始时间</param>
+        /// <param name="end">结束时间</param>
+        /// <returns>
+        /// 查询结果集合
+        /// </returns>
+        public string SearchSecondWash(string begin, string end)
+        {
+            return Global.DBProcess.SearchSecondWash(begin, end);
+        }
+
+        /// <summary>
+        /// 根据条件获取搜索内容
+        /// </summary>
+        /// <param name="condition">条件</param>
+        /// <param name="value">值</param>
+        /// <returns>
+        /// 搜索结果
+        /// </returns>
+        public string GetSearchResultByName(string condition, string value)
+        {
+            return Global.DBProcess.GetSearchResultByName(condition, value);
+        }
+    }
+}

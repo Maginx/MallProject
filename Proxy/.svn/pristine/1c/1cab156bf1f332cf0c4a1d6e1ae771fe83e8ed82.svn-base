@@ -1,0 +1,224 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using ProxyClient.Controls;
+
+namespace ProxyClient.Steps
+{
+    /// <summary>
+    /// 末洗
+    /// </summary>
+    internal sealed class LastWash : Wash
+    {
+        /// <summary>
+        /// The flag clean type
+        /// </summary>
+        private string flagCleanType = "1";
+
+        /// <summary>
+        /// The temporary date time
+        /// </summary>
+        private DateTime? tempDateTime = null;
+        #region 公有方法
+        /// <summary>
+        /// 数据处理
+        /// </summary>
+        /// <param name="data">数据值</param>
+        public override void DatagramProcess(MonitorData data)
+        {
+            base.DatagramProcess(data);
+
+            if (string.Equals(this.WorkState, "FF"))
+            {
+                this.SIMIdentify(this.Sim);
+            }
+
+            if (string.IsNullOrEmpty(this.EndoscopeSN) || string.IsNullOrEmpty(this.EndoscopeSIM))
+            {
+                if (GSetting.EndoscStates.Keys.Contains(this.EndoscopeSN))
+                {
+                    FormHelper.VoiceSpeech("请打内镜卡");
+                    this.ShowCleanStep("末洗已打内镜卡", Color.Empty);
+                }
+
+                // 操作顺序错误补偿
+                if (string.IsNullOrEmpty(this.EndoscopeSIM))
+                {
+                    this.tempDateTime = DateTime.Now;
+                }
+
+                // 没有打过卡，则返回
+                return;
+            }
+
+            // 末洗开始
+            if (string.Equals(this.WorkState, "01"))
+            {
+                // 一次
+                if (this.flagCleanType == "1")
+                {
+                    if (GSetting.DataServ.RecordEveryCleanStep(DataService.Step.LastWashBeginStep, DateTime.Now, this.EndoscopeSN))
+                    {
+                        FormHelper.VoiceSpeech(this.EndoscopeSN + "末洗已开始");
+                        GSetting.EndoscStates[this.EndoscopeSN].LastWashBegin = DateTime.Now;
+                        this.ShowCleanStep("末洗已开始", Color.Empty);
+                    }
+                    else
+                    {
+                        FormHelper.VoiceSpeech("请先打员工卡");
+                        this.PrintTempRecordMsg("末洗记录错误，请先打员工卡", Color.Empty);
+                    }
+                }
+                else
+                {
+                    if (GSetting.DataServ.RecordEveryCleanStep(DataService.Step.LastWashSecBeginStep, DateTime.Now, this.EndoscopeSN))
+                    {
+                        FormHelper.VoiceSpeech(this.EndoscopeSN + "（二次）末洗已开始");
+                        GSetting.EndoscStates[this.EndoscopeSN].LastSecWashBegin = DateTime.Now;
+                        this.ShowCleanStep("（二次）正在末洗", Color.Empty);
+                    }
+                    else
+                    {
+                        FormHelper.VoiceSpeech("请先打员工卡");
+                        this.PrintTempRecordMsg("末洗记录错误，请先打员工卡", Color.Red);
+                    }
+                }
+            }
+            else if (string.Equals(this.WorkState, "02"))
+            {
+                // 一次
+                if (this.flagCleanType == "1")
+                {
+                    if (string.IsNullOrEmpty(this.EndoscopeSN))
+                    {
+                        FormHelper.VoiceSpeech("请打内镜卡");
+                    }
+
+                    // 如果忘记开始清洗 则自动填充
+                    if (this.tempDateTime != null)
+                    {
+                        GSetting.DataServ.RecordEveryCleanStep(DataService.Step.LastWashBeginStep, this.tempDateTime.Value, this.EndoscopeSN);
+                        GSetting.EndoscStates[this.EndoscopeSN].LastWashBegin = this.tempDateTime;
+                    }
+
+                    if (GSetting.DataServ.RecordEveryCleanStep(DataService.Step.LastWashEndStep, DateTime.Now, this.EndoscopeSN))
+                    {
+                        FormHelper.VoiceSpeech(this.EndoscopeSN + "末洗已结束，请稍后确认清洗信息");
+
+                        GSetting.EndoscStates[this.EndoscopeSN].LastWashEnd = DateTime.Now;
+                        GSetting.EndoscStates[this.EndoscopeSN].LastWashTime = (GSetting.EndoscStates[this.EndoscopeSN].LastWashEnd.Value - GSetting.EndoscStates[this.EndoscopeSN].LastWashBegin.Value).TotalSeconds;
+                        this.ShowCleanStep("末洗已结束，确认清洗信息", Color.Empty);
+                    }
+                }
+                else
+                {
+                    // 如果忘记开始清洗 则自动填充
+                    if (this.tempDateTime != null)
+                    {
+                        GSetting.DataServ.RecordEveryCleanStep(DataService.Step.LastWashSecBeginStep, this.tempDateTime.Value, this.EndoscopeSN);
+                        GSetting.EndoscStates[this.EndoscopeSN].LastSecWashBegin = this.tempDateTime;
+                    }
+
+                    if (GSetting.DataServ.RecordEveryCleanStep(DataService.Step.LastWashSecEndStep, DateTime.Now, this.EndoscopeSN))
+                    {
+                        FormHelper.VoiceSpeech(this.EndoscopeSN + "（二次）末洗已结束，请稍后确认清洗信息");
+                        GSetting.EndoscStates[this.EndoscopeSN].LastSecWashEnd = DateTime.Now;
+                        GSetting.EndoscStates[this.EndoscopeSN].LastSecWashTime = (GSetting.EndoscStates[this.EndoscopeSN].LastSecWashEnd.Value - GSetting.EndoscStates[this.EndoscopeSN].LastSecWashBegin.Value).TotalSeconds;
+                        this.ShowCleanStep("（二次）末洗已结束，确认清洗信息", Color.Empty);
+                    }
+
+                    this.flagCleanType = "1";
+                }
+
+                this.tempDateTime = null;
+
+                // 移除状态监视器中的内镜状态 并将待确认的内镜入确认队列
+                if (GSetting.EndoscStates.Keys.Contains(this.EndoscopeSN))
+                {
+                    // 验证清洗数据
+                    GSetting.EndoscStates[this.EndoscopeSN].EndoscopeCleanStandarData = this.VerifyCleanData();
+
+                    if (string.IsNullOrEmpty(GSetting.EndoscStates[this.EndoscopeSN].EndoscopeCleanStandarData.ToString()))
+                    {
+                        // 合格
+                        GSetting.DataServBusi.SetQulified(this.EndoscopeSN, "1");
+                    }
+                    else
+                    {
+                        // 不合格
+                        GSetting.DataServBusi.SetQulified(this.EndoscopeSN, "0");
+                    }
+
+                    // 从状态面板上去除清洗完成的EndoscopeState
+                    GSetting.RemoveCleanedEndoscope(GSetting.EndoscStates[this.EndoscopeSN]);
+
+                    if (!GSetting.WaitSureList.Contains(this.EndoscopeSN))
+                    {
+                        // 加入链表
+                        GSetting.WaitSureList.Add(this.EndoscopeSN);
+
+                        // 入队列    
+                        GSetting.AddList(GSetting.EndoscStates[this.EndoscopeSN]);
+                    }
+
+                    GSetting.EndoscStates.Remove(this.EndoscopeSN);
+                }
+
+                this.CleanAllStr();
+            }
+        }
+
+        /// <summary>
+        /// 验证SIM卡号
+        /// </summary>
+        /// <param name="sim">sim卡号</param>
+        private void SIMIdentify(string sim)
+        {
+            // 获取打卡信息sResult[0]=endoscope或者user
+            var sresult = GSetting.DataServ.GetUserEndoscopeMsgBySIM(sim);
+
+            if (!sresult.IsValid())
+            {
+                return;
+            }
+
+            var result = sresult.FirstOrDefault();
+
+            if (string.IsNullOrEmpty(result))
+            {
+                return;
+            }
+
+            // 用户或者内镜
+            if (string.Equals(result, "user"))
+            {
+                FormHelper.VoiceSpeech("请打内镜卡");
+            }
+            else if (string.Equals(result, "endoscope"))
+            {
+                this.EndoscopeSN = sresult[1];
+                this.EndoscopeSIM = sim;
+                FormHelper.VoiceSpeech(this.EndoscopeSN + "末洗打卡完成");
+                this.ShowCleanStep("末洗打卡完成", Color.Empty);
+
+                // 是否已经有二次浸泡
+                if (GSetting.DataServ.CheckOneCol(this.EndoscopeSN, "dipInWashSecBegin", null))
+                {
+                    this.flagCleanType = "2";
+                    this.ShowCleanStep("（二次）末洗打卡完成", Color.Empty);
+                }
+            }
+            else
+            {
+                this.EndoscopeSIM = string.Empty;
+                this.EndoscopeSN = string.Empty;
+                FormHelper.VoiceSpeech("无效数据卡号");
+                this.SendSocketMsg("02");
+                this.ShowStatusTips("无效数据卡号：" + sim, Color.Green);
+            }
+        }
+        #endregion
+    }
+}

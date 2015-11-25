@@ -1,0 +1,108 @@
+﻿using System.Data.SqlClient;
+using System.IO;
+using System;
+using System.Collections.Generic;
+using ProxyClient;
+using ClassLibrary;
+using System.Windows.Forms;
+namespace ProxyClient
+{
+    /// <summary>
+    /// 病人登记
+    /// </summary>
+    public partial class PatientRegister
+    {
+        /// <summary>
+        /// Gets the patients.
+        /// </summary>
+        /// <value>
+        /// The patients.
+        /// </value>
+        public List<Patient> Patients { get; private set; }
+
+        private Timer timer = null;
+
+        /// <summary>
+        /// Handles the Tick event of the timer control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            this.mainGroup.ValuesSecondary.Description = DateTime.Now.ToString();
+        }
+
+        /// <summary>
+        /// 清除Text信息
+        /// </summary>
+        private void ClearTextMsg()
+        {
+            this.txtAddress.Text = string.Empty;
+            this.txtPatientName.Text = string.Empty;
+            this.txtPatientNo.Text = string.Empty;
+            this.txtPhone.Text = string.Empty;
+            this.txtRemark.Text = string.Empty;
+            this.txtEndoscope.Text = string.Empty;
+        }
+
+        /// <summary>
+        /// Loads the patients.
+        /// </summary>
+        /// <returns></returns>
+        private void LoadPatients()
+        {
+            this.Patients = GSetting.DataServ.LoadPatients();
+        }
+
+        /// <summary>
+        /// Regeisters the patient.
+        /// </summary>
+        /// <param name="patient">The patient.</param>
+        /// <returns></returns>
+        private bool RegisterPatient(Patient patient)
+        {
+            return GSetting.DataServ.RegisterPatient(patient);
+        }
+
+        /// <summary>
+        /// Deletes the patient.
+        /// </summary>
+        /// <param name="sn">The sn.</param>
+        /// <returns></returns>
+        private bool DeletePatient(string sn)
+        {
+            return GSetting.DataServ.DeletePatients(sn);
+        }
+        /// <summary>
+        /// 绑定链表到界面
+        /// </summary>
+        /// <param name="patients">列表集合</param>
+        private void BingingToList()
+        {
+            if (this.Patients == null)
+            {
+                return;
+            }
+
+            string template = "({0}).{1}——[{2}]<{3}>";
+
+            if (this.lsbPatient.Items == null)
+            {
+                return;
+            }
+
+            this.lsbPatient.Items.Clear();
+            var i = 1;
+            try
+            {
+                this.Patients.ForEach(p =>
+                {
+                    this.lsbPatient.Items.Add(string.Format(template, i++, p.PatientName, p.PatientSN, p.Endoscope.Trim()));
+                });
+            }
+            catch (Exception)
+            {
+            }
+        }
+    }
+}

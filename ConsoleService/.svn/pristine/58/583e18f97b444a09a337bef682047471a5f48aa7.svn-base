@@ -1,0 +1,66 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+
+namespace MallHost.Service
+{
+    /// <summary>
+    /// 用户表
+    /// </summary>
+    [DataContract]
+    internal sealed class UserInfo
+    {
+        /// <summary>
+        /// 记录ID
+        /// </summary>
+        public string UserId { get; set; }
+
+        /// <summary>
+        /// 用户编号
+        /// </summary>
+        [DataMember]
+        public string UserSN { get; set; }
+
+        /// <summary>
+        /// 用户名
+        /// </summary>
+        [DataMember]
+        public string UserName { get; set; }
+
+        /// <summary>
+        /// 用户磁卡号
+        /// </summary>
+        [DataMember]
+        public string UserSIM { get; set; }
+
+        /// <summary>
+        /// 用户密码
+        /// </summary>
+        [DataMember]
+        public string UserPass { get; set; }
+
+        /// <summary>
+        /// 用户注册时间
+        /// </summary>
+        [DataMember]
+        public string UserTime { get; set; }
+
+        /// <summary>
+        /// 用户角色
+        /// </summary>
+        [DataMember]
+        public string UserRole { get; set; }
+
+        /// <summary>
+        /// 用户类型
+        /// </summary>
+        [DataMember]
+        public string UserType { get; set; }
+
+        /// <summary>
+        /// 备注
+        /// </summary>
+        [DataMember]
+        public string Remark { get; set; }
+    }
+}

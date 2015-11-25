@@ -1,0 +1,305 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.IO.Ports;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+using System.Xml.Linq;
+using ClassLibrary;
+using ComponentFactory.Krypton.Toolkit;
+
+namespace ProxyClient.Controls
+{
+    /// <summary>
+    /// 清洗数据查看
+    /// </summary>
+    internal sealed partial class CleanTempMsg : KryptonForm
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CleanTempMsg"/> class.
+        /// </summary>
+        public CleanTempMsg()
+        {
+            this.InitializeComponent();
+        }
+
+        #region 公共方法
+        /// <summary>
+        /// 直接确认内镜清洗信息
+        /// </summary>
+        /// <param name="endoscopeSN">The endoscope sn.</param>
+        public void GetEndoscopeAndSureCleanMsg(string endoscopeSN)
+        {
+            // 显示最新的清洗信息
+            EndoscopeTemp temp = GSetting.DataServBusi.GetLatestEndoscopeCleanRecord(endoscopeSN);
+
+            // 设置信息
+            this.SetMsg(temp);
+
+            // 确认清洗信息
+            GSetting.DataServBusi.SureCleanRecordAsyn(this.txtEndoscopeNo.Text.Trim(), this.CleanTotalTime(), this.txtWasherNo.Text.Trim(), this.txtWasherName.Text.Trim());
+        }
+
+        /// <summary>
+        /// 初始化事件
+        /// </summary>
+        public void InitialProxyEvent()
+        {
+            // 显示内镜详细信息
+            MainForm.ShowEndoscInfoEvent += this.MainForm_ShowEndoscopeInfoMsgEvent;
+
+            // 确认清洗记录
+            GSetting.DataServBusi.SureCleanRecordToProxy += this.DataServBusiSureCleanRecord;
+
+            // 显示内镜最新清洗信息
+            GSetting.DataServBusi.ShowCleanLatestMessage += this.DataServBusiShowCleanLatestMessage;
+        }
+
+        /// <summary>
+        /// Sures the clean MSG.
+        /// </summary>
+        /// <param name="sim">The sim.</param>
+        public void SureCleanMsg(string sim)
+        {
+            // 根据内镜编号获取内镜信息
+            EndoscopeTemp tempCleanRecord = GSetting.DataServBusi.GetLatestEndoscopeCleanRecord(sim);
+
+            if (tempCleanRecord == null)
+            {
+                return;
+            }
+
+            Action<EndoscopeTemp> ac = SetMsg;
+
+            try
+            {
+                ac(tempCleanRecord);
+            }
+            catch
+            {
+            }
+
+            // 确认清洗信息
+            if (GSetting.DataServBusi.SureCleanRecord(this.txtEndoscopeNo.Text.Trim(), this.CleanTotalTime(), this.txtWasherNo.Text.Trim(), this.txtWasherName.Text.Trim()))
+            {
+                FormHelper.VoiceSpeech("清洗信息已记录！");
+                GSetting.RemoveList(this.txtEndoscopeNo.Text.Trim());
+                GSetting.WashObj.PrintTempRecordMsg(this.txtEndoscopeNo.Text + "清洗信息已记录", Color.Green);
+            }
+            else
+            {
+                FormHelper.VoiceSpeech("清洗信息记录失败！");
+                GSetting.WashObj.PrintTempRecordMsg(this.txtEndoscopeNo.Text + "清洗信息前面已经记录过", Color.Red);
+            }
+        }
+        #endregion
+
+        #region 私有方法
+        /// <summary>
+        /// Handles the Click event of the ClearEndoscope control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void ClearEndoscope_Click(object sender, EventArgs e)
+        {
+            ButtonSpecAny t = (ButtonSpecAny)sender;
+            KryptonTextBox text = (KryptonTextBox)t.Owner;
+            text.Text = string.Empty;
+        }
+
+        /// <summary>
+        /// Handles the CheckedChanged event of the isVoice control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void IsVoice_CheckedChanged(object sender, EventArgs e)
+        {
+            FormHelper.voiceFlag = this.isVoice.Checked;
+        }
+
+        /// <summary>
+        /// Mains the form_ show endoscope information MSG event.
+        /// </summary>
+        /// <param name="endoscopeSN">The endoscope sn.</param>
+        private void MainForm_ShowEndoscopeInfoMsgEvent(string endoscopeSN)
+        {
+            // 显示最新的清洗信息
+            GSetting.DataServBusi.GetLatestEndoscopeCleanRecordAsyn(endoscopeSN);
+        }
+
+        /// <summary>
+        /// Datas the service business_ sure clean record automatic proxy.
+        /// </summary>
+        /// <param name="r">if set to <c>true</c> [argument].</param>
+        private void DataServBusiSureCleanRecord(bool r)
+        {
+            if (r)
+            {
+                FormHelper.VoiceSpeech("清洗信息已记录！");
+
+                // 移除等待确认队列
+                GSetting.RemoveList(this.txtEndoscopeNo.Text.Trim());
+
+                // 移除等待队列
+                GSetting.WaitSureList.Remove(this.txtEndoscopeNo.Text.Trim());
+
+                // 显示信息
+                GSetting.WashObj.ShowStatusTips(string.Format("{0} : {1}清洗信息已经记录成功", DateTime.Now.ToString(), this.txtEndoscopeNo.Text), Color.Empty);
+            }
+            else
+            {
+                FormHelper.VoiceSpeech("清洗信息记录失败！");
+                GSetting.WashObj.ShowStatusTips(string.Format("{0} : {1}清洗信息记录失败", DateTime.Now.ToString(), this.txtEndoscopeNo.Text), Color.Red);
+            }
+        }
+
+        /// <summary>
+        /// Datas the serv busi show clean latest message.
+        /// </summary>
+        /// <param name="endoscopeCleanTemp">The endoscope clean temporary.</param>
+        private void DataServBusiShowCleanLatestMessage(EndoscopeTemp endoscopeCleanTemp)
+        {
+            Action<EndoscopeTemp> ac = SetMsg;
+
+            try
+            {
+                ac(endoscopeCleanTemp);
+            }
+            catch (Exception ex)
+            {
+                FormHelper.RecordLogMsg(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 获取指定信息
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+        private void BtnGetCleanMessage_Click(object sender, EventArgs e)
+        {
+            if (txtEndoscopeNo.Text.Trim().Length > 0)
+            {
+                // 显示最新的清洗信息
+                GSetting.DataServBusi.GetLatestEndoscopeCleanRecordAsyn(this.txtEndoscopeNo.Text.Trim());
+            }
+            else
+            {
+                KryptonMessageBox.Show("请输入内镜编号");
+            }
+        }
+
+        /// <summary>
+        /// 确定入库
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void BtnSureCleanMessage_Click(object sender, EventArgs e)
+        {
+            if (txtEndoscopeNo.Text.Trim().Length > 0)
+            {
+                GSetting.DataServBusi.SureCleanRecordAsyn(this.txtEndoscopeNo.Text.Trim(), this.CleanTotalTime(), this.txtWasherNo.Text.Trim(), this.txtWasherName.Text.Trim());
+            }
+            else
+            {
+                KryptonMessageBox.Show("请输入内镜编号");
+            }
+        }
+
+        /// <summary>
+        /// 总的清洗时间
+        /// </summary>
+        /// <returns>
+        /// 清洗时间
+        /// </returns>
+        private string CleanTotalTime()
+        {
+            try
+            {
+                TimeSpan result = TimeSpan.Zero;
+                TimeSpan tmp = TimeSpan.Zero;
+                if (this.firstWashGroBox.Enabled)
+                {
+                    TimeSpan.TryParse(this.manualWashTime.Text.Trim(), out tmp);
+                    result += tmp;
+                    TimeSpan.TryParse(this.firstWashTime.Text.Trim(), out tmp);
+                    result += tmp;
+                    TimeSpan.TryParse(this.firstWashTime.Text.Trim(), out tmp);
+                    result += tmp;
+                    TimeSpan.TryParse(this.enzymeWashTime.Text.Trim(), out tmp);
+                    result += tmp;
+                    TimeSpan.TryParse(this.cleanOutWashTime.Text.Trim(), out tmp);
+                    result += tmp;
+                    TimeSpan.TryParse(this.dipInTime.Text.Trim(), out tmp);
+                    result += tmp;
+                    TimeSpan.TryParse(lastWashTime.Text.Trim(), out tmp);
+                    return result.ToString();
+                }
+                else
+                {
+                    TimeSpan.TryParse(this.dipInSecTime.Text.Trim(), out tmp);
+                    result += tmp;
+                    TimeSpan.TryParse(this.lastWashSecTime.Text.Trim(), out tmp);
+                    result += tmp;
+                    return result.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                FormHelper.RecordLogMsg(ex.Message);
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Handles the KeyDown event of the txtEndoscopeNo control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
+        private void TxtEndoscopeNo_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                if (this.txtEndoscopeNo.Text.Trim().Length > 0 && FormHelper.ProcessSqlStr(this.txtEndoscopeNo.Text.Trim()))
+                {
+                    // 显示最新的清洗信息
+                    EndoscopeTemp temp = GSetting.DataServBusi.GetLatestEndoscopeCleanRecord(this.txtEndoscopeNo.Text.Trim());
+
+                    // 设置显示信息
+                    this.SetMsg(temp);
+                }
+                else
+                {
+                    KryptonMessageBox.Show("内镜ID不可以为空");
+                }
+            }
+        }
+        #endregion
+
+        private void txtEndoscopeNo_Leave(object sender, EventArgs e)
+        {
+            KryptonTextBox txt = sender as KryptonTextBox;
+            if (txt == null)
+            {
+                return;
+            }
+            txt.StateActive.Border.Color1 = Color.Silver;
+        }
+
+        private void txtEndoscopeNo_Enter(object sender, EventArgs e)
+        {
+            KryptonTextBox txt = sender as KryptonTextBox;
+            if (txt == null)
+            {
+                return;
+            }
+            txt.StateActive.Border.Color1 = Color.LimeGreen;
+        }
+    }
+}

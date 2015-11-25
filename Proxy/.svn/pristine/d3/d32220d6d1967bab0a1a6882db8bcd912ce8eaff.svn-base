@@ -1,0 +1,98 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Text;
+using System.Windows.Forms;
+
+namespace ProxyClient
+{
+    public partial class PrintOptions : Form
+    {
+        private string m_PrintTitle;
+        private bool m_PrintAllRows = true;
+        private Font m_Font;
+        private Color m_FontColor;
+
+        public PrintOptions()
+        {
+            InitializeComponent();
+        }
+        public PrintOptions(string PrintTitle, List<string> availableFields)
+        {
+            InitializeComponent();
+
+            foreach (string field in availableFields)
+            {
+                chklst.Items.Add(field, true);
+            }
+            m_PrintTitle = PrintTitle;
+        }
+
+        private void PrintOtions_Load(object sender, EventArgs e)
+        {
+            // set default rows to print
+            rdoAllRows.Checked = m_PrintAllRows;
+        }
+
+        private void btnOK_Click(object sender, EventArgs e)
+        {
+            m_PrintTitle = txtTitle.Text;
+            m_PrintAllRows = rdoAllRows.Checked;
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
+        }
+
+        private void btnFont_Click(object sender, EventArgs e)
+        {
+            FontDialog fnt = new FontDialog();
+            fnt.ShowColor = true;
+            fnt.Font = m_Font;
+            fnt.Color = m_FontColor;
+            if (fnt.ShowDialog() != DialogResult.OK) return;
+            m_Font = fnt.Font;
+            m_FontColor = fnt.Color;
+        }
+
+        public List<string> GetSelectedColumns()
+        {
+            List<string> lst = new List<string>();
+            foreach (object item in chklst.CheckedItems)
+                    lst.Add(item.ToString());
+            return lst;
+        }
+
+        public string PrintTitle
+        {
+            get { return m_PrintTitle; }
+        }
+
+        public bool PrintAllRows
+        {
+            get { return m_PrintAllRows; }
+        }
+
+        public Font PrintFont
+        {
+            get { return m_Font; }
+        }
+
+        public Color PrintFontColor
+        {
+            get { return m_FontColor; }
+        }
+
+        private void kryptonNumericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+	 
+    }
+}

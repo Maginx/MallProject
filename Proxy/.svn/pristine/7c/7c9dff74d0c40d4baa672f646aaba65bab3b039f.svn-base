@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/ClassLibrary" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ClassLibrary" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="EndoscopeTemp">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AutoCleanNo" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BrushWashBegin" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="BrushWashEnd" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="CleanOutBegin" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="CleanOutEnd" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="CleanType" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="DipInBegin" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="DipInEnd" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="DipInSecBegin" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="DipInSecEnd" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="Disinfection" type="xs:boolean" />
+      <xs:element minOccurs="0" name="EndoscopeSim" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="EndoscopeSn" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="EnzymeWashBegin" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="EnzymeWashEnd" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="FirstWashBegin" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="FirstWashEnd" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="LastWashBegin" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="LastWashEnd" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="LastWashSecBegin" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="LastWashSecEnd" nillable="true" type="ser:duration" />
+      <xs:element minOccurs="0" name="Quality" type="xs:boolean" />
+      <xs:element minOccurs="0" name="RecordTime" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="TotalTime" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="WashDate" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="WasherName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="WasherNo" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="EndoscopeTemp" nillable="true" type="tns:EndoscopeTemp" />
+  <xs:complexType name="UserInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="Remark" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserPass" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserRole" type="tns:UserRole" />
+      <xs:element minOccurs="0" name="UserSim" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserSn" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserTime" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="UserType" type="tns:UserType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserInfo" nillable="true" type="tns:UserInfo" />
+  <xs:simpleType name="UserRole">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Washer">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">1</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Nurse">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">2</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Dcotor">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">4</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="UserRole" nillable="true" type="tns:UserRole" />
+  <xs:simpleType name="UserType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Normal">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">1</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Admin">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">9</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="UserType" nillable="true" type="tns:UserType" />
+  <xs:complexType name="EndoscopeInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="EndoscopeName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="EndoscopeSeal" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="EndoscopeServYear" type="xs:int" />
+      <xs:element minOccurs="0" name="EndoscopeSim" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="EndoscopeSn" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="EndoscopeType" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="EndoscopeUseTime" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="Remark" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="EndoscopeInfo" nillable="true" type="tns:EndoscopeInfo" />
+  <xs:complexType name="ArrayOfEndoscopeInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="EndoscopeInfo" nillable="true" type="tns:EndoscopeInfo" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfEndoscopeInfo" nillable="true" type="tns:ArrayOfEndoscopeInfo" />
+  <xs:complexType name="ArrayOfUserInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="UserInfo" nillable="true" type="tns:UserInfo" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfUserInfo" nillable="true" type="tns:ArrayOfUserInfo" />
+  <xs:complexType name="ArrayOfPatient">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Patient" nillable="true" type="tns:Patient" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPatient" nillable="true" type="tns:ArrayOfPatient" />
+  <xs:complexType name="Patient">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Age" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Endoscope" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsPositive" type="xs:boolean" />
+      <xs:element minOccurs="0" name="PatientAddr" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PatientId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PatientName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PatientPhoneNo" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PatientSN" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PatientSex" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Remark" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Sex" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Patient" nillable="true" type="tns:Patient" />
+</xs:schema>

@@ -1,0 +1,129 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace MallHost
+{
+    /// <summary>
+    /// SQL 数据库操作
+    /// </summary>
+    internal sealed class SQL
+    {
+        /// <summary>
+        /// 初洗
+        /// </summary>
+        /// <param name="beginTime">开始时间</param>
+        /// <param name="endTime">结束时间</param>
+        /// <returns>SQL语句</returns>
+        public static string FirstWash(string beginTime, string endTime)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append("select  A.endoscopeSN,A.endoscopeSIM,A.washDate,A.washerNo,A.washerRealName,A.autoCleanNo,A.wareNo,A.patientNo,A.prePatientNo,A.doctorName,A.nurseNo,A.washTotalTime,A.washBeginTime,A.washEndTime,A.qualified,B.brushWashBegin,B.brushWashEnd,B.firstWashBegin,B.firstWashEnd,B.enzymeWashBegin,B.enzymeWashEnd,B.cleanOutWashBegin,B.cleanOutWashEnd,B.dipInWashBegin,B.dipInWashEnd,B.lastWashBegin,B.lastWashEnd from endoscopeRecord as A inner join   endoscopeRecordInfo as B on A.recordInfoId=B.recordInfoId  where A.cleanType='1' and A.recordTime between '" + beginTime + "' and '" + endTime + "' order by A.recordTime desc");
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// 次洗SQL语句
+        /// </summary>
+        /// <param name="beginTime">开始时间</param>
+        /// <param name="endTime">结束时间</param>
+        /// <returns>SQL语句</returns>
+        public static string SecondWash(string beginTime, string endTime)
+        {
+            var builder = new StringBuilder();
+            builder.Append(string.Format("select  A.endoscopeSN,A.endoscopeSIM,A.washDate,A.washerNo,A.washerRealName,A.autoCleanNo,A.wareNo,A.patientNo,A.prePatientNo,A.doctorName,A.nurseNo,A.washTotalTime,A.washBeginTime,A.washEndTime,A.qualified,B.dipInWashSecBegin,B.dipInWashSecEnd,B.lastWashSecBegin,B.lastWashSecEnd from endoscopeRecord as A inner join   endoscopeRecordInfo as B on A.recordInfoId=B.recordInfoId  where A.cleanType='2' and A.recordTime between '{0}' and '{1}'  order by A.recordTime desc", beginTime, endTime));
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// 查询SQL
+        /// </summary>
+        /// <param name="condition">条件（Key）</param>
+        /// <param name="value">值(value)</param>
+        /// <returns>SQL语句</returns>
+        public static string SearchResult(string condition, string value)
+        {
+            var builder = new StringBuilder();
+            builder.Append(string.Format("select  A.endoscopeSN,A.endoscopeSIM,A.washDate,A.washerNo,A.washerRealName,A.autoCleanNo,A.wareNo,A.patientNo,A.prePatientNo,A.doctorName,A.nurseNo,A.washTotalTime,A.washBeginTime,A.washEndTime,A.qualified,B.brushWashBegin,B.brushWashEnd,B.firstWashBegin,B.firstWashEnd,B.enzymeWashBegin,B.enzymeWashEnd,B.cleanOutWashBegin,B.cleanOutWashEnd,B.dipInWashBegin,B.dipInWashEnd,B.lastWashBegin,B.lastWashEnd,B.dipInWashSecBegin,B.dipInWashSecEnd,B.lastWashSecBegin,B.lastWashSecEnd,A.cleanType from endoscopeRecord as A inner join   endoscopeRecordInfo as B on A.recordInfoId=B.recordInfoId where {0}='{1}'  order by A.recordTime desc", condition, value));
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// 查找语句
+        /// </summary>
+        /// <param name="tableName">表名</param>
+        /// <param name="colums">查找列</param>
+        /// <returns></returns>
+        public static string SelectSQL(string tableName, List<string> colums = null, string column = "", string col = "", string colValue = "", string col2 = "", string col2Value = "")
+        {
+            var cols = new StringBuilder();
+            var where = string.Empty;
+
+            if (col.Length > 0)
+            {
+                where = string.Format(" where {0} ='{1}'", col, colValue);
+                if (col2.Length > 0)
+                {
+                    where += string.Format(" or {0}='{1}'", col2, col2Value);
+                }
+            }
+
+            if (colums != null)
+            {
+                foreach (var t in colums)
+                {
+                    cols.AppendFormat(" {0} ,", t);
+                }
+            }
+            else
+            {
+                if (column.Length > 0)
+                {
+                    cols.AppendFormat(" {0} ", column);
+                }
+                else
+                {
+                    cols.Append(" * ");
+                }
+            }
+
+            return string.Format("select {0} from {1}{2}", cols.ToString().Trim(','), tableName, where);
+        }
+
+        /// <summary>
+        /// 更新语句
+        /// </summary>
+        /// <param name="tableName">表名</param>
+        /// <param name="updateCotent">更新内容</param>
+        /// <param name="condition">条件</param>
+        /// <returns>
+        /// 更新语句
+        /// </returns>
+        public static string UpdateSQL(string tableName, string updateCotent, string condition)
+        {
+            return string.Format("update {0} set {1} where {2}", tableName, updateCotent, condition);
+        }
+
+        /// <summary>
+        /// 删除语句
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        /// <returns>SQL语句</returns>
+        public static string DeleteSQL(string tableName, string where)
+        {
+            return string.Format("delete from {0} where ", tableName, where);
+        }
+
+        /// <summary>
+        /// 插入语句
+        /// </summary>
+        /// <param name="tableName">表名</param>
+        /// <param name="keyValues">字段/值</param>
+        /// <returns>SQL插入语句</returns>
+        public static string InsertSQL(string tableName, string colums, string values)
+        {
+            return string.Format("insert into {0} ({1}) values({2})", tableName, colums, values);
+        }
+    }
+}

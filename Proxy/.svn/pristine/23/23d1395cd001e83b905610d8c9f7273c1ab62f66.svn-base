@@ -1,0 +1,419 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using ComponentFactory.Krypton.Toolkit;
+using System.Runtime.InteropServices;
+using System.IO;
+using System.Xml.Linq;
+using System.Net;
+using ClassLibrary;
+
+namespace ProxyClient.Controls
+{
+    /// <summary>
+    /// 主窗体
+    /// </summary>
+    internal sealed partial class MainForm : KryptonForm
+    {
+        #region 显示内镜信息委托、事件
+        public delegate void ShowEndoscInfoHandler(string endoscopeSN);
+        public static event ShowEndoscInfoHandler ShowEndoscInfoEvent;
+        #endregion
+
+        #region 构造方法
+        public MainForm()
+        {
+            InitializeComponent();
+
+            ShowEndoscInfoEvent += new ShowEndoscInfoHandler(MainForm_ShowEndoscopeInfoMsgEvent);
+
+            this.Size = new Size(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height + 20);
+            EndoscTempTSMenuItem_Click(null, null);
+            EndopscInfoTSMenuItem_Click(null, null);
+            cleanMoniterMenueItem_Click(null, null);
+
+            GSetting.AutoClean = DealXml.ReadSysConfig("appSettings", "cleanType");
+            this.SetCleanType(GSetting.AutoClean);
+
+        }
+        #endregion
+
+        /// <summary>
+        /// 设置清洗类型
+        /// </summary>
+        /// <param name="type"></param>
+        private void SetCleanType(string type)
+        {
+            if (type == "1")//手洗
+            {
+                this.cleanChoice2.Checked = true;
+                this.cleanChoice.Checked = false;
+            }
+            else//机洗
+            {
+                this.cleanChoice.Checked = true;
+                this.cleanChoice2.Checked = false;
+            }
+        }
+
+        /// <summary>
+        /// 显示内镜详细信息
+        /// </summary>
+        /// <param name="endoscopeSN">内镜编号</param>
+        public static void ShowEndoscopeInfoMsg(string endoscopeSN)
+        {
+            ShowEndoscInfoEvent(endoscopeSN);
+        }
+
+        private void MainForm_ShowEndoscopeInfoMsgEvent(string endoscopeSN)
+        {
+            CleanTempMsg tempForm = GSetting.GetFormInstance<CleanTempMsg>();
+            tempForm.MdiParent = this;
+            this.contentPanel.Controls.Clear();
+            tempForm.Size = this.contentPanel.Size;
+            tempForm.Location = new Point(0, 0);
+            tempForm.WindowState = FormWindowState.Maximized;
+            this.contentPanel.Controls.Add(tempForm);
+            this.statusStripTips.Visible = true;
+            tempForm.Show();
+        }
+
+        /// <summary>
+        /// 关闭窗体
+        /// </summary>
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            DialogResult result = KryptonMessageBox.Show("确定退出程序吗？", "退出", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+            if (result == DialogResult.Yes)
+            {
+                GSetting.ContentForms.Clear();
+                Environment.Exit(0);
+                //GlobalSetting.AnimateWindow(this.Handle, 500, GlobalSetting.AW_BLEND | GlobalSetting.AW_HIDE);
+            }
+            else
+            {
+                e.Cancel = true;
+            }
+        }
+
+        /// <summary>
+        /// 主窗体加载
+        /// </summary>
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            // 初始化信息
+            GSetting.InitialbasicData();
+
+            // 用户登录
+            this.LoginUser();
+
+            this.mainHeader.ValuesPrimary.Description = string.Format("{0}[{1}]", Global.LoginedUser, Global.LoginedUserRole.GetAttributeName<ClassLibrary.UserRole>());
+
+            // 导航到主页
+            cleanMoniterMenueItem_Click(null, null);
+        }
+
+        /// <summary>
+        /// 用户登录
+        /// </summary>
+        private void LoginUser()
+        {
+            var login = new Login();
+            DialogResult result = login.ShowDialog();
+
+            if (result != DialogResult.OK)
+            {
+                KryptonMessageBox.Show("登录取消，退出程序");
+                Environment.Exit(0);
+            }
+
+            login.Close();
+
+            // 根据权限设置菜单
+            this.mainHeader.ValuesPrimary.Description = string.Format("{0}[{1}]", Global.LoginedUser, Global.LoginedUserRole.GetAttributeName<ClassLibrary.UserRole>());
+
+            this.toolStripDoctor.Visible = true;
+            this.toolStripNurse.Visible = true;
+
+            switch (Global.LoginedUserRole)
+            {
+                case UserRole.Washer:
+                    this.toolStripDoctor.Visible = false;
+                    this.toolStripNurse.Visible = false;
+                    break;
+                case UserRole.Nurse:
+                    this.toolStripDoctor.Visible = false;
+                    break;
+                case UserRole.Dcotor:
+                    this.toolStripNurse.Visible = false;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 端口设置
+        /// </summary>
+        private void portSetting_Click(object sender, EventArgs e)
+        {
+            Form porSet = GSetting.GetFormInstance<PortSet>();
+            porSet.StartPosition = FormStartPosition.Manual;
+            porSet.WindowState = FormWindowState.Normal;
+            porSet.ShowDialog();
+        }
+
+        /// <summary>
+        /// 服务地址设置
+        /// </summary>
+        private void serverBasicSetting_Click(object sender, EventArgs e)
+        {
+            Form settingForm = GSetting.GetFormInstance<BasicSetting>();
+            settingForm.StartPosition = FormStartPosition.Manual;
+            settingForm.WindowState = FormWindowState.Normal;
+            settingForm.ShowDialog();
+        }
+
+        /// <summary>
+        /// 保存临时信息面板
+        /// </summary>
+        private void CheckLog_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog fileDialog = new SaveFileDialog();
+            fileDialog.Filter = "文本(*.txt)|*.txt";
+            DialogResult result = fileDialog.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                string name = fileDialog.FileName;
+                this.SaveTemp(name);
+            }
+        }
+
+        /// <summary>
+        /// 清洗时间设置
+        /// </summary>
+        private void cleanTimeSetMenueItem_Click(object sender, EventArgs e)
+        {
+            Form CleanTime = GSetting.GetFormInstance<CleanTime>();
+            CleanTime.StartPosition = FormStartPosition.Manual;
+            CleanTime.WindowState = FormWindowState.Normal;
+            CleanTime.ShowDialog();
+        }
+
+        /// <summary>
+        /// 内镜清洗临时记录
+        /// </summary>
+        private void EndoscTempTSMenuItem_Click(object sender, EventArgs e)
+        {
+            labMark.Text = "内镜清洗临时记录";
+            Form tempForm = GSetting.GetFormInstance<TempRecord>();
+            tempForm.MdiParent = this;
+            this.contentPanel.Controls.Clear();
+            tempForm.StartPosition = FormStartPosition.Manual;
+            tempForm.Location = new Point(0, 0);
+            tempForm.Size = this.contentPanel.Size;
+            tempForm.WindowState = FormWindowState.Maximized;
+            this.contentPanel.Controls.Add(tempForm);
+            this.statusStripTips.Visible = true;
+            tempForm.Show();
+            endoscopeCleanInfoMsg.Checked = false;
+            tempReacord.Checked = true;
+            cleanMoniterMenueItem.Checked = false;
+        }
+
+        /// <summary>
+        /// 内镜清洗信息
+        /// </summary>
+        private void EndopscInfoTSMenuItem_Click(object sender, EventArgs e)
+        {
+            labMark.Text = "内镜清洗信息";
+            this.ChangeContentControl<CleanTempMsg>();
+
+            endoscopeCleanInfoMsg.Checked = true;
+            tempReacord.Checked = false;
+            cleanMoniterMenueItem.Checked = false;
+        }
+
+        /// <summary>
+        /// 内镜清洗状态
+        /// </summary>
+        private void cleanMoniterMenueItem_Click(object sender, EventArgs e)
+        {
+            labMark.Text = "内镜清洗状态";
+            ChangeContentControl<EndoscopeCleanState>();
+            endoscopeCleanInfoMsg.Checked = false;
+            tempReacord.Checked = false;
+            cleanMoniterMenueItem.Checked = true;
+        }
+
+        /// <summary>
+        /// 退出
+        /// </summary>
+        private void exit_Click(object sender, EventArgs e)
+        {
+            Environment.Exit(0);
+        }
+
+        /// <summary>
+        /// 最大化
+        /// </summary>
+        private void btnMax_Click(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Maximized)
+            {
+                this.WindowState = FormWindowState.Normal;
+            }
+            if (this.WindowState != FormWindowState.Maximized)
+            {
+                this.WindowState = FormWindowState.Maximized;
+            }
+        }
+
+        /// <summary>
+        /// 自动清洗
+        /// </summary>
+        private void cleanChoice_Click(object sender, EventArgs e)
+        {
+            GSetting.AutoClean = "2";//自动清洗
+            this.cleanChoice2.Checked = false;
+            this.cleanChoice.Checked = true;
+            this.mainHeader.ValuesPrimary.Heading = "自动清洗机";
+            DealXml.ModifySysConfig("cleanType", "2");
+        }
+
+        /// <summary>
+        /// 手动清洗
+        /// </summary>
+        private void cleanChocie2_Click(object sender, EventArgs e)
+        {
+            GSetting.AutoClean = "1";//手动清洗
+            this.cleanChoice2.Checked = true;
+            this.cleanChoice.Checked = false;
+            this.mainHeader.ValuesPrimary.Heading = "手动清洗工作站";
+            DealXml.ModifySysConfig("cleanType", "1");
+        }
+
+        /// <summary>
+        /// 内镜管理
+        /// </summary>
+        private void toolstripMIEndoscope_Click(object sender, EventArgs e)
+        {
+            labMark.Text = "内镜管理";
+            this.ChangeContentControl<EndoscopeManager>();
+        }
+
+        /// <summary>
+        /// 用户管理
+        /// </summary>
+        private void toolStripMIUser_Click(object sender, EventArgs e)
+        {
+            labMark.Text = "用户管理";
+            this.ChangeContentControl<UserManager>();
+        }
+
+        /// <summary>
+        /// 追溯查询
+        /// </summary>
+        private void toolStripCleanSearch_Click(object sender, EventArgs e)
+        {
+            labMark.Text = "追溯查询";
+            this.ChangeContentControl<DataTrace>();
+        }
+
+
+        /// <summary>
+        ///  追溯查询
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolStripTrace_Click(object sender, EventArgs e)
+        {
+            toolStripCleanSearch_Click(sender, e);
+        }
+
+        /// <summary>
+        /// 测试连接服务器
+        /// </summary>
+        private void toolStripContact_Click(object sender, EventArgs e)
+        {
+            GSetting.ContactServer();
+        }
+
+        /// <summary>
+        /// 密钥处理
+        /// </summary>
+        private void toolStripVerify_Click(object sender, EventArgs e)
+        {
+            EnterLicense enter = new EnterLicense();
+            enter.ShowDialog();
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            About a = new About();
+            a.ShowDialog();
+        }
+
+        #region Themes
+        private void blackToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            this.PaletteMode = PaletteMode.Office2010Black;
+        }
+
+        private void blueToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            this.PaletteMode = PaletteMode.Office2010Blue;
+        }
+
+        private void silverToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            this.PaletteMode = PaletteMode.Office2010Silver;
+        }
+
+        private void toolStripWares_Click(object sender, EventArgs e)
+        {
+            var ws = new WareSetting();
+            ws.ShowDialog();
+        }
+        #endregion
+
+        #region 用户角色切换
+        private void toolStripDoctor_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+
+            var up = GSetting.GetFormInstance<UpdateEndoscope>();
+
+            if (DialogResult.OK == up.ShowDialog())
+            {
+                this.Show();
+            }
+        }
+
+        private void toolStripNurse_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            var pr = GSetting.GetFormInstance<PatientRegister>();
+
+            if (DialogResult.OK == pr.ShowDialog())
+            {
+                this.Show();
+            }
+        }
+
+        private void loginOut_Click(object sender, EventArgs e)
+        {
+            // 注销
+            Global.LoginedUser = string.Empty;
+            Global.LoginedUserRole = 0;
+            this.mainHeader.ValuesPrimary.Description = string.Empty;
+            this.LoginUser();
+        }
+        #endregion
+    }
+}

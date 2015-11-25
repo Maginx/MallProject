@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/MallHost" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/MallHost" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="Step">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="RecordTime" />
+      <xs:enumeration value="ManualWashBeginStep" />
+      <xs:enumeration value="ManualWashEndStep" />
+      <xs:enumeration value="FirstWashBeginStep" />
+      <xs:enumeration value="FirstWashEndStep" />
+      <xs:enumeration value="EnzymeWashBeginStep" />
+      <xs:enumeration value="EnzymeWashEndStep" />
+      <xs:enumeration value="CleanOutWashBeginStep" />
+      <xs:enumeration value="CleanOutWashEndStep" />
+      <xs:enumeration value="DipInWashSecBeginStep" />
+      <xs:enumeration value="DipInWashSecEndStep" />
+      <xs:enumeration value="DipInWashBeginStep" />
+      <xs:enumeration value="DipInWashEndStep" />
+      <xs:enumeration value="LastWashBeginStep" />
+      <xs:enumeration value="LastWashEndStep" />
+      <xs:enumeration value="LastWashSecBeginStep" />
+      <xs:enumeration value="LastWashSecEndStep" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="Step" nillable="true" type="tns:Step" />
+</xs:schema>
