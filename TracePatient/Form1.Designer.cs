@@ -54,6 +54,8 @@
             this.patientListDataView = new ComponentFactory.Krypton.Toolkit.KryptonDataGridView();
             this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.patientListHeader = new ComponentFactory.Krypton.Toolkit.KryptonHeader();
+            this.labresults = new ComponentFactory.Krypton.Toolkit.KryptonLabel();
+            this.txtResult = new ComponentFactory.Krypton.Toolkit.KryptonTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.mainPanel)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.mainPanel.Panel)).BeginInit();
             this.mainPanel.Panel.SuspendLayout();
@@ -198,7 +200,7 @@
             // detailsPanel.Panel
             // 
             this.detailsPanel.Panel.Controls.Add(this.labelLaout);
-            this.detailsPanel.Size = new System.Drawing.Size(294, 328);
+            this.detailsPanel.Size = new System.Drawing.Size(294, 460);
             this.detailsPanel.StateCommon.Content.ShortText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.detailsPanel.TabIndex = 1;
             this.detailsPanel.Text = "详细信息";
@@ -208,9 +210,9 @@
             // btnGetPatient
             // 
             this.btnGetPatient.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.btnGetPatient.Location = new System.Drawing.Point(95, 267);
+            this.btnGetPatient.Location = new System.Drawing.Point(95, 379);
             this.btnGetPatient.Name = "btnGetPatient";
-            this.btnGetPatient.Size = new System.Drawing.Size(101, 30);
+            this.btnGetPatient.Size = new System.Drawing.Size(101, 28);
             this.btnGetPatient.StateCommon.Content.ShortText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnGetPatient.TabIndex = 17;
             this.btnGetPatient.Values.Text = "获取病人";
@@ -233,35 +235,38 @@
             this.labelLaout.Controls.Add(this.txtPatientname, 1, 1);
             this.labelLaout.Controls.Add(this.txtWardNO, 1, 5);
             this.labelLaout.Controls.Add(this.txtPatientNo, 1, 0);
-            this.labelLaout.Controls.Add(this.btnGetPatient, 1, 6);
+            this.labelLaout.Controls.Add(this.txtResult, 1, 6);
+            this.labelLaout.Controls.Add(this.labresults, 0, 6);
+            this.labelLaout.Controls.Add(this.btnGetPatient, 1, 7);
             this.labelLaout.Dock = System.Windows.Forms.DockStyle.Top;
             this.labelLaout.Location = new System.Drawing.Point(0, 0);
             this.labelLaout.Name = "labelLaout";
-            this.labelLaout.RowCount = 7;
-            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
-            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
-            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
-            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
-            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
-            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
-            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.28571F));
-            this.labelLaout.Size = new System.Drawing.Size(290, 307);
+            this.labelLaout.RowCount = 8;
+            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.2807F));
+            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.2807F));
+            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.2807F));
+            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.2807F));
+            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.2807F));
+            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.2807F));
+            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 26.31579F));
+            this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.labelLaout.Size = new System.Drawing.Size(290, 410);
             this.labelLaout.TabIndex = 0;
             // 
             // labWarName
             // 
             this.labWarName.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.labWarName.Location = new System.Drawing.Point(3, 227);
+            this.labWarName.Location = new System.Drawing.Point(3, 243);
             this.labWarName.Name = "labWarName";
-            this.labWarName.Size = new System.Drawing.Size(55, 19);
+            this.labWarName.Size = new System.Drawing.Size(63, 19);
             this.labWarName.StateCommon.ShortText.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labWarName.TabIndex = 14;
-            this.labWarName.Values.Text = "检查室";
+            this.labWarName.Values.Text = "检查室:";
             // 
             // labNurse
             // 
             this.labNurse.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.labNurse.Location = new System.Drawing.Point(3, 184);
+            this.labNurse.Location = new System.Drawing.Point(3, 197);
             this.labNurse.Name = "labNurse";
             this.labNurse.Size = new System.Drawing.Size(48, 19);
             this.labNurse.StateCommon.ShortText.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -271,7 +276,7 @@
             // labDoctor
             // 
             this.labDoctor.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.labDoctor.Location = new System.Drawing.Point(3, 141);
+            this.labDoctor.Location = new System.Drawing.Point(3, 151);
             this.labDoctor.Name = "labDoctor";
             this.labDoctor.Size = new System.Drawing.Size(48, 19);
             this.labDoctor.StateCommon.ShortText.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -281,27 +286,25 @@
             // txtNurse
             // 
             this.txtNurse.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.txtNurse.Location = new System.Drawing.Point(95, 182);
+            this.txtNurse.Location = new System.Drawing.Point(95, 195);
             this.txtNurse.Name = "txtNurse";
-            this.txtNurse.Size = new System.Drawing.Size(175, 24);
+            this.txtNurse.Size = new System.Drawing.Size(175, 23);
             this.txtNurse.StateCommon.Content.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtNurse.TabIndex = 9;
-            this.txtNurse.Text = "nurse";
             // 
             // txtDoctor
             // 
             this.txtDoctor.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.txtDoctor.Location = new System.Drawing.Point(95, 139);
+            this.txtDoctor.Location = new System.Drawing.Point(95, 149);
             this.txtDoctor.Name = "txtDoctor";
-            this.txtDoctor.Size = new System.Drawing.Size(175, 24);
+            this.txtDoctor.Size = new System.Drawing.Size(175, 23);
             this.txtDoctor.StateCommon.Content.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtDoctor.TabIndex = 7;
-            this.txtDoctor.Text = "doctor";
             // 
             // labPatientName
             // 
             this.labPatientName.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.labPatientName.Location = new System.Drawing.Point(3, 12);
+            this.labPatientName.Location = new System.Drawing.Point(3, 13);
             this.labPatientName.Name = "labPatientName";
             this.labPatientName.Size = new System.Drawing.Size(84, 19);
             this.labPatientName.StateCommon.LongText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -314,7 +317,7 @@
             this.labEndoscope.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.labEndoscope.ImeMode = System.Windows.Forms.ImeMode.HangulFull;
             this.labEndoscope.LabelStyle = ComponentFactory.Krypton.Toolkit.LabelStyle.BoldPanel;
-            this.labEndoscope.Location = new System.Drawing.Point(3, 98);
+            this.labEndoscope.Location = new System.Drawing.Point(3, 105);
             this.labEndoscope.Name = "labEndoscope";
             this.labEndoscope.Size = new System.Drawing.Size(78, 19);
             this.labEndoscope.StateCommon.ShortText.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -324,7 +327,7 @@
             // labPatient
             // 
             this.labPatient.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.labPatient.Location = new System.Drawing.Point(3, 55);
+            this.labPatient.Location = new System.Drawing.Point(3, 59);
             this.labPatient.Name = "labPatient";
             this.labPatient.Size = new System.Drawing.Size(63, 19);
             this.labPatient.StateCommon.ShortText.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -334,42 +337,38 @@
             // txtEndoscopeNO
             // 
             this.txtEndoscopeNO.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.txtEndoscopeNO.Location = new System.Drawing.Point(95, 96);
+            this.txtEndoscopeNO.Location = new System.Drawing.Point(95, 103);
             this.txtEndoscopeNO.Name = "txtEndoscopeNO";
-            this.txtEndoscopeNO.Size = new System.Drawing.Size(175, 24);
+            this.txtEndoscopeNO.Size = new System.Drawing.Size(175, 23);
             this.txtEndoscopeNO.StateCommon.Content.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtEndoscopeNO.TabIndex = 5;
-            this.txtEndoscopeNO.Text = "endoscope number";
             // 
             // txtPatientname
             // 
             this.txtPatientname.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.txtPatientname.Location = new System.Drawing.Point(95, 53);
+            this.txtPatientname.Location = new System.Drawing.Point(95, 57);
             this.txtPatientname.Name = "txtPatientname";
-            this.txtPatientname.Size = new System.Drawing.Size(175, 24);
+            this.txtPatientname.Size = new System.Drawing.Size(175, 23);
             this.txtPatientname.StateCommon.Content.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtPatientname.TabIndex = 15;
-            this.txtPatientname.Text = "patient name";
             // 
             // txtWardNO
             // 
             this.txtWardNO.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.txtWardNO.Location = new System.Drawing.Point(95, 225);
+            this.txtWardNO.Location = new System.Drawing.Point(95, 241);
             this.txtWardNO.Name = "txtWardNO";
-            this.txtWardNO.Size = new System.Drawing.Size(175, 24);
+            this.txtWardNO.Size = new System.Drawing.Size(175, 23);
             this.txtWardNO.StateCommon.Content.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtWardNO.TabIndex = 13;
-            this.txtWardNO.Text = "ward";
             // 
             // txtPatientNo
             // 
             this.txtPatientNo.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.txtPatientNo.Location = new System.Drawing.Point(95, 10);
+            this.txtPatientNo.Location = new System.Drawing.Point(95, 11);
             this.txtPatientNo.Name = "txtPatientNo";
-            this.txtPatientNo.Size = new System.Drawing.Size(175, 24);
+            this.txtPatientNo.Size = new System.Drawing.Size(175, 23);
             this.txtPatientNo.StateCommon.Content.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtPatientNo.TabIndex = 1;
-            this.txtPatientNo.Text = "patient number";
             // 
             // patientListDataView
             // 
@@ -402,6 +401,26 @@
             this.patientListHeader.Values.Description = "序号 | 名字";
             this.patientListHeader.Values.Heading = "病人列表";
             this.patientListHeader.Values.Image = null;
+            // 
+            // labresults
+            // 
+            this.labresults.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labresults.Location = new System.Drawing.Point(3, 316);
+            this.labresults.Name = "labresults";
+            this.labresults.Size = new System.Drawing.Size(78, 19);
+            this.labresults.StateCommon.ShortText.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labresults.TabIndex = 18;
+            this.labresults.Values.Text = "诊断结果:";
+            // 
+            // txtResult
+            // 
+            this.txtResult.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.txtResult.Location = new System.Drawing.Point(95, 279);
+            this.txtResult.Multiline = true;
+            this.txtResult.Name = "txtResult";
+            this.txtResult.Size = new System.Drawing.Size(175, 94);
+            this.txtResult.StateCommon.Content.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtResult.TabIndex = 19;
             // 
             // TracePatientForm
             // 
@@ -477,6 +496,8 @@
         private ComponentFactory.Krypton.Toolkit.KryptonDataGridView patientListDataView;
         private System.Windows.Forms.DataGridViewTextBoxColumn name;
         private ComponentFactory.Krypton.Toolkit.KryptonHeader patientListHeader;
+        private ComponentFactory.Krypton.Toolkit.KryptonTextBox txtResult;
+        private ComponentFactory.Krypton.Toolkit.KryptonLabel labresults;
     }
 }
 
