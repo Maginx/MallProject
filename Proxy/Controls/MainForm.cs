@@ -128,7 +128,7 @@ namespace ProxyClient.Controls
             // 初始化信息
             GSetting.InitialbasicData();
 
-            this.ConnectRW208AH();
+            //this.ConnectRW208AH();
             timerPort.Interval = 300;
             timerPort.Tick += new EventHandler(timerPort_Tick);
             timerPort.Start();

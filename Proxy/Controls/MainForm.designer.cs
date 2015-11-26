@@ -464,7 +464,7 @@
             this.toolstripMIEndoscope.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toolstripMIEndoscope.Image = global::ProxyClient.Properties.Resources.endo;
             this.toolstripMIEndoscope.Name = "toolstripMIEndoscope";
-            this.toolstripMIEndoscope.Size = new System.Drawing.Size(164, 24);
+            this.toolstripMIEndoscope.Size = new System.Drawing.Size(162, 24);
             this.toolstripMIEndoscope.Text = "内镜管理(&E)";
             this.toolstripMIEndoscope.Click += new System.EventHandler(this.toolstripMIEndoscope_Click);
             // 
@@ -473,20 +473,20 @@
             this.toolStripMIUser.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toolStripMIUser.Image = global::ProxyClient.Properties.Resources.User2;
             this.toolStripMIUser.Name = "toolStripMIUser";
-            this.toolStripMIUser.Size = new System.Drawing.Size(164, 24);
+            this.toolStripMIUser.Size = new System.Drawing.Size(162, 24);
             this.toolStripMIUser.Text = "用户管理(&U)";
             this.toolStripMIUser.Click += new System.EventHandler(this.toolStripMIUser_Click);
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(161, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(159, 6);
             // 
             // toolStripDoctor
             // 
             this.toolStripDoctor.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.toolStripDoctor.Name = "toolStripDoctor";
-            this.toolStripDoctor.Size = new System.Drawing.Size(164, 24);
+            this.toolStripDoctor.Size = new System.Drawing.Size(162, 24);
             this.toolStripDoctor.Text = "医生入口(&D)";
             this.toolStripDoctor.Visible = false;
             this.toolStripDoctor.Click += new System.EventHandler(this.toolStripDoctor_Click);
@@ -495,7 +495,7 @@
             // 
             this.toolStripNurse.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toolStripNurse.Name = "toolStripNurse";
-            this.toolStripNurse.Size = new System.Drawing.Size(164, 24);
+            this.toolStripNurse.Size = new System.Drawing.Size(162, 24);
             this.toolStripNurse.Text = "护士入口(&N)";
             this.toolStripNurse.Visible = false;
             this.toolStripNurse.Click += new System.EventHandler(this.toolStripNurse_Click);
@@ -503,13 +503,13 @@
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(161, 6);
+            this.toolStripSeparator6.Size = new System.Drawing.Size(159, 6);
             // 
             // toolStripPatient
             // 
             this.toolStripPatient.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toolStripPatient.Name = "toolStripPatient";
-            this.toolStripPatient.Size = new System.Drawing.Size(164, 24);
+            this.toolStripPatient.Size = new System.Drawing.Size(162, 24);
             this.toolStripPatient.Text = "病人信息(&P)";
             this.toolStripPatient.Visible = false;
             // 
@@ -517,7 +517,7 @@
             // 
             this.toolStripWares.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toolStripWares.Name = "toolStripWares";
-            this.toolStripWares.Size = new System.Drawing.Size(164, 24);
+            this.toolStripWares.Size = new System.Drawing.Size(162, 24);
             this.toolStripWares.Text = "检查室管理(&W)";
             this.toolStripWares.Click += new System.EventHandler(this.toolStripWares_Click);
             // 
@@ -525,7 +525,7 @@
             // 
             this.检查室管理WToolStripMenuItem.Font = new System.Drawing.Font("微软雅黑", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.检查室管理WToolStripMenuItem.Name = "检查室管理WToolStripMenuItem";
-            this.检查室管理WToolStripMenuItem.Size = new System.Drawing.Size(164, 24);
+            this.检查室管理WToolStripMenuItem.Size = new System.Drawing.Size(162, 24);
             this.检查室管理WToolStripMenuItem.Visible = false;
             // 
             // toolStripCleanSearch
@@ -546,7 +546,7 @@
             // 
             this.toolStripEveryDay.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toolStripEveryDay.Name = "toolStripEveryDay";
-            this.toolStripEveryDay.Size = new System.Drawing.Size(183, 24);
+            this.toolStripEveryDay.Size = new System.Drawing.Size(181, 24);
             this.toolStripEveryDay.Text = "导出当天记录(&D)";
             this.toolStripEveryDay.Visible = false;
             // 
@@ -554,7 +554,7 @@
             // 
             this.toolStripEveryWeek.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toolStripEveryWeek.Name = "toolStripEveryWeek";
-            this.toolStripEveryWeek.Size = new System.Drawing.Size(183, 24);
+            this.toolStripEveryWeek.Size = new System.Drawing.Size(181, 24);
             this.toolStripEveryWeek.Text = "导出本周记录(&W)";
             this.toolStripEveryWeek.Visible = false;
             // 
@@ -562,14 +562,14 @@
             // 
             this.toolStripEveryMonth.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toolStripEveryMonth.Name = "toolStripEveryMonth";
-            this.toolStripEveryMonth.Size = new System.Drawing.Size(183, 24);
+            this.toolStripEveryMonth.Size = new System.Drawing.Size(181, 24);
             this.toolStripEveryMonth.Text = "导出本月记录(&M)";
             this.toolStripEveryMonth.Visible = false;
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(180, 6);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(178, 6);
             this.toolStripSeparator4.Visible = false;
             // 
             // toolStripBackUpDataBase
@@ -577,7 +577,7 @@
             this.toolStripBackUpDataBase.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.toolStripBackUpDataBase.Image = global::ProxyClient.Properties.Resources.dataBackUp;
             this.toolStripBackUpDataBase.Name = "toolStripBackUpDataBase";
-            this.toolStripBackUpDataBase.Size = new System.Drawing.Size(183, 24);
+            this.toolStripBackUpDataBase.Size = new System.Drawing.Size(181, 24);
             this.toolStripBackUpDataBase.Text = "备份数据库(&B)";
             this.toolStripBackUpDataBase.Visible = false;
             // 
