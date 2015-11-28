@@ -8,23 +8,20 @@ namespace TracePatient
     /// <summary>
     /// Create a New INI file to store or load data
     /// </summary>
-    public class IniFile
+    class IniFileHandler
     {
         private readonly string __path;
 
         [DllImport("kernel32")]
-        private static extern long WritePrivateProfileString(string section,
-            string key, string val, string filePath);
+        private static extern long WritePrivateProfileString(string section, string key, string val, string filePath);
         [DllImport("kernel32")]
-        private static extern int GetPrivateProfileString(string section,
-                 string key, string def, StringBuilder retVal,
-            int size, string filePath);
+        private static extern int GetPrivateProfileString(string section, string key, string def, StringBuilder retVal, int size, string filePath);
 
         /// <summary>
         /// INIFile Constructor.
         /// </summary>
         /// <PARAM name="INIPath"></PARAM>
-        public IniFile(string INIPath)
+        protected IniFileHandler(string INIPath)
         {
             if (!File.Exists(INIPath))
             {
@@ -41,7 +38,7 @@ namespace TracePatient
         /// Key Name
         /// <PARAM name="Value"></PARAM>
         /// Value Name
-        public void WriteIniValue(string Section, string Key, string Value)
+        protected void WriteIniValue(string Section, string Key, string Value)
         {
             WritePrivateProfileString(Section, Key, Value, this.__path);
         }
@@ -53,12 +50,15 @@ namespace TracePatient
         /// <PARAM name="Key"></PARAM>
         /// <PARAM name="Path"></PARAM>
         /// <returns></returns>
-        public string ReadIniValue(string Section, string Key)
+        protected string ReadIniValue(string Section, string Key)
         {
             StringBuilder temp = new StringBuilder(255);
             int i = GetPrivateProfileString(Section, Key, String.Empty, temp, 255, this.__path);
+            if (i == 0)
+            {
+                GlobalConfigurationAndSetup.TraceLogger.TraceConsole(string.Format("Read the ini file error, the key [{0}]", Key));
+            }
             return temp.ToString();
-
         }
     }
 
