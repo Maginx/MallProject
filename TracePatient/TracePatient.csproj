@@ -67,7 +67,6 @@
     </Compile>
     <Compile Include="DatabaseBusiness.cs" />
     <Compile Include="EndoscopeInformation.cs" />
-    <Compile Include="Field.cs" />
     <Compile Include="GlobalConfigurationAndSetup.cs" />
     <Compile Include="IniFileHandler.cs" />
     <Compile Include="IniInformation.cs">
@@ -75,6 +74,7 @@
     </Compile>
     <Compile Include="FormControlExtend.cs" />
     <Compile Include="Logging.cs" />
+    <Compile Include="PatientDetails.cs" />
     <Compile Include="SqlHelper.cs" />
     <Compile Include="TracePatient.core.cs">
       <SubType>Form</SubType>

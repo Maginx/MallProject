@@ -32,10 +32,32 @@ namespace TracePatient
         /// <param name="itemList"></param>
         public static void BindToComboBox<T>(this KryptonComboBox comboBox, IEnumerable<T> itemList)
         {
+            comboBox.Items.Clear();
+            if (itemList.Count() == 0)
+            {
+                return;
+            }
+
             foreach (T obj in itemList)
             {
                 comboBox.Items.Add(obj);
             }
+
+            comboBox.Text = itemList.First<T>().ToString();
+        }
+
+        public static string GetValue(this KryptonComboBox comboBox)
+        {
+            if (comboBox.SelectedItem == null)
+            {
+                return string.Empty;
+            }
+            return comboBox.SelectedItem.ToString().Trim();
+        }
+
+        public static string GetValue(this KryptonTextBox textBox)
+        {
+            return textBox.Text.Trim();
         }
     }
 }

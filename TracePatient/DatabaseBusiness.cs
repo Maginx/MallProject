@@ -121,16 +121,15 @@ namespace TracePatient
         /// <param name="iniInfo">iniIfo instance</param>
         /// <param name="patientCode">patient unique code</param>
         /// <returns>details</returns>
-        public IDictionary<string, string> GetPatientDetailsFromHis(IniInformation iniInfo, string patientCode)
+        public Patient GetPatientDetailsFromHisByPatientCode(IniInformation iniInfo, string patientCode)
         {
-            string sqlText = string.Format("select * from {0} where {1} = '{2}'", iniInfo.TableName, iniInfo.TableField.patientCode, patientCode);
-            var sets = ReadDataBySqlReader(sqlText, iniInfo, patientCode);
+            var sets = ReadDataBySqlReader(iniInfo, patientCode);
             if (sets == null || sets.Count == 0)
             {
                 throw new Exception("read the patient error");
             }
 
-            return sets;
+            return sets[iniInfo.TableField.patientName];
         }
 
 
@@ -153,26 +152,41 @@ namespace TracePatient
             return endoscopeWithoutPatient;
         }
 
-        public bool CompletePatientDetials(string endoscopeId, string wareNo, string doctorName, string patientNo, string patientName, string patientResult, string sex, string time, string age, string nurseNo)
+        /// <summary>
+        /// Complete the endoscope clean record by patient message from HIS system
+        /// </summary>
+        /// <param name="endoscopeId">endsocope database primary key id</param>
+        /// <param name="wareNo">ward name</param>
+        /// <param name="doctorName">doctor name</param>
+        /// <param name="nurseNo">nurse name</param>
+        /// <param name="patient">paitent instance</param>
+        /// <returns>true : success; false : failed</returns>
+        public bool CompletePatientDetials(string endoscopeId, string wareNo, string doctorName, string nurseNo, Patient patient)
         {
-            string sqlText = string.Format("update endoscopeRecord set wareNo='{0}',doctorName='{1}',patientNo='{2}',nurseNo='{3}' where id='{4}'", wareNo, doctorName, patientNo, nurseNo, endoscopeId);
-            string addNewPatientSql = string.Format("insert into patientRecord (patientSn,patientName,patientResult,sex,time,age)valuse({0},{1},{2},{3},{5})", patientNo, patientName, patientResult, sex, time, age);
-            SqlConnection connection = new SqlConnection(MallDbConnectionString);
-            using (SqlTransaction transaction = connection.BeginTransaction())
+            string sqlText = string.Format("update endoscopeRecord set wareNo='{0}',doctorName='{1}',patientNo='{2}',nurseNo='{3}' where id='{4}'", wareNo, doctorName, string.Format("{0} - {1} ", patient.Code, patient.Name), nurseNo, endoscopeId);
+            string addNewPatientSql = string.Format("insert into patientRecord (patientSn,patientName,patientResult,sex,time,age) values('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')", patient.Code, patient.Name, patient.Result, patient.Sex, DateTime.Now.ToString(), patient.Age);
+            using (SqlConnection connection = new SqlConnection(MallDbConnectionString))
             {
-                var index = SqlHelper.ExecuteNonQuery(transaction, System.Data.CommandType.Text, sqlText);
-                if (index <= 0)
+                connection.Open();
+                using (SqlTransaction transaction = connection.BeginTransaction())
                 {
-                    throw new ArgumentNullException("update patient details failed");
-                }
-                index = SqlHelper.ExecuteNonQuery(transaction, System.Data.CommandType.Text, addNewPatientSql);
-                if (index <= 0)
-                {
-                    throw new ArgumentException("add new record into patient failed");
-                }
-                return true;
-            }
+                    var index = SqlHelper.ExecuteNonQuery(transaction, System.Data.CommandType.Text, sqlText);
+                    if (index <= 0)
+                    {
+                        transaction.Rollback();
+                        throw new ArgumentNullException("update patient details failed");
+                    }
+                    index = SqlHelper.ExecuteNonQuery(transaction, System.Data.CommandType.Text, addNewPatientSql);
+                    if (index <= 0)
+                    {
+                        transaction.Rollback();
+                        throw new ArgumentException("add new record into patient failed");
+                    }
 
+                    transaction.Commit();
+                    return true;
+                }
+            }
         }
 
         /// <summary>
@@ -200,6 +214,12 @@ namespace TracePatient
                     throw new ArgumentNullException("endsocope necessary message is empty.");
                 }
 
+                var newDate = new DateTime();
+                if (DateTime.TryParse(date.ToString(), out newDate))
+                {
+                    return new EndoscopeInformation(Int32.Parse(id.ToString()), beginTime.ToString(), endTime.ToString(), newDate.ToShortDateString());
+                }
+
                 return new EndoscopeInformation(Int32.Parse(id.ToString()), beginTime.ToString(), endTime.ToString(), date.ToString());
             }
         }
@@ -211,19 +231,13 @@ namespace TracePatient
         /// <param name="iniInfo">IniInformation instance</param>
         /// <param name="patientCode">patient unique code</param>
         /// <returns>Dict for all of patient details include(name,age,sex)</returns>
-        private IDictionary<string, string> ReadDataBySqlReader(string sqlCommand, IniInformation iniInfo, string patientCode)
+        private IDictionary<string, Patient> ReadDataBySqlReader(IniInformation iniInfo, string patientCode)
         {
-            IDictionary<string, string> patientDetails;
             string sqlText = string.Format("select * from {0} where {1} = '{2}'", iniInfo.TableName, iniInfo.TableField.patientCode, patientCode);
             using (var reader = SqlHelper.ExecuteReader(HisDbConnectionString, System.Data.CommandType.Text, sqlText))
             {
-                patientDetails = new Dictionary<string, string>();
-                patientDetails.Add(iniInfo.TableField.patientName, SafeReader(iniInfo.TableField.patientName));
-                patientDetails.Add(iniInfo.TableField.patientAge, SafeReader(iniInfo.TableField.patientAge));
-                patientDetails.Add(iniInfo.TableField.patientSex, SafeReader(iniInfo.TableField.patientSex));
+                return SqlReader(reader, iniInfo);
             }
-
-            return patientDetails;
         }
 
         /// <summary>
@@ -271,6 +285,27 @@ namespace TracePatient
             return list;
         }
 
+        private IDictionary<string, Patient> SqlReader(SqlDataReader reader, IniInformation iniInfo)
+        {
+            IDictionary<string, Patient> patients;
+            if (reader == null)
+            {
+                throw new ArgumentNullException("SqlDataReader object is null");
+            }
+            patients = new Dictionary<string, Patient>();
+
+            while (reader.Read())
+            {
+                var patient = new Patient();
+                patient.Name = SafeReader(reader[iniInfo.TableField.patientName]);
+                patient.Age = SafeReader(reader[iniInfo.TableField.patientAge]);
+                patient.Sex = SafeReader(reader[iniInfo.TableField.patientSex]);
+                patients.Add(iniInfo.TableField.patientName, patient);
+            }
+
+            return patients;
+        }
+
         /// <summary>
         /// Reader database field data
         /// </summary>
@@ -287,7 +322,7 @@ namespace TracePatient
 
             try
             {
-                result = obj.ToString();
+                result = obj.ToString().Trim();
             }
             catch (System.IndexOutOfRangeException exception)
             {

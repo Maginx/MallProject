@@ -85,7 +85,6 @@ namespace TracePatient
                 iniInfo = new IniInformation(path);
             }
             iniInfo.ReadIniFile();
-            GlobalConfigurationAndSetup.TraceLogger.TraceLog(String.Format("数据库配置信息：{0}", iniInfo.ToString()));
             return iniInfo;
         }
     }

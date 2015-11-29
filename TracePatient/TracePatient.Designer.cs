@@ -31,10 +31,16 @@
             this.mainPanel = new ComponentFactory.Krypton.Toolkit.KryptonHeaderGroup();
             this.splitContainer = new ComponentFactory.Krypton.Toolkit.KryptonSplitContainer();
             this.patientListDataView = new ComponentFactory.Krypton.Toolkit.KryptonDataGridView();
+            this.patientCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.patientListHeader = new ComponentFactory.Krypton.Toolkit.KryptonHeader();
             this.splitPanel = new ComponentFactory.Krypton.Toolkit.KryptonSplitContainer();
             this.detailsPanel = new ComponentFactory.Krypton.Toolkit.KryptonGroupBox();
             this.labelLaout = new System.Windows.Forms.TableLayoutPanel();
+            this.btnGetPatient = new ComponentFactory.Krypton.Toolkit.KryptonButton();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.kryptonLabel4 = new ComponentFactory.Krypton.Toolkit.KryptonLabel();
+            this.kryptonLabel3 = new ComponentFactory.Krypton.Toolkit.KryptonLabel();
             this.pictureBox9 = new System.Windows.Forms.PictureBox();
             this.pictureBox8 = new System.Windows.Forms.PictureBox();
             this.pictureBox7 = new System.Windows.Forms.PictureBox();
@@ -52,9 +58,16 @@
             this.labresults = new ComponentFactory.Krypton.Toolkit.KryptonLabel();
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
             this.btnMakeSureAndRecord = new ComponentFactory.Krypton.Toolkit.KryptonButton();
+            this.txtPatientAge = new ComponentFactory.Krypton.Toolkit.KryptonTextBox();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.comboBoxSex = new ComponentFactory.Krypton.Toolkit.KryptonComboBox();
+            this.cmbDoctorsNames = new ComponentFactory.Krypton.Toolkit.KryptonComboBox();
+            this.cmbNurseNames = new ComponentFactory.Krypton.Toolkit.KryptonComboBox();
             this.labEndoscopeCleanEndTime = new ComponentFactory.Krypton.Toolkit.KryptonLabel();
             this.labEndoscopeCleanBeginTime = new ComponentFactory.Krypton.Toolkit.KryptonLabel();
             this.kryptonLabel2 = new ComponentFactory.Krypton.Toolkit.KryptonLabel();
+            this.btnGetEndoscopeWashTime = new ComponentFactory.Krypton.Toolkit.KryptonButton();
+            this.cmbEndoscopeCode = new ComponentFactory.Krypton.Toolkit.KryptonComboBox();
             this.records = new ComponentFactory.Krypton.Toolkit.KryptonGroupBox();
             this.lstRecords = new ComponentFactory.Krypton.Toolkit.KryptonListBox();
             this.menuList = new System.Windows.Forms.MenuStrip();
@@ -62,19 +75,6 @@
             this.verifyHisDbConnection = new System.Windows.Forms.ToolStripMenuItem();
             this.verifyMallDbConnection = new System.Windows.Forms.ToolStripMenuItem();
             this.setWardName = new System.Windows.Forms.ToolStripMenuItem();
-            this.kryptonLabel3 = new ComponentFactory.Krypton.Toolkit.KryptonLabel();
-            this.kryptonLabel4 = new ComponentFactory.Krypton.Toolkit.KryptonLabel();
-            this.txtPatientAge = new ComponentFactory.Krypton.Toolkit.KryptonTextBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.comboBoxSex = new ComponentFactory.Krypton.Toolkit.KryptonComboBox();
-            this.cmbDoctorsNames = new ComponentFactory.Krypton.Toolkit.KryptonComboBox();
-            this.cmbNurseNames = new ComponentFactory.Krypton.Toolkit.KryptonComboBox();
-            this.cmbEndoscopeCode = new ComponentFactory.Krypton.Toolkit.KryptonComboBox();
-            this.btnGetEndoscopeWashTime = new ComponentFactory.Krypton.Toolkit.KryptonButton();
-            this.btnGetPatient = new ComponentFactory.Krypton.Toolkit.KryptonButton();
-            this.patientCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.mainPanel)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.mainPanel.Panel)).BeginInit();
             this.mainPanel.Panel.SuspendLayout();
@@ -97,22 +97,22 @@
             this.detailsPanel.Panel.SuspendLayout();
             this.detailsPanel.SuspendLayout();
             this.labelLaout.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox9)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox8)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox7)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.records)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.records.Panel)).BeginInit();
-            this.records.Panel.SuspendLayout();
-            this.records.SuspendLayout();
-            this.menuList.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.comboBoxSex)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cmbDoctorsNames)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cmbNurseNames)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cmbEndoscopeCode)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.records)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.records.Panel)).BeginInit();
+            this.records.Panel.SuspendLayout();
+            this.records.SuspendLayout();
+            this.menuList.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainPanel
@@ -154,36 +154,49 @@
             // 
             // patientListDataView
             // 
+            this.patientListDataView.AllowUserToAddRows = false;
             this.patientListDataView.AllowUserToDeleteRows = false;
             this.patientListDataView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.patientListDataView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.patientCode,
             this.name});
             this.patientListDataView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.patientListDataView.Location = new System.Drawing.Point(0, 31);
+            this.patientListDataView.Location = new System.Drawing.Point(0, 27);
             this.patientListDataView.Name = "patientListDataView";
             this.patientListDataView.ReadOnly = true;
-            this.patientListDataView.Size = new System.Drawing.Size(256, 484);
+            this.patientListDataView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.patientListDataView.Size = new System.Drawing.Size(256, 488);
             this.patientListDataView.StateCommon.BackStyle = ComponentFactory.Krypton.Toolkit.PaletteBackStyle.GridBackgroundList;
             this.patientListDataView.StateCommon.DataCell.Border.DrawBorders = ((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders)((((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Top | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Bottom) 
             | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Left) 
             | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Right)));
             this.patientListDataView.StateCommon.DataCell.Border.Rounding = 3;
-            this.patientListDataView.StateCommon.DataCell.Border.Width = 3;
             this.patientListDataView.TabIndex = 7;
             this.patientListDataView.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.patientListDataView_RowPostPaint);
+            // 
+            // patientCode
+            // 
+            this.patientCode.HeaderText = "病人编码";
+            this.patientCode.Name = "patientCode";
+            this.patientCode.ReadOnly = true;
+            // 
+            // name
+            // 
+            this.name.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.name.HeaderText = "病人名";
+            this.name.Name = "name";
+            this.name.ReadOnly = true;
             // 
             // patientListHeader
             // 
             this.patientListHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.patientListHeader.Location = new System.Drawing.Point(0, 0);
             this.patientListHeader.Name = "patientListHeader";
-            this.patientListHeader.Size = new System.Drawing.Size(256, 31);
+            this.patientListHeader.Size = new System.Drawing.Size(256, 27);
             this.patientListHeader.StateCommon.Border.DrawBorders = ((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders)((((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Top | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Bottom) 
             | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Left) 
             | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Right)));
             this.patientListHeader.StateCommon.Border.Rounding = 3;
-            this.patientListHeader.StateCommon.Border.Width = 3;
             this.patientListHeader.StateCommon.Content.ShortText.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.patientListHeader.TabIndex = 8;
             this.patientListHeader.Values.Description = "序号 | 名字";
@@ -286,6 +299,52 @@
             this.labelLaout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.labelLaout.Size = new System.Drawing.Size(453, 382);
             this.labelLaout.TabIndex = 1;
+            // 
+            // btnGetPatient
+            // 
+            this.btnGetPatient.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.btnGetPatient.Location = new System.Drawing.Point(293, 42);
+            this.btnGetPatient.Name = "btnGetPatient";
+            this.btnGetPatient.Size = new System.Drawing.Size(114, 29);
+            this.btnGetPatient.StateCommon.Content.ShortText.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnGetPatient.TabIndex = 43;
+            this.btnGetPatient.Values.Text = "获取病人信息";
+            this.btnGetPatient.Click += new System.EventHandler(this.btnGetPatient_Click);
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox1.Image = global::TracePatient.Properties.Resources.necessary;
+            this.pictureBox1.Location = new System.Drawing.Point(93, 117);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(14, 32);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 36;
+            this.pictureBox1.TabStop = false;
+            // 
+            // kryptonLabel4
+            // 
+            this.kryptonLabel4.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.kryptonLabel4.ImeMode = System.Windows.Forms.ImeMode.HangulFull;
+            this.kryptonLabel4.LabelStyle = ComponentFactory.Krypton.Toolkit.LabelStyle.BoldPanel;
+            this.kryptonLabel4.Location = new System.Drawing.Point(3, 161);
+            this.kryptonLabel4.Name = "kryptonLabel4";
+            this.kryptonLabel4.Size = new System.Drawing.Size(55, 19);
+            this.kryptonLabel4.StateCommon.ShortText.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.kryptonLabel4.TabIndex = 9;
+            this.kryptonLabel4.Values.Text = "年龄：";
+            // 
+            // kryptonLabel3
+            // 
+            this.kryptonLabel3.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.kryptonLabel3.ImeMode = System.Windows.Forms.ImeMode.HangulFull;
+            this.kryptonLabel3.LabelStyle = ComponentFactory.Krypton.Toolkit.LabelStyle.BoldPanel;
+            this.kryptonLabel3.Location = new System.Drawing.Point(3, 123);
+            this.kryptonLabel3.Name = "kryptonLabel3";
+            this.kryptonLabel3.Size = new System.Drawing.Size(84, 19);
+            this.kryptonLabel3.StateCommon.ShortText.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.kryptonLabel3.TabIndex = 9;
+            this.kryptonLabel3.Values.Text = "病人性别：";
             // 
             // pictureBox9
             // 
@@ -488,21 +547,93 @@
             this.btnMakeSureAndRecord.Values.Text = "确认";
             this.btnMakeSureAndRecord.Click += new System.EventHandler(this.btnMakeSureAndRecord_Click);
             // 
+            // txtPatientAge
+            // 
+            this.txtPatientAge.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.txtPatientAge.Location = new System.Drawing.Point(113, 160);
+            this.txtPatientAge.Name = "txtPatientAge";
+            this.txtPatientAge.Size = new System.Drawing.Size(174, 21);
+            this.txtPatientAge.StateCommon.Border.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.txtPatientAge.StateCommon.Border.DrawBorders = ((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders)((((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Top | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Bottom) 
+            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Left) 
+            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Right)));
+            this.txtPatientAge.StateCommon.Border.Rounding = 4;
+            this.txtPatientAge.StateCommon.Content.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtPatientAge.TabIndex = 35;
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox2.Image = global::TracePatient.Properties.Resources.necessary;
+            this.pictureBox2.Location = new System.Drawing.Point(93, 155);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(14, 32);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox2.TabIndex = 37;
+            this.pictureBox2.TabStop = false;
+            // 
+            // comboBoxSex
+            // 
+            this.comboBoxSex.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.comboBoxSex.DropDownWidth = 172;
+            this.comboBoxSex.Items.AddRange(new object[] {
+            "男",
+            "女"});
+            this.comboBoxSex.Location = new System.Drawing.Point(113, 121);
+            this.comboBoxSex.Name = "comboBoxSex";
+            this.comboBoxSex.Size = new System.Drawing.Size(174, 23);
+            this.comboBoxSex.StateCommon.ComboBox.Border.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.comboBoxSex.StateCommon.ComboBox.Border.DrawBorders = ((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders)((((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Top | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Bottom) 
+            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Left) 
+            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Right)));
+            this.comboBoxSex.StateCommon.ComboBox.Border.Rounding = 4;
+            this.comboBoxSex.TabIndex = 38;
+            // 
+            // cmbDoctorsNames
+            // 
+            this.cmbDoctorsNames.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.cmbDoctorsNames.DropDownWidth = 172;
+            this.cmbDoctorsNames.Location = new System.Drawing.Point(113, 197);
+            this.cmbDoctorsNames.Name = "cmbDoctorsNames";
+            this.cmbDoctorsNames.Size = new System.Drawing.Size(174, 23);
+            this.cmbDoctorsNames.StateCommon.ComboBox.Border.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.cmbDoctorsNames.StateCommon.ComboBox.Border.DrawBorders = ((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders)((((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Top | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Bottom) 
+            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Left) 
+            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Right)));
+            this.cmbDoctorsNames.StateCommon.ComboBox.Border.Rounding = 4;
+            this.cmbDoctorsNames.TabIndex = 39;
+            // 
+            // cmbNurseNames
+            // 
+            this.cmbNurseNames.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.cmbNurseNames.DropDownWidth = 172;
+            this.cmbNurseNames.Location = new System.Drawing.Point(113, 235);
+            this.cmbNurseNames.Name = "cmbNurseNames";
+            this.cmbNurseNames.Size = new System.Drawing.Size(174, 23);
+            this.cmbNurseNames.StateCommon.ComboBox.Border.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.cmbNurseNames.StateCommon.ComboBox.Border.DrawBorders = ((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders)((((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Top | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Bottom) 
+            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Left) 
+            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Right)));
+            this.cmbNurseNames.StateCommon.ComboBox.Border.Rounding = 4;
+            this.cmbNurseNames.TabIndex = 40;
+            // 
             // labEndoscopeCleanEndTime
             // 
-            this.labEndoscopeCleanEndTime.Location = new System.Drawing.Point(293, 155);
+            this.labEndoscopeCleanEndTime.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labEndoscopeCleanEndTime.Location = new System.Drawing.Point(293, 161);
             this.labEndoscopeCleanEndTime.Name = "labEndoscopeCleanEndTime";
-            this.labEndoscopeCleanEndTime.Size = new System.Drawing.Size(157, 18);
-            this.labEndoscopeCleanEndTime.StateCommon.ShortText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labEndoscopeCleanEndTime.Size = new System.Drawing.Size(157, 19);
+            this.labEndoscopeCleanEndTime.StateCommon.ShortText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labEndoscopeCleanEndTime.TabIndex = 22;
             this.labEndoscopeCleanEndTime.Values.Text = "结束：2015-11-29 10:11:12";
             // 
             // labEndoscopeCleanBeginTime
             // 
-            this.labEndoscopeCleanBeginTime.Location = new System.Drawing.Point(293, 117);
+            this.labEndoscopeCleanBeginTime.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labEndoscopeCleanBeginTime.Location = new System.Drawing.Point(293, 123);
             this.labEndoscopeCleanBeginTime.Name = "labEndoscopeCleanBeginTime";
-            this.labEndoscopeCleanBeginTime.Size = new System.Drawing.Size(157, 18);
-            this.labEndoscopeCleanBeginTime.StateCommon.ShortText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labEndoscopeCleanBeginTime.Size = new System.Drawing.Size(157, 19);
+            this.labEndoscopeCleanBeginTime.StateCommon.ShortText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labEndoscopeCleanBeginTime.TabIndex = 21;
             this.labEndoscopeCleanBeginTime.Values.Text = "开始：2015-11-29 09:01:11";
             // 
@@ -515,6 +646,32 @@
             this.kryptonLabel2.StateCommon.ShortText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.kryptonLabel2.TabIndex = 28;
             this.kryptonLabel2.Values.Text = "内镜清洗状态";
+            // 
+            // btnGetEndoscopeWashTime
+            // 
+            this.btnGetEndoscopeWashTime.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.btnGetEndoscopeWashTime.Location = new System.Drawing.Point(293, 4);
+            this.btnGetEndoscopeWashTime.Name = "btnGetEndoscopeWashTime";
+            this.btnGetEndoscopeWashTime.Size = new System.Drawing.Size(114, 29);
+            this.btnGetEndoscopeWashTime.StateCommon.Content.ShortText.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnGetEndoscopeWashTime.TabIndex = 42;
+            this.btnGetEndoscopeWashTime.Values.Text = "获取内镜信息";
+            this.btnGetEndoscopeWashTime.Click += new System.EventHandler(this.btnGetEndoscopeWashTime_Click);
+            // 
+            // cmbEndoscopeCode
+            // 
+            this.cmbEndoscopeCode.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.cmbEndoscopeCode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbEndoscopeCode.DropDownWidth = 172;
+            this.cmbEndoscopeCode.Location = new System.Drawing.Point(113, 7);
+            this.cmbEndoscopeCode.Name = "cmbEndoscopeCode";
+            this.cmbEndoscopeCode.Size = new System.Drawing.Size(174, 23);
+            this.cmbEndoscopeCode.StateCommon.ComboBox.Border.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.cmbEndoscopeCode.StateCommon.ComboBox.Border.DrawBorders = ((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders)((((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Top | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Bottom) 
+            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Left) 
+            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Right)));
+            this.cmbEndoscopeCode.StateCommon.ComboBox.Border.Rounding = 4;
+            this.cmbEndoscopeCode.TabIndex = 41;
             // 
             // records
             // 
@@ -538,7 +695,6 @@
             this.lstRecords.Name = "lstRecords";
             this.lstRecords.Size = new System.Drawing.Size(457, 77);
             this.lstRecords.StateCommon.Item.Content.ShortText.Color1 = System.Drawing.Color.Green;
-            this.lstRecords.StateCommon.Item.Content.ShortText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lstRecords.TabIndex = 1;
             // 
             // menuList
@@ -560,8 +716,8 @@
             this.verifyHisDbConnection,
             this.verifyMallDbConnection});
             this.verifyConnectionDataBase.Name = "verifyConnectionDataBase";
-            this.verifyConnectionDataBase.Size = new System.Drawing.Size(103, 20);
-            this.verifyConnectionDataBase.Text = "验证数据库连接";
+            this.verifyConnectionDataBase.Size = new System.Drawing.Size(119, 20);
+            this.verifyConnectionDataBase.Text = "验证数据库连接(&D)";
             this.verifyConnectionDataBase.Click += new System.EventHandler(this.verifyConnectionDataBase_Click);
             // 
             // verifyHisDbConnection
@@ -581,169 +737,9 @@
             // setWardName
             // 
             this.setWardName.Name = "setWardName";
-            this.setWardName.Size = new System.Drawing.Size(91, 20);
-            this.setWardName.Text = "设置当前诊室";
+            this.setWardName.Size = new System.Drawing.Size(107, 20);
+            this.setWardName.Text = "设置当前诊室(&C)";
             this.setWardName.Click += new System.EventHandler(this.setWardName_Click);
-            // 
-            // kryptonLabel3
-            // 
-            this.kryptonLabel3.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.kryptonLabel3.ImeMode = System.Windows.Forms.ImeMode.HangulFull;
-            this.kryptonLabel3.LabelStyle = ComponentFactory.Krypton.Toolkit.LabelStyle.BoldPanel;
-            this.kryptonLabel3.Location = new System.Drawing.Point(3, 123);
-            this.kryptonLabel3.Name = "kryptonLabel3";
-            this.kryptonLabel3.Size = new System.Drawing.Size(84, 19);
-            this.kryptonLabel3.StateCommon.ShortText.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.kryptonLabel3.TabIndex = 9;
-            this.kryptonLabel3.Values.Text = "病人性别：";
-            // 
-            // kryptonLabel4
-            // 
-            this.kryptonLabel4.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.kryptonLabel4.ImeMode = System.Windows.Forms.ImeMode.HangulFull;
-            this.kryptonLabel4.LabelStyle = ComponentFactory.Krypton.Toolkit.LabelStyle.BoldPanel;
-            this.kryptonLabel4.Location = new System.Drawing.Point(3, 161);
-            this.kryptonLabel4.Name = "kryptonLabel4";
-            this.kryptonLabel4.Size = new System.Drawing.Size(55, 19);
-            this.kryptonLabel4.StateCommon.ShortText.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.kryptonLabel4.TabIndex = 9;
-            this.kryptonLabel4.Values.Text = "年龄：";
-            // 
-            // txtPatientAge
-            // 
-            this.txtPatientAge.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.txtPatientAge.Location = new System.Drawing.Point(113, 160);
-            this.txtPatientAge.Name = "txtPatientAge";
-            this.txtPatientAge.Size = new System.Drawing.Size(174, 21);
-            this.txtPatientAge.StateCommon.Border.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.txtPatientAge.StateCommon.Border.DrawBorders = ((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders)((((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Top | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Bottom) 
-            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Left) 
-            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.txtPatientAge.StateCommon.Border.Rounding = 4;
-            this.txtPatientAge.StateCommon.Content.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtPatientAge.TabIndex = 35;
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Image = global::TracePatient.Properties.Resources.necessary;
-            this.pictureBox1.Location = new System.Drawing.Point(93, 117);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(14, 32);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 36;
-            this.pictureBox1.TabStop = false;
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox2.Image = global::TracePatient.Properties.Resources.necessary;
-            this.pictureBox2.Location = new System.Drawing.Point(93, 155);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(14, 32);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox2.TabIndex = 37;
-            this.pictureBox2.TabStop = false;
-            // 
-            // comboBoxSex
-            // 
-            this.comboBoxSex.DropDownWidth = 172;
-            this.comboBoxSex.Items.AddRange(new object[] {
-            "男",
-            "女"});
-            this.comboBoxSex.Location = new System.Drawing.Point(113, 117);
-            this.comboBoxSex.Name = "comboBoxSex";
-            this.comboBoxSex.Size = new System.Drawing.Size(174, 23);
-            this.comboBoxSex.StateCommon.ComboBox.Border.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.comboBoxSex.StateCommon.ComboBox.Border.DrawBorders = ((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders)((((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Top | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Bottom) 
-            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Left) 
-            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.comboBoxSex.StateCommon.ComboBox.Border.Rounding = 4;
-            this.comboBoxSex.TabIndex = 38;
-            // 
-            // cmbDoctorsNames
-            // 
-            this.cmbDoctorsNames.DropDownWidth = 172;
-            this.cmbDoctorsNames.Items.AddRange(new object[] {
-            "男",
-            "女"});
-            this.cmbDoctorsNames.Location = new System.Drawing.Point(113, 193);
-            this.cmbDoctorsNames.Name = "cmbDoctorsNames";
-            this.cmbDoctorsNames.Size = new System.Drawing.Size(174, 23);
-            this.cmbDoctorsNames.StateCommon.ComboBox.Border.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.cmbDoctorsNames.StateCommon.ComboBox.Border.DrawBorders = ((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders)((((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Top | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Bottom) 
-            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Left) 
-            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.cmbDoctorsNames.StateCommon.ComboBox.Border.Rounding = 4;
-            this.cmbDoctorsNames.TabIndex = 39;
-            // 
-            // cmbNurseNames
-            // 
-            this.cmbNurseNames.DropDownWidth = 172;
-            this.cmbNurseNames.Items.AddRange(new object[] {
-            "男",
-            "女"});
-            this.cmbNurseNames.Location = new System.Drawing.Point(113, 231);
-            this.cmbNurseNames.Name = "cmbNurseNames";
-            this.cmbNurseNames.Size = new System.Drawing.Size(174, 23);
-            this.cmbNurseNames.StateCommon.ComboBox.Border.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.cmbNurseNames.StateCommon.ComboBox.Border.DrawBorders = ((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders)((((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Top | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Bottom) 
-            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Left) 
-            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.cmbNurseNames.StateCommon.ComboBox.Border.Rounding = 4;
-            this.cmbNurseNames.TabIndex = 40;
-            // 
-            // cmbEndoscopeCode
-            // 
-            this.cmbEndoscopeCode.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.cmbEndoscopeCode.DropDownWidth = 172;
-            this.cmbEndoscopeCode.Items.AddRange(new object[] {
-            "男",
-            "女"});
-            this.cmbEndoscopeCode.Location = new System.Drawing.Point(113, 7);
-            this.cmbEndoscopeCode.Name = "cmbEndoscopeCode";
-            this.cmbEndoscopeCode.Size = new System.Drawing.Size(174, 23);
-            this.cmbEndoscopeCode.StateCommon.ComboBox.Border.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.cmbEndoscopeCode.StateCommon.ComboBox.Border.DrawBorders = ((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders)((((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Top | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Bottom) 
-            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Left) 
-            | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.cmbEndoscopeCode.StateCommon.ComboBox.Border.Rounding = 4;
-            this.cmbEndoscopeCode.TabIndex = 41;
-            // 
-            // btnGetEndoscopeWashTime
-            // 
-            this.btnGetEndoscopeWashTime.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.btnGetEndoscopeWashTime.Location = new System.Drawing.Point(293, 4);
-            this.btnGetEndoscopeWashTime.Name = "btnGetEndoscopeWashTime";
-            this.btnGetEndoscopeWashTime.Size = new System.Drawing.Size(114, 29);
-            this.btnGetEndoscopeWashTime.StateCommon.Content.ShortText.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnGetEndoscopeWashTime.TabIndex = 42;
-            this.btnGetEndoscopeWashTime.Values.Text = "获取内镜信息";
-            this.btnGetEndoscopeWashTime.Click += new System.EventHandler(this.btnGetEndoscopeWashTime_Click);
-            // 
-            // btnGetPatient
-            // 
-            this.btnGetPatient.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.btnGetPatient.Location = new System.Drawing.Point(293, 42);
-            this.btnGetPatient.Name = "btnGetPatient";
-            this.btnGetPatient.Size = new System.Drawing.Size(114, 29);
-            this.btnGetPatient.StateCommon.Content.ShortText.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnGetPatient.TabIndex = 43;
-            this.btnGetPatient.Values.Text = "获取病人信息";
-            this.btnGetPatient.Click += new System.EventHandler(this.btnGetPatient_Click);
-            // 
-            // patientCode
-            // 
-            this.patientCode.HeaderText = "病人编码";
-            this.patientCode.Name = "patientCode";
-            this.patientCode.ReadOnly = true;
-            // 
-            // name
-            // 
-            this.name.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.name.HeaderText = "病人名";
-            this.name.Name = "name";
-            this.name.ReadOnly = true;
             // 
             // TracePatientForm
             // 
@@ -781,23 +777,23 @@
             this.detailsPanel.ResumeLayout(false);
             this.labelLaout.ResumeLayout(false);
             this.labelLaout.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox9)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox8)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox7)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.comboBoxSex)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cmbDoctorsNames)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cmbNurseNames)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cmbEndoscopeCode)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.records.Panel)).EndInit();
             this.records.Panel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.records)).EndInit();
             this.records.ResumeLayout(false);
             this.menuList.ResumeLayout(false);
             this.menuList.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.comboBoxSex)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cmbDoctorsNames)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cmbNurseNames)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cmbEndoscopeCode)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
